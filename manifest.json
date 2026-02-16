@@ -1,0 +1,27 @@
+{
+  "name": "Clubhouse Expense Tracker",
+  "short_name": "Clubhouse",
+  "description": "Track club expenses, contributions and sponsorships — no app store needed.",
+  "start_url": "https://venu342-kapila.github.io/Clubhouse/",
+  "scope": "/Clubhouse/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#1B5E20",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%231B5E20'/><text x='96' y='140' font-size='120' text-anchor='middle'>🏏</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='96' fill='%231B5E20'/><text x='256' y='380' font-size='300' text-anchor='middle'>🏏</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity"],
+  "prefer_related_applications": false
+}

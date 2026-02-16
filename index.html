@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#1B5E20" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Clubhouse" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231B5E20'/><text x='90' y='135' font-size='100' text-anchor='middle'>🏏</text></svg>" />
+<link rel="manifest" href="./manifest.json" />
+<title>Clubhouse — Expense Tracker</title>
+<style>
+  /* ── Reset & Base ── */
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root {
+    --primary: #1B5E20; --primary-light: #E8F5E9; --primary-dark: #0D3B13;
+    --danger: #D32F2F; --danger-light: #FFEBEE;
+    --warning: #F57F17; --warning-light: #FFF9C4;
+    --sponsor: #1565C0; --sponsor-light: #E3F2FD;
+    --pending: #E65100; --pending-light: #FFF3E0;
+    --bg: #F5F6F8; --card: #FFFFFF; --text: #1A1A1A; --text-secondary: #8A8A8A;
+    --border: #EBEBEB; --radius: 14px; --nav-height: 52px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100%; overflow-x: hidden; font-size: 14px; -webkit-font-smoothing: antialiased; }
+  input, select, button, textarea { font-family: inherit; font-size: 14px; }
+  input, select { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--card); outline: none; transition: border-color 0.2s; color: var(--text); }
+  input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(27,94,32,0.08); }
+  label { display: block; font-size: 11px; font-weight: 700; color: var(--text-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.6px; }
+
+  /* ── Mobile-first container ── */
+  .screen, #screen-app { max-width: 430px; margin: 0 auto; }
+  @media (min-width: 431px) {
+    body { background: #E8E8E8; }
+    .screen, #screen-app { box-shadow: 0 0 24px rgba(0,0,0,0.08); }
+    .bottom-nav { max-width: 430px; left: 50% !important; transform: translateX(-50%); }
+  }
+
+  /* ── Screens ── */
+  .screen { display: none; min-height: 100vh; min-height: 100dvh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── Loading Screen ── */
+  #screen-loading { justify-content: center; align-items: center; background: var(--primary); color: white; }
+  #screen-loading .logo { font-size: 48px; margin-bottom: 12px; }
+  #screen-loading h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.3px; }
+  .spinner-lg { width: 28px; height: 28px; border: 3px solid rgba(255,255,255,0.25); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; margin-top: 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Sign In Screen ── */
+  #screen-signin { justify-content: center; align-items: center; padding: 40px 28px; text-align: center; background: linear-gradient(160deg, #1B5E20 0%, #388E3C 50%, #43A047 100%); color: white; }
+  #screen-signin .logo { font-size: 56px; margin-bottom: 12px; }
+  #screen-signin h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.3px; }
+  #screen-signin p { font-size: 13px; opacity: 0.8; margin-bottom: 36px; line-height: 1.5; max-width: 280px; }
+  .google-btn { display: inline-flex; align-items: center; gap: 10px; background: white; color: #333; border: none; border-radius: 24px; padding: 12px 28px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,0.12); transition: transform 0.1s; }
+  .google-btn:active { transform: scale(0.96); }
+  .google-btn svg { width: 18px; height: 18px; }
+
+  /* ── Club List Screen ── */
+  #screen-clubs { padding: 0 0 20px 0; }
+  .clubs-header { background: var(--primary); color: white; padding: 18px 16px 14px; }
+  .clubs-header h1 { font-size: 20px; font-weight: 700; }
+  .clubs-header p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  .clubs-actions { display: flex; gap: 8px; padding: 12px 16px; }
+  .clubs-actions button { flex: 1; padding: 10px; border: 1.5px dashed var(--primary); background: var(--primary-light); color: var(--primary); border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .clubs-actions button:active { background: var(--primary); color: white; }
+  .club-list { padding: 0 16px; }
+  .club-card { background: var(--card); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.1s; display: flex; align-items: center; gap: 12px; }
+  .club-card:active { transform: scale(0.98); }
+  .club-avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+  .club-info { flex: 1; min-width: 0; }
+  .club-info h3 { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .club-info span { font-size: 11px; color: var(--text-secondary); }
+  .role-badge { font-size: 9px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 5px; }
+  .role-owner { background: var(--primary-light); color: var(--primary); }
+  .role-treasurer { background: var(--sponsor-light); color: var(--sponsor); }
+  .role-member { background: #F3F3F3; color: var(--text-secondary); }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--text-secondary); }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state h3 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+  .empty-state p { font-size: 13px; }
+  .clubs-footer { padding: 14px 16px; text-align: center; }
+  .clubs-footer button { background: none; border: none; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; padding: 6px 12px; }
+
+  /* ── Join Input ── */
+  .join-section { padding: 0 16px 12px; display: none; }
+  .join-section.show { display: block; }
+  .join-row { display: flex; gap: 8px; }
+  .join-row input { flex: 1; font-size: 13px; }
+  .join-row button { flex-shrink: 0; padding: 10px 16px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; }
+
+  /* ── Create Club Screen ── */
+  #screen-create { padding: 0; }
+  .form-header { background: var(--primary); color: white; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  .form-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 2px 4px; }
+  .form-header h2 { font-size: 16px; font-weight: 600; }
+  .form-body { padding: 20px 16px; }
+  .form-group { margin-bottom: 16px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; gap: 12px; }
+  .toggle-row .label { font-size: 14px; font-weight: 500; }
+  .toggle-row .sublabel { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
+  .toggle { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle .slider { position: absolute; inset: 0; background: #D0D0D0; border-radius: 26px; cursor: pointer; transition: 0.25s; }
+  .toggle .slider:before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .toggle input:checked + .slider { background: var(--primary); }
+  .toggle input:checked + .slider:before { transform: translateX(20px); }
+  .submit-btn { width: 100%; padding: 13px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .submit-btn:active:not(:disabled) { opacity: 0.85; }
+
+  /* ── Join Confirm Screen ── */
+  #screen-join { justify-content: center; align-items: center; padding: 32px; text-align: center; }
+  #screen-join .club-preview { background: var(--card); border-radius: 16px; padding: 32px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); max-width: 340px; width: 100%; }
+  #screen-join .club-preview .icon { font-size: 44px; margin-bottom: 10px; }
+  #screen-join .club-preview h2 { font-size: 18px; margin-bottom: 4px; }
+  #screen-join .club-preview p { color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row button { flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; }
+  .btn-cancel { background: #F0F0F0; color: var(--text); }
+  .btn-confirm { background: var(--primary); color: white; }
+
+  /* ── Main App Screen ── */
+  #screen-app { padding: 0 0 calc(var(--nav-height) + var(--safe-bottom)) 0; }
+  .app-header { background: var(--primary); color: white; padding: 10px 14px; display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 100; }
+  .app-header .back-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; padding: 4px; }
+  .app-header h1 { flex: 1; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app-header .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; cursor: pointer; }
+  .app-header .user-avatar:active { background: rgba(255,255,255,0.35); }
+
+  /* ── Header Menu Panel ── */
+  .menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 300; display: none; }
+  .menu-overlay.show { display: block; }
+  .menu-panel { position: fixed; top: 0; right: 0; width: 280px; max-width: 85vw; height: 100%; background: var(--card); z-index: 310; box-shadow: -4px 0 20px rgba(0,0,0,0.12); transform: translateX(100%); transition: transform 0.25s ease; overflow-y: auto; padding-bottom: calc(var(--safe-bottom) + 16px); }
+  .menu-panel.show { transform: translateX(0); }
+  .menu-panel-header { background: var(--primary); color: white; padding: 18px 16px 14px; }
+  .menu-panel-header .mp-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .menu-panel-header .mp-email { font-size: 11px; opacity: 0.75; }
+  .menu-panel-header .mp-close { position: absolute; top: 14px; right: 12px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 4px; opacity: 0.8; }
+  .menu-group { padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .menu-group:last-child { border-bottom: none; }
+  .menu-group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); padding: 8px 16px 4px; }
+  .menu-item { display: flex; align-items: center; gap: 10px; padding: 11px 16px; cursor: pointer; transition: background 0.1s; font-size: 14px; color: var(--text); }
+  .menu-item:active { background: #F5F5F5; }
+  .menu-item .menu-icon { font-size: 16px; width: 22px; text-align: center; }
+  .menu-item.danger { color: var(--danger); }
+
+  /* ── Tab Content ── */
+  .tab-content { display: none; padding: 12px 14px; }
+  .tab-content.active { display: block; }
+
+  /* ── Dashboard ── */
+  .balance-card { background: linear-gradient(135deg, var(--primary) 0%, #2E7D32 100%); color: white; border-radius: var(--radius); padding: 18px 16px; margin-bottom: 10px; }
+  .balance-card .label { font-size: 11px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+  .balance-card .amount { font-size: 28px; font-weight: 800; margin: 4px 0; letter-spacing: -0.5px; }
+  .balance-card .sub { font-size: 11px; opacity: 0.65; }
+  .pending-card { background: var(--pending-light); border: 1.5px solid var(--pending); border-radius: 12px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .pending-card .icon { font-size: 22px; }
+  .pending-card .info { flex: 1; }
+  .pending-card .info .amount { font-size: 17px; font-weight: 700; color: var(--pending); }
+  .pending-card .info .label { font-size: 11px; color: var(--text-secondary); }
+  .summary-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .summary-item { flex: 1; background: var(--card); border-radius: 10px; padding: 12px 10px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .summary-item .val { font-size: 16px; font-weight: 700; }
+  .summary-item .lbl { font-size: 10px; color: var(--text-secondary); margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+  .summary-item.contribution .val { color: var(--primary); }
+  .summary-item.sponsorship .val { color: var(--sponsor); }
+  .summary-item.expense .val { color: var(--danger); }
+  .section-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+
+  /* ── Transaction Items ── */
+  .tx-list { display: flex; flex-direction: column; gap: 6px; }
+  .tx-item { background: var(--card); border-radius: 12px; padding: 11px 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 10px; position: relative; }
+  .tx-item.pending { border-left: 3px solid var(--pending); }
+  .tx-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+  .tx-icon.expense { background: var(--danger-light); }
+  .tx-icon.contribution { background: var(--primary-light); }
+  .tx-icon.sponsorship { background: var(--sponsor-light); }
+  .tx-details { flex: 1; min-width: 0; }
+  .tx-details .desc { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-details .meta { font-size: 10px; color: var(--text-secondary); margin-top: 1px; }
+  .tx-amount { text-align: right; flex-shrink: 0; }
+  .tx-amount .val { font-size: 13px; font-weight: 700; }
+  .tx-amount .status { font-size: 9px; margin-top: 1px; }
+  .tx-amount .val.expense { color: var(--danger); }
+  .tx-amount .val.contribution { color: var(--primary); }
+  .tx-amount .val.sponsorship { color: var(--sponsor); }
+  .tx-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .tx-actions button { padding: 5px 12px; border-radius: 7px; border: none; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .btn-approve { background: var(--primary-light); color: var(--primary); }
+  .btn-reject { background: var(--danger-light); color: var(--danger); }
+  .btn-approve:active { background: var(--primary); color: white; }
+  .btn-reject:active { background: var(--danger); color: white; }
+  .tx-delete { position: absolute; top: 6px; right: 6px; background: none; border: none; color: #ccc; font-size: 14px; cursor: pointer; display: none; padding: 4px; }
+  .tx-item:hover .tx-delete { display: block; }
+  @media (pointer: coarse) { .tx-delete { display: block; } }
+
+  /* Multi-select */
+  .history-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .select-toggle { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text-secondary); }
+  .select-toggle.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+  .tx-checkbox { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; margin-right: 2px; }
+  .tx-item.selected { background: #E3F2FD; }
+  .bulk-bar { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); background: var(--card); border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); padding: 10px 16px; display: flex; align-items: center; gap: 12px; z-index: 100; max-width: 400px; width: calc(100% - 32px); }
+  .bulk-bar .bulk-count { font-size: 13px; font-weight: 600; flex: 1; }
+  .bulk-bar .bulk-delete { background: var(--danger); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .bulk-bar .bulk-deselect { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; color: var(--text-secondary); }
+  .bulk-bar .bulk-selall { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; color: var(--text-secondary); }
+
+  /* ── Record Form ── */
+  .type-selector { display: flex; gap: 6px; margin-bottom: 16px; }
+  .type-btn { flex: 1; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--card); text-align: center; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .type-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  .type-btn .emoji { font-size: 18px; display: block; margin-bottom: 2px; }
+
+  /* ── Search & Filter ── */
+  .search-box { margin-bottom: 10px; }
+  .search-box input { padding-left: 34px; font-size: 13px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23AAA'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 10px center; background-size: 16px; }
+  .filter-row { display: flex; gap: 5px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .chip { padding: 6px 12px; border-radius: 18px; border: 1px solid var(--border); background: var(--card); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .chip .badge { background: var(--pending); color: white; border-radius: 8px; padding: 1px 5px; font-size: 9px; margin-left: 3px; }
+
+  /* ── More Tab ── */
+  .more-section { background: var(--card); border-radius: 12px; margin-bottom: 10px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+  .more-section .section-header { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); padding: 12px 14px 6px; }
+  .more-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-top: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+  .more-item:first-child, .more-item:nth-child(2) { border-top: none; }
+  .more-item:active { background: #F8F8F8; }
+  .more-item .mi-icon { font-size: 18px; width: 24px; text-align: center; }
+  .more-item .mi-label { flex: 1; font-size: 14px; }
+  .more-item .mi-arrow { color: #D0D0D0; font-size: 16px; }
+  .more-item.danger .mi-label { color: var(--danger); }
+
+  /* ── Member List ── */
+  .member-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .member-item:last-child { border-bottom: none; }
+  .member-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .member-info { flex: 1; min-width: 0; }
+  .member-info .name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .member-info .email { font-size: 10px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .member-stats { display: flex; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+  .member-stats .ms { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+  .member-stats .ms.contrib { background: #E8F5E9; color: #2E7D32; }
+  .member-stats .ms.expense { background: #FFEBEE; color: #C62828; }
+  .member-stats .ms.sponsor { background: #FFF3E0; color: #E65100; }
+  .member-role-select { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); font-size: 11px; width: auto; }
+
+  /* ── Bottom Nav ── */
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: calc(var(--nav-height) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: var(--card); display: flex; border-top: 1px solid var(--border); z-index: 200; }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; color: var(--text-secondary); transition: color 0.15s; border: none; background: none; font-size: 10px; font-weight: 500; padding: 0; }
+  .nav-item .ni-icon { font-size: 20px; line-height: 1; }
+  .nav-item.active { color: var(--primary); font-weight: 600; }
+
+  /* ── Modal ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; display: none; justify-content: center; align-items: flex-end; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--card); border-radius: 16px 16px 0 0; width: 100%; max-width: 430px; max-height: 80vh; overflow-y: auto; padding: 16px; animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 36px; height: 4px; background: #DDD; border-radius: 2px; margin: 0 auto 14px; }
+  .modal h2 { font-size: 16px; margin-bottom: 14px; }
+
+  /* ── Toast ── */
+  .toast { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 8px); left: 50%; transform: translateX(-50%); background: rgba(30,30,30,0.92); color: white; padding: 10px 20px; border-radius: 10px; font-size: 13px; z-index: 9999; opacity: 0; transition: opacity 0.25s; pointer-events: none; max-width: 85%; text-align: center; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .toast.show { opacity: 1; }
+  .toast.error { background: rgba(211,47,47,0.92); }
+  .toast.success { background: rgba(27,94,32,0.92); }
+
+  /* ── Utilities ── */
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; }
+  .hidden { display: none !important; }
+  .text-center { text-align: center; }
+  .mt-16 { margin-top: 16px; }
+  .mb-16 { margin-bottom: 16px; }
+  .export-link { display: inline-block; font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; padding: 4px 0; cursor: pointer; }
+
+  /* ── Logo Upload ── */
+  .logo-upload { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 16px; }
+  .logo-preview { width: 72px; height: 72px; border-radius: 14px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; border: 2px dashed var(--border); transition: border-color 0.2s; }
+  .logo-preview:active { border-color: var(--primary); }
+  .logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .logo-preview .placeholder { text-align: center; line-height: 1.3; font-size: 10px; font-weight: 600; color: var(--text-secondary); }
+  .logo-upload-hint { font-size: 11px; color: var(--text-secondary); }
+  .club-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+  .app-header .club-logo { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+  .view-as-banner { background: var(--warning-light); border: 1px solid var(--warning); border-radius: 8px; padding: 8px 12px; margin: 8px 14px 0; font-size: 12px; color: #5D4037; display: flex; align-items: center; justify-content: space-between; }
+  .view-as-banner button { background: var(--warning); color: white; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .add-member-form { display: flex; gap: 8px; padding: 8px 14px 12px; }
+  .add-member-form input { flex: 1; font-size: 13px; }
+  .add-member-form button { flex-shrink: 0; padding: 10px 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 12px; cursor: pointer; }
+  .pending-invite-item { display: flex; align-items: center; gap: 8px; padding: 6px 14px; font-size: 12px; color: var(--text-secondary); }
+  .pending-invite-item .pi-email { flex: 1; }
+  .pending-invite-item .pi-remove { background: none; border: none; color: #ccc; cursor: pointer; font-size: 14px; padding: 2px; }
+  .section-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .section-row .section-title { margin-bottom: 0; }
+</style>
+</head>
+<body>
+
+<!-- ── Loading Screen ── -->
+<div id="screen-loading" class="screen active">
+  <div class="logo">💰</div>
+  <h1>Club Expense Tracker</h1>
+  <div class="spinner-lg"></div>
+</div>
+
+<!-- ── Sign In Screen ── -->
+<div id="screen-signin" class="screen">
+  <div class="logo">💰</div>
+  <h1>Club Expense Tracker</h1>
+  <p>Free expense tracking for any club or team.<br>Track contributions, expenses, sponsorships — together.</p>
+  <button class="google-btn" onclick="signIn()">
+    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.998 23.998 0 000 24c0 3.77.9 7.35 2.56 10.53l7.97-5.94z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.94C6.51 42.62 14.62 48 24 48z"/></svg>
+    Sign in with Google
+  </button>
+</div>
+
+<!-- ── Club List Screen ── -->
+<div id="screen-clubs" class="screen">
+  <div class="clubs-header">
+    <h1>My Clubs</h1>
+    <p id="userGreeting"></p>
+  </div>
+  <div class="clubs-actions">
+    <button onclick="showScreen('create')">+ Create Club</button>
+    <button onclick="toggleJoinSection()">🔗 Join Club</button>
+  </div>
+  <div class="join-section" id="joinSection">
+    <label>Paste invite link or Club ID</label>
+    <div class="join-row">
+      <input type="text" id="joinInput" placeholder="https://... or Club ID" />
+      <button onclick="handleJoinInput()">Join</button>
+    </div>
+  </div>
+  <div class="club-list" id="clubList"></div>
+  <div class="clubs-footer">
+    <button onclick="signOut()">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── Create Club Screen ── -->
+<div id="screen-create" class="screen">
+  <div class="form-header">
+    <button onclick="showScreen('clubs')">←</button>
+    <h2>Create New Club</h2>
+  </div>
+  <div class="form-body">
+    <div class="logo-upload">
+      <div class="logo-preview" id="createLogoPreview" onclick="document.getElementById('createLogoInput').click()">
+        <div class="placeholder">📷<br>Logo</div>
+      </div>
+      <input type="file" id="createLogoInput" accept="image/*" style="display:none" onchange="handleLogoSelect(this,'createLogoPreview','create')" />
+      <div class="logo-upload-hint">Tap to upload club logo (optional)</div>
+    </div>
+    <div class="form-group">
+      <label>Club Name</label>
+      <input type="text" id="createClubName" placeholder="e.g. Samurai Cricket Club" maxlength="60" />
+    </div>
+    <div class="form-group">
+      <label>Currency Symbol</label>
+      <input type="text" id="createClubCurrency" placeholder="₹" value="₹" maxlength="3" style="width:80px;" />
+    </div>
+    <div class="form-group">
+      <div class="toggle-row">
+        <div>
+          <div class="label">Approval Workflow</div>
+          <div class="sublabel">Treasurer must approve member transactions before they count toward the balance</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="createRequireApproval" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <button class="submit-btn" id="createClubBtn" onclick="createClub()">Create Club</button>
+  </div>
+</div>
+
+<!-- ── Join Confirm Screen ── -->
+<div id="screen-join" class="screen">
+  <div class="club-preview">
+    <div class="icon">🤝</div>
+    <h2 id="joinClubName"></h2>
+    <p>You've been invited to join this club</p>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="showScreen('clubs');loadMyClubs();">Cancel</button>
+      <button class="btn-confirm" id="confirmJoinBtn" onclick="confirmJoin()">Join Club</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main App Screen ── -->
+<div id="screen-app" class="screen">
+  <div class="app-header">
+    <button class="back-btn" onclick="leaveClub()">←</button>
+    <img id="appClubLogo" class="club-logo hidden" src="" alt="" />
+    <h1 id="appClubName"></h1>
+    <div class="user-avatar" id="appUserAvatar" onclick="openMenu()"></div>
+  </div>
+  <div id="viewAsBanner" class="view-as-banner hidden">
+    <span>👁️ Previewing as <strong>Member</strong></span>
+    <button onclick="toggleViewAs()">Exit Preview</button>
+  </div>
+
+  <!-- Tab: Dashboard -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div id="balanceCard" class="balance-card">
+      <div class="label">Approved Balance</div>
+      <div class="amount" id="dashBalance">₹0</div>
+      <div class="sub" id="dashBalanceSub"></div>
+    </div>
+    <div id="pendingCard" class="pending-card hidden">
+      <div class="icon">⏳</div>
+      <div class="info">
+        <div class="amount" id="dashPending">₹0</div>
+        <div class="label" id="dashPendingLabel">pending approval</div>
+      </div>
+    </div>
+    <div class="summary-row">
+      <div class="summary-item contribution"><div class="val" id="dashContributions">₹0</div><div class="lbl">Contributions</div></div>
+      <div class="summary-item sponsorship"><div class="val" id="dashSponsorships">₹0</div><div class="lbl">Sponsorships</div></div>
+      <div class="summary-item expense"><div class="val" id="dashExpense">₹0</div><div class="lbl">Expenses</div></div>
+    </div>
+    <div class="section-row">
+      <div class="section-title">Recent Transactions</div>
+      <a href="#" class="export-link" onclick="showTab('history');return false;">See All ›</a>
+    </div>
+    <div class="tx-list" id="dashRecentTx"></div>
+  </div>
+
+  <!-- Tab: Record -->
+  <div id="tab-record" class="tab-content">
+    <div class="section-title">New Transaction</div>
+    <div class="type-selector">
+      <button class="type-btn active" data-type="contribution" onclick="selectType(this)">
+        <span class="emoji">💰</span> Contribution
+      </button>
+      <button class="type-btn" data-type="expense" onclick="selectType(this)">
+        <span class="emoji">🧾</span> Expense
+      </button>
+      <button class="type-btn" data-type="sponsorship" onclick="selectType(this)">
+        <span class="emoji">🤝</span> Sponsorship
+      </button>
+    </div>
+    <div class="form-group">
+      <label>Amount</label>
+      <input type="number" id="txAmount" placeholder="0.00" min="0" step="0.01" inputmode="decimal" />
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" id="txDescription" placeholder="What is this for?" maxlength="100" />
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="txCategory"></select>
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="txDate" />
+    </div>
+    <button class="submit-btn" id="submitTxBtn" onclick="submitTransaction()">Add Transaction</button>
+  </div>
+
+  <!-- Tab: History -->
+  <div id="tab-history" class="tab-content">
+    <div class="search-box">
+      <input type="text" id="historySearch" placeholder="Search transactions..." oninput="renderHistory()" />
+    </div>
+    <div class="filter-row" id="historyFilters">
+      <button class="chip active" data-filter="all" onclick="setHistoryFilter(this)">All</button>
+      <button class="chip" data-filter="pending" onclick="setHistoryFilter(this)" id="chipPending">⏳ Pending <span class="badge" id="pendingBadge">0</span></button>
+      <button class="chip" data-filter="contribution" onclick="setHistoryFilter(this)">💰</button>
+      <button class="chip" data-filter="expense" onclick="setHistoryFilter(this)">🧾</button>
+      <button class="chip" data-filter="sponsorship" onclick="setHistoryFilter(this)">🤝</button>
+    </div>
+    <div class="history-toolbar">
+      <a href="#" class="export-link" onclick="exportExcel();return false;">📥 Export to Excel</a>
+      <button class="select-toggle" id="selectToggleBtn" onclick="toggleSelectMode()" style="display:none;">☐ Select</button>
+    </div>
+    <div class="tx-list" id="historyTxList"></div>
+    <div class="bulk-bar" id="bulkBar" style="display:none;">
+      <span class="bulk-count" id="bulkCount">0 selected</span>
+      <button class="bulk-selall" onclick="selectAllTx()">All</button>
+      <button class="bulk-deselect" onclick="deselectAllTx()">None</button>
+      <button class="bulk-delete" onclick="deleteSelectedTx()">🗑 Delete</button>
+    </div>
+  </div>
+
+  <!-- Tab: Members -->
+  <div id="tab-members" class="tab-content">
+    <div class="section-title" style="margin-bottom:12px;">Members</div>
+    <div id="membersList" style="padding:0 0 12px;"></div>
+    <div id="addMemberSection" style="display:none;">
+      <div class="add-member-form">
+        <input type="email" id="addMemberEmail" placeholder="member@gmail.com" />
+        <button onclick="addMemberByEmail()">+ Add</button>
+      </div>
+      <div id="pendingInvitesList"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="submit-btn" onclick="copyInviteLink()" style="background:var(--primary-light);color:var(--primary);font-size:13px;padding:10px;">🔗 Invite Link</button>
+      <button class="submit-btn" onclick="copyClubId()" style="background:#F5F5F5;color:var(--text);font-size:13px;padding:10px;">🆔 Club ID</button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" onclick="showTab('dashboard')"><span class="ni-icon">📊</span>Dashboard</button>
+    <button class="nav-item" onclick="showTab('record')"><span class="ni-icon">➕</span>Record</button>
+    <button class="nav-item" onclick="showTab('members')"><span class="ni-icon">👥</span>Members</button>
+    <button class="nav-item" onclick="showTab('history')"><span class="ni-icon">📋</span>History</button>
+  </nav>
+</div>
+
+<!-- ── Side Menu Panel ── -->
+<div id="menuOverlay" class="menu-overlay" onclick="closeMenu()"></div>
+<div id="menuPanel" class="menu-panel">
+  <div class="menu-panel-header">
+    <button class="mp-close" onclick="closeMenu()">✕</button>
+    <div class="mp-name" id="menuUserName"></div>
+    <div class="mp-email" id="menuUserEmail"></div>
+  </div>
+
+  <div class="menu-group">
+    <div class="menu-item" onclick="copyClubId();closeMenu();">
+      <span class="menu-icon">🆔</span> Club ID: <span id="clubIdDisplay" style="font-family:monospace;font-size:11px;color:#888;margin-left:4px;"></span>
+    </div>
+    <div class="menu-item" onclick="copyInviteLink();closeMenu();">
+      <span class="menu-icon">🔗</span> Copy Invite Link
+    </div>
+  </div>
+
+  <div class="menu-group" id="menuSettingsGroup" style="display:none;">
+    <div class="menu-group-label">Admin</div>
+    <div class="menu-item" onclick="openSettingsModal();closeMenu();">
+      <span class="menu-icon">⚙️</span> Club Settings
+    </div>
+    <div class="menu-item" onclick="toggleViewAs();closeMenu();">
+      <span class="menu-icon">👁️</span> <span id="viewAsLabel">Preview as Member</span>
+    </div>
+    <div class="menu-item" id="menuImportItem" onclick="openImportModal();closeMenu();" style="display:none;">
+      <span class="menu-icon">📥</span> Import from V1
+    </div>
+  </div>
+
+  <div class="menu-group">
+    <div class="menu-group-label">Export</div>
+    <div class="menu-item" onclick="exportExcel();closeMenu();">
+      <span class="menu-icon">📊</span> Export to Excel
+    </div>
+    <div class="menu-item" onclick="exportJSON();closeMenu();">
+      <span class="menu-icon">📤</span> Export JSON Backup
+    </div>
+  </div>
+
+  <div class="menu-group">
+    <div class="menu-item" onclick="leaveClub();closeMenu();">
+      <span class="menu-icon">↩️</span> Back to My Clubs
+    </div>
+    <div class="menu-item danger" onclick="leaveThisClub();closeMenu();">
+      <span class="menu-icon">🚪</span> Leave Club
+    </div>
+    <div class="menu-item" onclick="signOut();closeMenu();">
+      <span class="menu-icon">🔒</span> Sign Out
+    </div>
+  </div>
+</div>
+
+<!-- ── Import V1 Modal ── -->
+<div id="importModal" class="modal-overlay" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>📥 Import from V1</h2>
+    <p style="font-size:12px;color:var(--text-secondary);margin:0 0 16px;">Import transactions from your V1 Google Sheets app into this club.</p>
+    <div class="form-group">
+      <label>V1 Apps Script URL</label>
+      <input type="url" id="importV1Url" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px;" />
+      <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">Paste the same URL used in your V1 app settings</div>
+    </div>
+    <div id="importPreview" style="display:none;">
+      <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Preview</div>
+        <div id="importPreviewStats" style="font-size:12px;color:var(--text-secondary);"></div>
+      </div>
+    </div>
+    <div id="importProgress" style="display:none;margin-bottom:16px;">
+      <div style="background:var(--border);border-radius:6px;height:8px;overflow:hidden;">
+        <div id="importProgressBar" style="background:var(--primary);height:100%;width:0%;transition:width 0.3s;"></div>
+      </div>
+      <div id="importProgressText" style="font-size:11px;color:var(--text-secondary);margin-top:4px;text-align:center;"></div>
+    </div>
+    <button class="submit-btn" id="importFetchBtn" onclick="fetchV1Data()" style="margin-bottom:8px;">Fetch V1 Data</button>
+    <button class="submit-btn" id="importRunBtn" onclick="runV1Import()" style="margin-bottom:8px;display:none;">Import All Transactions</button>
+    <button class="submit-btn" onclick="closeImportModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Settings Modal ── -->
+<div id="settingsModal" class="modal-overlay" onclick="if(event.target===this)closeSettingsModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>⚙️ Club Settings</h2>
+    <div class="logo-upload">
+      <div class="logo-preview" id="settingsLogoPreview" onclick="document.getElementById('settingsLogoInput').click()">
+        <div class="placeholder">📷<br>Logo</div>
+      </div>
+      <input type="file" id="settingsLogoInput" accept="image/*" style="display:none" onchange="handleLogoSelect(this,'settingsLogoPreview','settings')" />
+      <div class="logo-upload-hint">Tap to change club logo</div>
+    </div>
+    <div class="form-group">
+      <label>Club Name</label>
+      <input type="text" id="settingsClubName" maxlength="60" />
+    </div>
+    <div class="form-group">
+      <label>Currency Symbol</label>
+      <input type="text" id="settingsCurrency" maxlength="3" style="width:80px;" />
+    </div>
+    <div class="form-group">
+      <div class="toggle-row">
+        <div>
+          <div class="label">Approval Workflow</div>
+          <div class="sublabel">Require treasurer approval for member transactions</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="settingsApproval" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="saveClubSettings()" style="margin-bottom:12px;">Save Settings</button>
+    <button class="submit-btn" onclick="closeSettingsModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast" class="toast"></div>
+
+<!-- ── iOS Faux-Install Prompt ── -->
+<div id="pwaInstallPrompt" style="display:none">
+  <div class="pwa-prompt-card">
+    <div style="display:flex;gap:12px;align-items:center">
+      <div style="width:48px;height:48px;border-radius:12px;background:#1B5E20;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0">🏏</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:15px;color:#1A1A1A">Install Clubhouse</div>
+        <div style="font-size:12px;color:#888;margin-top:2px">Add to your Home Screen for the best experience</div>
+      </div>
+      <button onclick="dismissPwaPrompt()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div class="pwa-steps" id="pwaSteps"></div>
+    <button id="pwaShareBtn" class="pwa-share-btn" onclick="pwaShare()">Open Share Menu</button>
+  </div>
+</div>
+<style>
+  #pwaInstallPrompt{position:fixed;bottom:0;left:0;right:0;z-index:10000;padding:12px;animation:pwaSlide .35s ease-out}
+  .pwa-prompt-card{max-width:430px;margin:0 auto;background:#fff;border-radius:16px;padding:16px;box-shadow:0 -2px 24px rgba(0,0,0,.15)}
+  .pwa-steps{margin:14px 0 12px;padding:12px;background:#F5F6F8;border-radius:10px;font-size:13px;line-height:1.7;color:#444}
+  .pwa-steps b{color:#1A1A1A}
+  .pwa-share-btn{width:100%;padding:12px;border:none;border-radius:10px;background:#1B5E20;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+  @keyframes pwaSlide{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+
+<!-- ── Firebase SDK (compat — no bundler needed) ── -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // ═══════════════════════════════════════════════════════════
+  // ── Firebase Config ──
+  // ═══════════════════════════════════════════════════════════
+  const firebaseConfig = {
+    apiKey: "AIzaSyBSu_h8iKIHZEkY5XLtoiEhWpcQY81ucAg",
+    authDomain: "club-expense-tracking.firebaseapp.com",
+    projectId: "club-expense-tracking",
+    storageBucket: "club-expense-tracking.firebasestorage.app",
+    messagingSenderId: "281245643064",
+    appId: "1:281245643064:web:6677ac96778cebb26151cd",
+    measurementId: "G-KCN82WDWLE"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Enable offline persistence
+  db.enablePersistence({ synchronizeTabs: true }).catch(function(err) {
+    console.warn('Persistence not available:', err.code);
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // ── State ──
+  // ═══════════════════════════════════════════════════════════
+  var currentUser = null;
+  var currentClub = null; // { id, name, currency, requireApproval, categories, ... }
+  var transactions = [];
+  var members = [];
+  var myRole = null; // 'owner', 'treasurer', 'member'
+  var unsubs = []; // Firestore snapshot unsubscribers
+  var currentHistoryFilter = 'all';
+  var pendingJoinClubId = null;
+  var pendingLogoBase64 = null;
+  var viewingAs = null; // null = actual role; 'member' = preview as member
+
+  var DEFAULT_CATEGORIES = [
+    'Ground Fees', 'Equipment', 'Jerseys', 'Travel', 'Food & Drinks',
+    'Tournament Entry', 'Umpire Fees', 'Awards & Trophies',
+    'Monthly Dues', 'Match Day Collection', 'Sponsor Payment', 'Miscellaneous'
+  ];
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Auth ──
+  // ═══════════════════════════════════════════════════════════
+  auth.onAuthStateChanged(function(user) {
+    currentUser = user;
+    if (user) {
+      // Check for pending invites (added by treasurer via email)
+      checkPendingInvites(user).then(function() {
+        // Check for pending join from URL
+        var joinId = new URLSearchParams(window.location.search).get('join');
+        if (!joinId) joinId = sessionStorage.getItem('pendingJoin');
+        sessionStorage.removeItem('pendingJoin');
+
+        if (joinId) {
+          // Clean URL
+          history.replaceState(null, '', window.location.pathname);
+          handleJoinClub(joinId);
+        } else {
+          showScreen('clubs');
+          loadMyClubs();
+        }
+      });
+    } else {
+      // Check if there's a join param to save for after sign-in
+      var joinId = new URLSearchParams(window.location.search).get('join');
+      if (joinId) sessionStorage.setItem('pendingJoin', joinId);
+      showScreen('signin');
+    }
+  });
+
+  function signIn() {
+    var provider = new firebase.auth.GoogleAuthProvider();
+    var btn = document.querySelector('.google-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="border-color:rgba(0,0,0,0.15);border-top-color:#333;"></span> Signing in...';
+
+    auth.signInWithPopup(provider).catch(function(err) {
+      console.error('Sign-in error:', err.code, err.message);
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.998 23.998 0 000 24c0 3.77.9 7.35 2.56 10.53l7.97-5.94z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.94C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google';
+      if (err.code === 'auth/popup-closed-by-user') {
+        showToast('Sign-in cancelled', 'error');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        showToast('Add "localhost" to Firebase → Auth → Authorized domains', 'error');
+      } else if (err.code === 'auth/operation-not-supported-in-this-environment') {
+        showToast('Open via http://localhost:3456 — not file://', 'error');
+      } else {
+        showToast('Sign-in failed: ' + err.message, 'error');
+      }
+    });
+  }
+
+  function signOut() {
+    auth.signOut().then(function() {
+      currentUser = null;
+      currentClub = null;
+      transactions = [];
+      members = [];
+      unsubs.forEach(function(u) { u(); });
+      unsubs = [];
+      showScreen('signin');
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Club Management ──
+  // ═══════════════════════════════════════════════════════════
+  function loadMyClubs() {
+    document.getElementById('userGreeting').textContent = 'Hi, ' + (currentUser.displayName || currentUser.email);
+    var listEl = document.getElementById('clubList');
+    listEl.innerHTML = '<div class="text-center" style="padding:40px;color:var(--text-secondary);">Loading...</div>';
+
+    db.collection('users').doc(currentUser.uid).collection('clubs')
+      .get().then(function(snap) {
+        if (snap.empty) {
+          listEl.innerHTML = '<div class="empty-state"><div class="icon">🏟️</div><h3>No clubs yet</h3><p>Create a new club or join one with an invite link</p></div>';
+          return;
+        }
+        var html = '';
+        snap.docs.forEach(function(doc) {
+          var c = doc.data();
+          var initial = (c.clubName || '?').charAt(0).toUpperCase();
+          var roleClass = 'role-' + (c.role || 'member');
+          var avatarContent = c.logoBase64
+            ? '<img src="' + c.logoBase64 + '" alt="">'
+            : initial;
+          html += '<div class="club-card" onclick="enterClub(\'' + doc.id + '\')">';
+          html += '  <div class="club-avatar">' + avatarContent + '</div>';
+          html += '  <div class="club-info"><h3>' + escHtml(c.clubName || 'Unnamed') + '</h3>';
+          html += '    <span>' + (c.role || 'member') + '</span></div>';
+          html += '  <span class="role-badge ' + roleClass + '">' + (c.role || 'member') + '</span>';
+          html += '</div>';
+        });
+        listEl.innerHTML = html;
+      }).catch(function(err) {
+        listEl.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>Error loading clubs</h3><p>' + escHtml(err.message) + '</p></div>';
+      });
+  }
+
+  function createClub() {
+    var name = document.getElementById('createClubName').value.trim();
+    if (!name) { showToast('Enter a club name', 'error'); return; }
+    var currency = document.getElementById('createClubCurrency').value.trim() || '₹';
+    var requireApproval = document.getElementById('createRequireApproval').checked;
+
+    var btn = document.getElementById('createClubBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+    var batch = db.batch();
+    var clubRef = db.collection('clubs').doc();
+    var memberRef = clubRef.collection('members').doc(currentUser.uid);
+    var userClubRef = db.collection('users').doc(currentUser.uid).collection('clubs').doc(clubRef.id);
+
+    batch.set(clubRef, {
+      name: name,
+      currency: currency,
+      requireApproval: requireApproval,
+      categories: DEFAULT_CATEGORIES,
+      logoBase64: pendingLogoBase64 || null,
+      createdBy: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(memberRef, {
+      uid: currentUser.uid,
+      name: currentUser.displayName || currentUser.email,
+      email: currentUser.email,
+      role: 'owner',
+      joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    batch.set(userClubRef, {
+      clubName: name,
+      role: 'owner',
+      logoBase64: pendingLogoBase64 || null,
+      joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    batch.commit().then(function() {
+      btn.disabled = false;
+      btn.textContent = 'Create Club';
+      pendingLogoBase64 = null;
+      document.getElementById('createLogoPreview').innerHTML = '<div class="placeholder">📷<br>Logo</div>';
+      document.getElementById('createClubName').value = '';
+      showToast('Club created!', 'success');
+      enterClub(clubRef.id);
+    }).catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = 'Create Club';
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  // ── Join Flow ──
+  function toggleJoinSection() {
+    document.getElementById('joinSection').classList.toggle('show');
+    document.getElementById('joinInput').focus();
+  }
+
+  function handleJoinInput() {
+    var val = document.getElementById('joinInput').value.trim();
+    if (!val) { showToast('Paste an invite link or Club ID', 'error'); return; }
+    // Extract club ID from URL if needed
+    var clubId = val;
+    try {
+      var url = new URL(val);
+      clubId = url.searchParams.get('join') || val;
+    } catch(e) { /* not a URL, use as-is */ }
+    handleJoinClub(clubId);
+  }
+
+  function handleJoinClub(clubId) {
+    pendingJoinClubId = clubId;
+    // Check if club exists
+    db.collection('clubs').doc(clubId).get().then(function(doc) {
+      if (!doc.exists) {
+        showToast('Club not found. Check the invite link.', 'error');
+        showScreen('clubs');
+        loadMyClubs();
+        return;
+      }
+      // Check if already a member using own user doc (avoids permission issue)
+      return db.collection('users').doc(currentUser.uid).collection('clubs').doc(clubId).get().then(function(userClubDoc) {
+        if (userClubDoc.exists) {
+          showToast('You\'re already a member!', 'success');
+          enterClub(clubId);
+          return;
+        }
+        // Show join confirmation
+        var joinData = doc.data();
+        var joinLogo = joinData.logoBase64;
+        document.querySelector('#screen-join .icon').innerHTML = joinLogo ? '<img src="' + joinLogo + '" style="width:48px;height:48px;border-radius:12px;object-fit:cover;" alt="">' : '🤝';
+        document.getElementById('joinClubName').textContent = joinData.name || 'Unnamed Club';
+        showScreen('join');
+      });
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+      showScreen('clubs');
+      loadMyClubs();
+    });
+  }
+
+  function confirmJoin() {
+    var clubId = pendingJoinClubId;
+    if (!clubId) return;
+    var btn = document.getElementById('confirmJoinBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Joining...';
+
+    // Get club name first
+    db.collection('clubs').doc(clubId).get().then(function(clubDoc) {
+      var clubData = clubDoc.data();
+      var clubName = clubData.name || 'Unnamed';
+      var clubLogo = clubData.logoBase64 || null;
+      var batch = db.batch();
+      var memberRef = db.collection('clubs').doc(clubId).collection('members').doc(currentUser.uid);
+      var userClubRef = db.collection('users').doc(currentUser.uid).collection('clubs').doc(clubId);
+
+      batch.set(memberRef, {
+        uid: currentUser.uid,
+        name: currentUser.displayName || currentUser.email,
+        email: currentUser.email,
+        role: 'member',
+        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      batch.set(userClubRef, {
+        clubName: clubName,
+        role: 'member',
+        logoBase64: clubLogo,
+        joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      return batch.commit();
+    }).then(function() {
+      btn.disabled = false;
+      btn.textContent = 'Join Club';
+      showToast('Welcome to the club!', 'success');
+      enterClub(clubId);
+    }).catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = 'Join Club';
+      showToast('Error joining: ' + err.message, 'error');
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Enter Club (subscribe to real-time data) ──
+  // ═══════════════════════════════════════════════════════════
+  function enterClub(clubId) {
+    // Unsubscribe previous listeners
+    unsubs.forEach(function(u) { u(); });
+    unsubs = [];
+    transactions = [];
+    members = [];
+    viewingAs = null;
+
+    // Verify membership
+    db.collection('clubs').doc(clubId).collection('members').doc(currentUser.uid).get()
+      .then(function(memberDoc) {
+        if (!memberDoc.exists) {
+          // Stale reference — clean up
+          db.collection('users').doc(currentUser.uid).collection('clubs').doc(clubId).delete();
+          showToast('You are no longer a member of this club', 'error');
+          showScreen('clubs');
+          loadMyClubs();
+          return;
+        }
+        myRole = memberDoc.data().role;
+
+        // Subscribe to club settings
+        unsubs.push(
+          db.collection('clubs').doc(clubId).onSnapshot(function(snap) {
+            if (snap.exists) {
+              currentClub = { id: clubId, ...snap.data() };
+              renderAppHeader();
+              renderDashboard();
+              renderHistory();
+              updateRoleVisibility();
+            }
+          })
+        );
+
+        // Subscribe to transactions
+        unsubs.push(
+          db.collection('clubs').doc(clubId).collection('transactions')
+            .orderBy('createdAt', 'desc')
+            .onSnapshot(function(snap) {
+              transactions = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+              renderDashboard();
+              renderHistory();
+            })
+        );
+
+        // Subscribe to members
+        unsubs.push(
+          db.collection('clubs').doc(clubId).collection('members')
+            .onSnapshot(function(snap) {
+              members = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+              renderMembers();
+            })
+        );
+
+        showScreen('app');
+        showTab('dashboard');
+        populateRecordForm();
+      }).catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+        showScreen('clubs');
+        loadMyClubs();
+      });
+  }
+
+  function leaveClub() {
+    unsubs.forEach(function(u) { u(); });
+    unsubs = [];
+    currentClub = null;
+    transactions = [];
+    members = [];
+    myRole = null;
+    viewingAs = null;
+    showScreen('clubs');
+    loadMyClubs();
+  }
+
+  function leaveThisClub() {
+    if (!currentClub) return;
+    if (myRole === 'owner') {
+      showToast('Owners cannot leave. Transfer ownership first or delete the club.', 'error');
+      return;
+    }
+    if (!confirm('Leave ' + currentClub.name + '? You will lose access to club data.')) return;
+
+    var clubId = currentClub.id;
+    var batch = db.batch();
+    batch.delete(db.collection('clubs').doc(clubId).collection('members').doc(currentUser.uid));
+    batch.delete(db.collection('users').doc(currentUser.uid).collection('clubs').doc(clubId));
+
+    batch.commit().then(function() {
+      showToast('You left the club', 'success');
+      leaveClub();
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Transactions ──
+  // ═══════════════════════════════════════════════════════════
+  function selectType(btn) {
+    document.querySelectorAll('.type-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+
+  function getSelectedType() {
+    var active = document.querySelector('.type-btn.active');
+    return active ? active.dataset.type : 'contribution';
+  }
+
+  function populateRecordForm() {
+    if (!currentClub) return;
+    var select = document.getElementById('txCategory');
+    var cats = currentClub.categories || DEFAULT_CATEGORIES;
+    select.innerHTML = cats.map(function(c) {
+      return '<option value="' + escHtml(c) + '">' + escHtml(c) + '</option>';
+    }).join('');
+    document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('txAmount').value = '';
+    document.getElementById('txDescription').value = '';
+  }
+
+  function submitTransaction() {
+    var amount = parseFloat(document.getElementById('txAmount').value);
+    var description = document.getElementById('txDescription').value.trim();
+    var category = document.getElementById('txCategory').value;
+    var date = document.getElementById('txDate').value;
+    var type = getSelectedType();
+
+    if (!amount || amount <= 0) { showToast('Enter a valid amount', 'error'); return; }
+    if (!description) { showToast('Enter a description', 'error'); return; }
+
+    var btn = document.getElementById('submitTxBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+    // Status depends on role and workflow setting
+    var status = 'approved';
+    if (currentClub.requireApproval && myRole === 'member') {
+      status = 'pending';
+    }
+
+    var txData = {
+      type: type,
+      amount: amount,
+      description: description,
+      category: category,
+      date: date,
+      recordedBy: {
+        uid: currentUser.uid,
+        name: currentUser.displayName || currentUser.email,
+        email: currentUser.email
+      },
+      status: status,
+      approvedBy: status === 'approved' ? {
+        uid: currentUser.uid,
+        name: currentUser.displayName || currentUser.email
+      } : null,
+      approvedAt: status === 'approved' ? firebase.firestore.FieldValue.serverTimestamp() : null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    db.collection('clubs').doc(currentClub.id).collection('transactions')
+      .add(txData)
+      .then(function() {
+        btn.disabled = false;
+        btn.textContent = 'Add Transaction';
+        var msg = status === 'pending' ? 'Submitted for approval ⏳' : 'Transaction saved! ✅';
+        showToast(msg, 'success');
+        populateRecordForm();
+        showTab('dashboard');
+      }).catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = 'Add Transaction';
+        showToast('Error: ' + err.message, 'error');
+      });
+  }
+
+  function approveTransaction(txId) {
+    if (!isTreasurer()) return;
+    db.collection('clubs').doc(currentClub.id).collection('transactions').doc(txId).update({
+      status: 'approved',
+      approvedBy: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
+      approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function() {
+      showToast('Transaction approved ✅', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function rejectTransaction(txId) {
+    if (!isTreasurer()) return;
+    if (!confirm('Reject and delete this transaction?')) return;
+    db.collection('clubs').doc(currentClub.id).collection('transactions').doc(txId).delete()
+      .then(function() {
+        showToast('Transaction rejected', 'success');
+      }).catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+      });
+  }
+
+  function deleteTransaction(txId) {
+    if (!isTreasurer()) {
+      showToast('Only treasurers can delete transactions', 'error');
+      return;
+    }
+    if (!confirm('Delete this transaction permanently?')) return;
+    db.collection('clubs').doc(currentClub.id).collection('transactions').doc(txId).delete()
+      .then(function() { showToast('Deleted', 'success'); })
+      .catch(function(err) { showToast('Error: ' + err.message, 'error'); });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Member Management ──
+  // ═══════════════════════════════════════════════════════════
+  function changeMemberRole(memberId, newRole) {
+    if (!isTreasurer()) return;
+    if (memberId === currentUser.uid) {
+      showToast('You cannot change your own role', 'error');
+      return;
+    }
+    db.collection('clubs').doc(currentClub.id).collection('members').doc(memberId)
+      .update({ role: newRole })
+      .then(function() {
+        // Also update the user's club reference
+        db.collection('users').doc(memberId).collection('clubs').doc(currentClub.id)
+          .update({ role: newRole }).catch(function() { /* may fail if user's doc doesn't exist */ });
+        showToast('Role updated', 'success');
+      }).catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+      });
+  }
+
+  function removeMember(memberId, memberName) {
+    if (!isTreasurer()) return;
+    if (memberId === currentUser.uid) {
+      showToast('You cannot remove yourself', 'error');
+      return;
+    }
+    if (!confirm('Remove ' + memberName + ' from the club?')) return;
+
+    var batch = db.batch();
+    batch.delete(db.collection('clubs').doc(currentClub.id).collection('members').doc(memberId));
+    // Try to clean up user's club reference too
+    batch.commit().then(function() {
+      // Best-effort cleanup of user's clubs reference
+      db.collection('users').doc(memberId).collection('clubs').doc(currentClub.id)
+        .delete().catch(function() { /* May fail - that's OK, user will see stale entry */ });
+      showToast(memberName + ' removed', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function copyClubId() {
+    if (!currentClub) return;
+    var id = currentClub.id;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(id).then(function() {
+        showToast('Club ID copied!', 'success');
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = id;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Club ID copied!', 'success');
+    }
+  }
+
+  function copyInviteLink() {
+    if (!currentClub) return;
+    var baseUrl = window.location.origin + window.location.pathname;
+    var link = baseUrl + '?join=' + currentClub.id;
+
+    // Try Web Share API first (shows native share sheet on mobile)
+    if (navigator.share) {
+      navigator.share({
+        title: currentClub.name + ' — Join us!',
+        text: '🏟️ Join ' + currentClub.name + ' on Club Expense Tracker!',
+        url: link
+      }).catch(function() { /* user cancelled share */ });
+      return;
+    }
+
+    // Fallback: copy just the link
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(link).then(function() {
+        showToast('Invite link copied!', 'success');
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = link;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Invite link copied!', 'success');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Club Settings ──
+  // ═══════════════════════════════════════════════════════════
+  function openSettingsModal() {
+    if (!isActualTreasurer()) { showToast('Only treasurers can edit settings', 'error'); return; }
+    pendingLogoBase64 = null;
+    var preview = document.getElementById('settingsLogoPreview');
+    if (currentClub.logoBase64) {
+      preview.innerHTML = '<img src="' + currentClub.logoBase64 + '" alt="">';
+    } else {
+      preview.innerHTML = '<div class="placeholder">📷<br>Logo</div>';
+    }
+    document.getElementById('settingsClubName').value = currentClub.name || '';
+    document.getElementById('settingsCurrency').value = currentClub.currency || '₹';
+    document.getElementById('settingsApproval').checked = !!currentClub.requireApproval;
+    document.getElementById('settingsModal').classList.add('show');
+  }
+  function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('show'); }
+
+  function saveClubSettings() {
+    if (!isActualTreasurer()) return;
+    var name = document.getElementById('settingsClubName').value.trim();
+    if (!name) { showToast('Club name required', 'error'); return; }
+
+    var updates = {
+      name: name,
+      currency: document.getElementById('settingsCurrency').value.trim() || '₹',
+      requireApproval: document.getElementById('settingsApproval').checked
+    };
+    if (pendingLogoBase64 !== null) updates.logoBase64 = pendingLogoBase64;
+
+    db.collection('clubs').doc(currentClub.id).update(updates)
+      .then(function() {
+        // Update user's club reference
+        var userUpdates = { clubName: name };
+        if (pendingLogoBase64 !== null) userUpdates.logoBase64 = pendingLogoBase64;
+        db.collection('users').doc(currentUser.uid).collection('clubs').doc(currentClub.id)
+          .update(userUpdates).catch(function() {});
+        pendingLogoBase64 = null;
+        closeSettingsModal();
+        showToast('Settings saved', 'success');
+      }).catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+      });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── UI Rendering ──
+  // ═══════════════════════════════════════════════════════════
+  function renderAppHeader() {
+    if (!currentClub) return;
+    document.getElementById('appClubName').textContent = currentClub.name || 'Club';
+    document.getElementById('clubIdDisplay').textContent = currentClub.id || '';
+    var logo = document.getElementById('appClubLogo');
+    if (currentClub.logoBase64) {
+      logo.src = currentClub.logoBase64;
+      logo.classList.remove('hidden');
+    } else {
+      logo.src = '';
+      logo.classList.add('hidden');
+    }
+    var avatar = document.getElementById('appUserAvatar');
+    avatar.textContent = (currentUser.displayName || currentUser.email || '?').charAt(0).toUpperCase();
+    // Update menu panel header
+    document.getElementById('menuUserName').textContent = currentUser.displayName || 'User';
+    document.getElementById('menuUserEmail').textContent = currentUser.email || '';
+  }
+
+  function updateRoleVisibility() {
+    // Show/hide treasurer-only elements
+    var isActual = isActualTreasurer();
+    document.getElementById('menuSettingsGroup').style.display = isActual ? '' : 'none';
+    document.getElementById('addMemberSection').style.display = isActual ? 'block' : 'none';
+    if (isActual && currentClub) loadPendingInvites();
+    document.getElementById('menuImportItem').style.display = isActual ? '' : 'none';
+    document.getElementById('viewAsBanner').classList.toggle('hidden', !viewingAs);
+    document.getElementById('viewAsLabel').textContent = viewingAs ? '✅ Exit Member Preview' : '👁️ Preview as Member';
+    // Show/hide pending chip based on approval workflow
+    var chipPending = document.getElementById('chipPending');
+    if (currentClub && currentClub.requireApproval) {
+      chipPending.classList.remove('hidden');
+    } else {
+      chipPending.classList.add('hidden');
+    }
+  }
+
+  function renderDashboard() {
+    if (!currentClub) return;
+    var curr = currentClub.currency || '₹';
+
+    var approvedTx = transactions.filter(function(t) { return t.status === 'approved'; });
+    var pendingTx = transactions.filter(function(t) { return t.status === 'pending'; });
+
+    var contributions = 0, sponsorships = 0, expenses = 0, pendingAmt = 0;
+    approvedTx.forEach(function(t) {
+      var amt = parseFloat(t.amount) || 0;
+      if (t.type === 'expense') expenses += amt;
+      else if (t.type === 'sponsorship') sponsorships += amt;
+      else contributions += amt;
+    });
+    pendingTx.forEach(function(t) { pendingAmt += parseFloat(t.amount) || 0; });
+
+    var income = contributions + sponsorships;
+    var balance = income - expenses;
+    document.getElementById('dashBalance').textContent = curr + formatNum(balance);
+    document.getElementById('dashBalanceSub').textContent = 'Income: ' + curr + formatNum(income) + ' | Expenses: ' + curr + formatNum(expenses);
+    document.getElementById('dashContributions').textContent = curr + formatNum(contributions);
+    document.getElementById('dashSponsorships').textContent = curr + formatNum(sponsorships);
+    document.getElementById('dashExpense').textContent = curr + formatNum(expenses);
+
+    // Pending card
+    var pendingCard = document.getElementById('pendingCard');
+    if (currentClub.requireApproval && pendingTx.length > 0) {
+      pendingCard.classList.remove('hidden');
+      document.getElementById('dashPending').textContent = curr + formatNum(pendingAmt);
+      document.getElementById('dashPendingLabel').textContent = pendingTx.length + ' transaction' + (pendingTx.length > 1 ? 's' : '') + ' pending approval';
+    } else {
+      pendingCard.classList.add('hidden');
+    }
+
+    // Pending badge
+    document.getElementById('pendingBadge').textContent = pendingTx.length;
+
+    // Recent transactions (last 5 approved + pending)
+    var recent = transactions.slice(0, 5);
+    var html = '';
+    if (recent.length === 0) {
+      html = '<div class="empty-state" style="padding:24px;"><div class="icon">📝</div><p>No transactions yet. Tap + to add one.</p></div>';
+    } else {
+      recent.forEach(function(tx) { html += renderTxItem(tx, true); });
+    }
+    document.getElementById('dashRecentTx').innerHTML = html;
+  }
+
+  var selectMode = false;
+  var selectedTxIds = {};
+
+  function toggleSelectMode() {
+    selectMode = !selectMode;
+    selectedTxIds = {};
+    var btn = document.getElementById('selectToggleBtn');
+    if (selectMode) {
+      btn.classList.add('active');
+      btn.textContent = '✕ Cancel';
+    } else {
+      btn.classList.remove('active');
+      btn.textContent = '☐ Select';
+    }
+    updateBulkBar();
+    renderHistory();
+  }
+
+  function toggleTxSelect(txId) {
+    if (selectedTxIds[txId]) {
+      delete selectedTxIds[txId];
+    } else {
+      selectedTxIds[txId] = true;
+    }
+    // Update checkbox & style without full re-render
+    var el = document.querySelector('[data-txid="' + txId + '"]');
+    if (el) {
+      var cb = el.querySelector('.tx-checkbox');
+      if (cb) cb.checked = !!selectedTxIds[txId];
+      if (selectedTxIds[txId]) el.classList.add('selected'); else el.classList.remove('selected');
+    }
+    updateBulkBar();
+  }
+
+  function selectAllTx() {
+    document.querySelectorAll('[data-txid]').forEach(function(el) {
+      var id = el.getAttribute('data-txid');
+      selectedTxIds[id] = true;
+      el.classList.add('selected');
+      var cb = el.querySelector('.tx-checkbox');
+      if (cb) cb.checked = true;
+    });
+    updateBulkBar();
+  }
+
+  function deselectAllTx() {
+    selectedTxIds = {};
+    document.querySelectorAll('[data-txid]').forEach(function(el) {
+      el.classList.remove('selected');
+      var cb = el.querySelector('.tx-checkbox');
+      if (cb) cb.checked = false;
+    });
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    var count = Object.keys(selectedTxIds).length;
+    var bar = document.getElementById('bulkBar');
+    if (selectMode && count > 0) {
+      bar.style.display = 'flex';
+      document.getElementById('bulkCount').textContent = count + ' selected';
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+  function deleteSelectedTx() {
+    var ids = Object.keys(selectedTxIds);
+    if (!ids.length) return;
+    if (!confirm('Delete ' + ids.length + ' transaction' + (ids.length > 1 ? 's' : '') + ' permanently?')) return;
+
+    var batch = db.batch();
+    var txCol = db.collection('clubs').doc(currentClub.id).collection('transactions');
+    ids.forEach(function(id) {
+      batch.delete(txCol.doc(id));
+    });
+
+    batch.commit().then(function() {
+      showToast('Deleted ' + ids.length + ' transaction' + (ids.length > 1 ? 's' : ''), 'success');
+      selectedTxIds = {};
+      updateBulkBar();
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function renderHistory() {
+    if (!currentClub) return;
+    var query = (document.getElementById('historySearch').value || '').toLowerCase();
+    var filter = currentHistoryFilter;
+
+    // Show/hide select button for treasurers
+    document.getElementById('selectToggleBtn').style.display = isActualTreasurer() ? '' : 'none';
+
+    var list = transactions;
+
+    // Filter by status/type
+    if (filter === 'pending') {
+      list = list.filter(function(t) { return t.status === 'pending'; });
+    } else if (filter !== 'all') {
+      list = list.filter(function(t) { return t.type === filter; });
+    }
+
+    // Search
+    if (query) {
+      list = list.filter(function(t) {
+        return (t.description || '').toLowerCase().includes(query) ||
+               (t.category || '').toLowerCase().includes(query) ||
+               (t.recordedBy && t.recordedBy.name || '').toLowerCase().includes(query);
+      });
+    }
+
+    var html = '';
+    if (list.length === 0) {
+      html = '<div class="text-center" style="padding:40px;color:var(--text-secondary);">No transactions found</div>';
+    } else {
+      list.forEach(function(tx) { html += renderTxItem(tx, true); });
+    }
+    document.getElementById('historyTxList').innerHTML = html;
+    // Sync checkboxes if in select mode
+    if (selectMode) updateBulkBar();
+  }
+
+  function renderTxItem(tx, showActions) {
+    var curr = (currentClub && currentClub.currency) || '₹';
+    var type = tx.type || 'expense';
+    var isPending = tx.status === 'pending';
+    var amount = parseFloat(tx.amount) || 0;
+    var sign = type === 'expense' ? '-' : '+';
+    var recorder = tx.recordedBy ? tx.recordedBy.name : 'Unknown';
+    var emoji = type === 'expense' ? '🧾' : type === 'sponsorship' ? '🤝' : '💰';
+    var isSelected = selectMode && selectedTxIds[tx.id];
+
+    var html = '<div class="tx-item' + (isPending ? ' pending' : '') + (isSelected ? ' selected' : '') + '" data-txid="' + tx.id + '">';
+    if (selectMode && showActions && isActualTreasurer()) {
+      html += '<input type="checkbox" class="tx-checkbox"' + (isSelected ? ' checked' : '') + ' onclick="toggleTxSelect(\'' + tx.id + '\')" />';
+    }
+    html += '  <div class="tx-icon ' + type + '">' + emoji + '</div>';
+    html += '  <div class="tx-details">';
+    html += '    <div class="desc">' + escHtml(tx.description || '') + '</div>';
+    html += '    <div class="meta">' + escHtml(tx.category || '') + ' · ' + escHtml(tx.date || '') + ' · ' + escHtml(recorder) + '</div>';
+    if (isPending && showActions && isTreasurer()) {
+      html += '    <div class="tx-actions">';
+      html += '      <button class="btn-approve" onclick="approveTransaction(\'' + tx.id + '\')">✅ Approve</button>';
+      html += '      <button class="btn-reject" onclick="rejectTransaction(\'' + tx.id + '\')">❌ Reject</button>';
+      html += '    </div>';
+    }
+    html += '  </div>';
+    html += '  <div class="tx-amount">';
+    html += '    <div class="val ' + type + '">' + sign + curr + formatNum(amount) + '</div>';
+    if (isPending) html += '    <div class="status" style="color:var(--pending);font-weight:600;">Pending</div>';
+    html += '  </div>';
+    if (showActions && isTreasurer()) {
+      html += '<button class="tx-delete" onclick="deleteTransaction(\'' + tx.id + '\')" title="Delete">✕</button>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderMembers() {
+    var curr = (currentClub && currentClub.currency) || '₹';
+    // Compute per-member stats from approved transactions
+    var memberStats = {};
+    transactions.forEach(function(tx) {
+      if (tx.status && tx.status !== 'approved') return;
+      var uid = tx.recordedBy ? tx.recordedBy.uid : null;
+      if (!uid) return;
+      if (!memberStats[uid]) memberStats[uid] = { contribution: 0, expense: 0, sponsorship: 0 };
+      var amt = parseFloat(tx.amount) || 0;
+      var type = (tx.type || '').toLowerCase();
+      if (type === 'contribution') memberStats[uid].contribution += amt;
+      else if (type === 'expense') memberStats[uid].expense += amt;
+      else if (type === 'sponsorship') memberStats[uid].sponsorship += amt;
+    });
+
+    var html = '';
+    members.sort(function(a, b) {
+      var order = { owner: 0, treasurer: 1, member: 2 };
+      return (order[a.role] || 2) - (order[b.role] || 2);
+    });
+    members.forEach(function(m) {
+      var initial = (m.name || '?').charAt(0).toUpperCase();
+      var stats = memberStats[m.uid] || { contribution: 0, expense: 0, sponsorship: 0 };
+      html += '<div class="member-item">';
+      html += '  <div class="member-avatar">' + initial + '</div>';
+      html += '  <div class="member-info">';
+      html += '    <div class="name">' + escHtml(m.name || 'Unknown') + (m.uid === currentUser.uid ? ' (you)' : '') + '</div>';
+      html += '    <div class="email">' + escHtml(m.email || '') + '</div>';
+      // Stats row
+      var hasStats = stats.contribution > 0 || stats.expense > 0 || stats.sponsorship > 0;
+      if (hasStats) {
+        html += '    <div class="member-stats">';
+        if (stats.contribution > 0) html += '<span class="ms contrib">💰 ' + curr + formatNum(stats.contribution) + '</span>';
+        if (stats.expense > 0) html += '<span class="ms expense">🧾 ' + curr + formatNum(stats.expense) + '</span>';
+        if (stats.sponsorship > 0) html += '<span class="ms sponsor">🤝 ' + curr + formatNum(stats.sponsorship) + '</span>';
+        html += '    </div>';
+      }
+      html += '  </div>';
+
+      if (isTreasurer() && m.uid !== currentUser.uid) {
+        // Role selector
+        html += '  <select class="member-role-select" onchange="changeMemberRole(\'' + m.uid + '\', this.value)">';
+        html += '    <option value="member"' + (m.role === 'member' ? ' selected' : '') + '>Member</option>';
+        html += '    <option value="treasurer"' + (m.role === 'treasurer' ? ' selected' : '') + '>Treasurer</option>';
+        if (myRole === 'owner') {
+          html += '    <option value="owner"' + (m.role === 'owner' ? ' selected' : '') + '>Owner</option>';
+        }
+        html += '  </select>';
+        html += '  <button style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:4px;" onclick="removeMember(\'' + m.uid + '\', \'' + escHtml(m.name || '') + '\')" title="Remove">✕</button>';
+      } else {
+        html += '  <span class="role-badge role-' + (m.role || 'member') + '">' + (m.role || 'member') + '</span>';
+      }
+      html += '</div>';
+    });
+    document.getElementById('membersList').innerHTML = html;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Navigation ──
+  // ═══════════════════════════════════════════════════════════
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    var el = document.getElementById('screen-' + name);
+    if (el) el.classList.add('active');
+    closeMenu();
+  }
+
+  function openMenu() {
+    document.getElementById('menuOverlay').classList.add('show');
+    document.getElementById('menuPanel').classList.add('show');
+  }
+
+  function closeMenu() {
+    document.getElementById('menuOverlay').classList.remove('show');
+    document.getElementById('menuPanel').classList.remove('show');
+  }
+
+  function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+    var tab = document.getElementById('tab-' + name);
+    if (tab) tab.classList.add('active');
+    // Activate nav item
+    var navItems = document.querySelectorAll('.nav-item');
+    var tabNames = ['dashboard', 'record', 'members', 'history'];
+    var idx = tabNames.indexOf(name);
+    if (idx >= 0 && navItems[idx]) navItems[idx].classList.add('active');
+    // Populate record form when switching to Record tab
+    if (name === 'record') {
+      populateRecordForm();
+    }
+    if (name === 'members') {
+      renderMembers();
+    }
+  }
+
+  function setHistoryFilter(btn) {
+    document.querySelectorAll('#historyFilters .chip').forEach(function(c) { c.classList.remove('active'); });
+    btn.classList.add('active');
+    currentHistoryFilter = btn.dataset.filter;
+    renderHistory();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Export ──
+  // ═══════════════════════════════════════════════════════════
+  function exportExcel() {
+    if (!currentClub) return;
+    var curr = currentClub.currency || '₹';
+    var list = transactions;
+    if (!list.length) { showToast('No transactions to export', 'error'); return; }
+
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+    html += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>';
+    html += '<x:Name>Transactions</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>';
+    html += '</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>';
+    html += '<table border="1">';
+    html += '<tr style="background:#1B5E20;color:white;font-weight:bold;">';
+    html += '<td>Date</td><td>Type</td><td>Category</td><td>Description</td><td>Amount (' + curr + ')</td><td>Status</td><td>Recorded By</td>';
+    html += '</tr>';
+
+    var totalIn = 0, totalOut = 0;
+    var sorted = list.slice().sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    sorted.forEach(function(tx) {
+      var type = (tx.type || '').charAt(0).toUpperCase() + (tx.type || '').slice(1);
+      var isExpense = (tx.type || '').toLowerCase() === 'expense';
+      var rowColor = isExpense ? '#FFF0F0' : '#F0FFF0';
+      var amt = parseFloat(tx.amount) || 0;
+      if (tx.status === 'approved') {
+        if (isExpense) totalOut += amt; else totalIn += amt;
+      }
+      var recorder = tx.recordedBy ? tx.recordedBy.name : '';
+      html += '<tr style="background:' + rowColor + ';">';
+      html += '<td>' + (tx.date || '') + '</td>';
+      html += '<td>' + type + '</td>';
+      html += '<td>' + (tx.category || '') + '</td>';
+      html += '<td>' + escHtml(tx.description || '') + '</td>';
+      html += '<td style="text-align:right;">' + amt.toFixed(2) + '</td>';
+      html += '<td>' + (tx.status || 'approved') + '</td>';
+      html += '<td>' + escHtml(recorder) + '</td>';
+      html += '</tr>';
+    });
+    html += '<tr><td colspan="7"></td></tr>';
+    html += '<tr style="font-weight:bold;background:#E8F5E9;"><td colspan="4">Total Approved Income</td><td style="text-align:right;">' + totalIn.toFixed(2) + '</td><td colspan="2"></td></tr>';
+    html += '<tr style="font-weight:bold;background:#FFEBEE;"><td colspan="4">Total Approved Expenses</td><td style="text-align:right;">' + totalOut.toFixed(2) + '</td><td colspan="2"></td></tr>';
+    html += '<tr style="font-weight:bold;background:#FFF9C4;"><td colspan="4">Balance</td><td style="text-align:right;">' + (totalIn - totalOut).toFixed(2) + '</td><td colspan="2"></td></tr>';
+    html += '</table></body></html>';
+
+    var blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (currentClub.name || 'Club') + '-Transactions-' + new Date().toISOString().split('T')[0] + '.xls';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Excel file downloaded!', 'success');
+  }
+
+  function exportJSON() {
+    if (!currentClub) return;
+    var data = {
+      club: currentClub.name,
+      exportedAt: new Date().toISOString(),
+      exportedBy: currentUser.email,
+      transactions: transactions,
+      members: members.map(function(m) { return { name: m.name, email: m.email, role: m.role }; })
+    };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (currentClub.name || 'Club') + '-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('JSON backup downloaded!', 'success');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── V1 Import ──
+  // ═══════════════════════════════════════════════════════════
+  var v1ImportData = [];
+
+  function openImportModal() {
+    if (!isActualTreasurer()) { showToast('Only treasurers can import data', 'error'); return; }
+    v1ImportData = [];
+    document.getElementById('importV1Url').value = '';
+    document.getElementById('importPreview').style.display = 'none';
+    document.getElementById('importProgress').style.display = 'none';
+    document.getElementById('importFetchBtn').style.display = '';
+    document.getElementById('importRunBtn').style.display = 'none';
+    document.getElementById('importFetchBtn').disabled = false;
+    document.getElementById('importFetchBtn').textContent = 'Fetch V1 Data';
+    document.getElementById('importModal').style.display = 'flex';
+  }
+
+  function closeImportModal() {
+    document.getElementById('importModal').style.display = 'none';
+  }
+
+  function fetchV1Data() {
+    var url = document.getElementById('importV1Url').value.trim();
+    if (!url) { showToast('Paste the V1 Apps Script URL', 'error'); return; }
+
+    var btn = document.getElementById('importFetchBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Fetching...';
+
+    // JSONP fetch from V1 Google Apps Script
+    var callbackName = '_v1import_' + Date.now();
+    var separator = url.indexOf('?') >= 0 ? '&' : '?';
+    var fullUrl = url + separator + 'action=getAll&callback=' + callbackName;
+
+    var timer = setTimeout(function() {
+      cleanup();
+      btn.disabled = false;
+      btn.textContent = 'Fetch V1 Data';
+      showToast('Timeout: Could not reach V1 API', 'error');
+    }, 15000);
+
+    window[callbackName] = function(result) {
+      cleanup();
+      btn.disabled = false;
+      btn.textContent = 'Fetch V1 Data';
+
+      if (!result || !result.success || !result.data || !result.data.length) {
+        showToast('No transactions found in V1', 'error');
+        return;
+      }
+
+      v1ImportData = result.data;
+
+      // Count by type
+      var counts = { contribution: 0, expense: 0, sponsorship: 0 };
+      var total = 0;
+      v1ImportData.forEach(function(tx) {
+        var t = (tx.type || '').toLowerCase();
+        if (counts[t] !== undefined) counts[t]++;
+        total += parseFloat(tx.amount) || 0;
+      });
+
+      document.getElementById('importPreviewStats').innerHTML =
+        '<div>' + v1ImportData.length + ' transactions found</div>' +
+        '<div style="margin-top:4px;">💰 ' + counts.contribution + ' contributions · 🧾 ' + counts.expense + ' expenses · 🤝 ' + counts.sponsorship + ' sponsorships</div>';
+      document.getElementById('importPreview').style.display = '';
+      document.getElementById('importFetchBtn').style.display = 'none';
+      document.getElementById('importRunBtn').style.display = '';
+    };
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[callbackName];
+      if (script && script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    var script = document.createElement('script');
+    script.src = fullUrl;
+    script.onerror = function() {
+      cleanup();
+      btn.disabled = false;
+      btn.textContent = 'Fetch V1 Data';
+      showToast('Failed to connect to V1 API', 'error');
+    };
+    document.head.appendChild(script);
+  }
+
+  function runV1Import() {
+    if (!v1ImportData.length || !currentClub) return;
+
+    var btn = document.getElementById('importRunBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Importing...';
+
+    document.getElementById('importProgress').style.display = '';
+    var bar = document.getElementById('importProgressBar');
+    var text = document.getElementById('importProgressText');
+    var total = v1ImportData.length;
+    var done = 0;
+    var skipped = 0;
+    var failed = 0;
+    var batch = db.batch();
+    var txRef = db.collection('clubs').doc(currentClub.id).collection('transactions');
+
+    // Convert and batch-write all transactions
+    v1ImportData.forEach(function(v1tx) {
+      var type = (v1tx.type || 'contribution').toLowerCase();
+      if (type !== 'contribution' && type !== 'expense' && type !== 'sponsorship') {
+        type = 'contribution';
+      }
+
+      var date = v1tx.date || '';
+      // Handle date objects or ISO strings
+      if (date && date.length > 10) date = date.split('T')[0];
+
+      var txData = {
+        type: type,
+        amount: parseFloat(v1tx.amount) || 0,
+        description: v1tx.description || '',
+        category: v1tx.category || 'General',
+        date: date,
+        recordedBy: {
+          uid: currentUser.uid,
+          name: v1tx.recordedby || v1tx.recordedBy || currentUser.displayName || currentUser.email,
+          email: currentUser.email
+        },
+        status: 'approved',
+        approvedBy: {
+          uid: currentUser.uid,
+          name: currentUser.displayName || currentUser.email
+        },
+        approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        importedFrom: 'v1',
+        v1Id: v1tx.id || null
+      };
+
+      var docRef = txRef.doc();
+      batch.set(docRef, txData);
+    });
+
+    // Firestore batches have a 500 doc limit, so split if needed
+    if (total <= 500) {
+      batch.commit().then(function() {
+        bar.style.width = '100%';
+        text.textContent = total + ' / ' + total + ' imported';
+        btn.disabled = false;
+        btn.textContent = 'Done!';
+        btn.style.background = 'var(--primary)';
+        showToast('Imported ' + total + ' transactions from V1!', 'success');
+      }).catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = 'Import Failed';
+        showToast('Import error: ' + err.message, 'error');
+      });
+    } else {
+      // Split into batches of 500
+      var batches = [];
+      var currentBatch = db.batch();
+      var count = 0;
+
+      v1ImportData.forEach(function(v1tx) {
+        var type = (v1tx.type || 'contribution').toLowerCase();
+        if (type !== 'contribution' && type !== 'expense' && type !== 'sponsorship') type = 'contribution';
+        var date = v1tx.date || '';
+        if (date && date.length > 10) date = date.split('T')[0];
+
+        var txData = {
+          type: type,
+          amount: parseFloat(v1tx.amount) || 0,
+          description: v1tx.description || '',
+          category: v1tx.category || 'General',
+          date: date,
+          recordedBy: {
+            uid: currentUser.uid,
+            name: v1tx.recordedby || v1tx.recordedBy || currentUser.displayName || currentUser.email,
+            email: currentUser.email
+          },
+          status: 'approved',
+          approvedBy: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
+          approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          importedFrom: 'v1',
+          v1Id: v1tx.id || null
+        };
+
+        currentBatch.set(txRef.doc(), txData);
+        count++;
+
+        if (count >= 500) {
+          batches.push(currentBatch);
+          currentBatch = db.batch();
+          count = 0;
+        }
+      });
+      if (count > 0) batches.push(currentBatch);
+
+      var batchDone = 0;
+      var commitNext = function() {
+        if (batchDone >= batches.length) {
+          bar.style.width = '100%';
+          text.textContent = total + ' / ' + total + ' imported';
+          btn.disabled = false;
+          btn.textContent = 'Done!';
+          btn.style.background = 'var(--primary)';
+          showToast('Imported ' + total + ' transactions from V1!', 'success');
+          return;
+        }
+        batches[batchDone].commit().then(function() {
+          batchDone++;
+          var progress = Math.min(100, Math.round((batchDone * 500 / total) * 100));
+          bar.style.width = progress + '%';
+          text.textContent = Math.min(batchDone * 500, total) + ' / ' + total;
+          commitNext();
+        }).catch(function(err) {
+          btn.disabled = false;
+          btn.textContent = 'Import Failed';
+          showToast('Batch error: ' + err.message, 'error');
+        });
+      };
+      commitNext();
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Utilities ──
+  // ═══════════════════════════════════════════════════════════
+  function isTreasurer() {
+    if (viewingAs === 'member') return false;
+    return myRole === 'owner' || myRole === 'treasurer';
+  }
+
+  function isActualTreasurer() {
+    return myRole === 'owner' || myRole === 'treasurer';
+  }
+
+  function resizeImage(file, maxSize, callback) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var size = Math.min(img.width, img.height);
+        var sx = (img.width - size) / 2;
+        var sy = (img.height - size) / 2;
+        canvas.width = maxSize;
+        canvas.height = maxSize;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, sx, sy, size, size, 0, 0, maxSize, maxSize);
+        callback(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleLogoSelect(input, previewId, context) {
+    var file = input.files && input.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select an image file', 'error');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('Image too large. Max 5MB.', 'error');
+      return;
+    }
+    resizeImage(file, 96, function(base64) {
+      pendingLogoBase64 = base64;
+      document.getElementById(previewId).innerHTML = '<img src="' + base64 + '" alt="">';
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Add Member by Email ──
+  // ═══════════════════════════════════════════════════════════
+  function addMemberByEmail() {
+    if (!isActualTreasurer() || !currentClub) return;
+    var emailInput = document.getElementById('addMemberEmail');
+    var email = emailInput.value.trim().toLowerCase();
+    if (!email || !email.includes('@')) {
+      showToast('Enter a valid email address', 'error');
+      return;
+    }
+    // Check if already a member
+    var existing = members.find(function(m) { return m.email && m.email.toLowerCase() === email; });
+    if (existing) {
+      showToast(email + ' is already a member', 'error');
+      return;
+    }
+    db.collection('pendingInvites').add({
+      email: email,
+      clubId: currentClub.id,
+      clubName: currentClub.name,
+      logoBase64: currentClub.logoBase64 || null,
+      invitedBy: currentUser.displayName || currentUser.email,
+      invitedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function() {
+      emailInput.value = '';
+      showToast('Invite sent! ' + email + ' will auto-join when they sign in.', 'success');
+      loadPendingInvites();
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function loadPendingInvites() {
+    if (!currentClub) return;
+    db.collection('pendingInvites')
+      .where('clubId', '==', currentClub.id)
+      .get().then(function(snap) {
+        var html = '';
+        snap.docs.forEach(function(doc) {
+          var d = doc.data();
+          html += '<div class="pending-invite-item">';
+          html += '  <span>✉️</span>';
+          html += '  <span class="pi-email">' + escHtml(d.email) + '</span>';
+          html += '  <span style="font-size:10px;color:var(--pending);">pending</span>';
+          html += '  <button class="pi-remove" onclick="cancelInvite(\'' + doc.id + '\')" title="Cancel invite">✕</button>';
+          html += '</div>';
+        });
+        document.getElementById('pendingInvitesList').innerHTML = html;
+      });
+  }
+
+  function cancelInvite(inviteId) {
+    db.collection('pendingInvites').doc(inviteId).delete().then(function() {
+      showToast('Invite cancelled', 'success');
+      loadPendingInvites();
+    });
+  }
+
+  function checkPendingInvites(user) {
+    return db.collection('pendingInvites')
+      .where('email', '==', user.email.toLowerCase())
+      .get().then(function(snap) {
+        if (snap.empty) return;
+        var promises = [];
+        snap.docs.forEach(function(inviteDoc) {
+          var inv = inviteDoc.data();
+          var p = autoJoinClub(inv.clubId, inv.clubName, inv.logoBase64, user, inviteDoc.id);
+          promises.push(p);
+        });
+        return Promise.all(promises);
+      }).catch(function(err) {
+        console.warn('Error checking invites:', err);
+      });
+  }
+
+  function autoJoinClub(clubId, clubName, logoBase64, user, inviteDocId) {
+    // Check if already a member
+    return db.collection('users').doc(user.uid).collection('clubs').doc(clubId).get()
+      .then(function(existing) {
+        if (existing.exists) {
+          // Already a member, just delete the invite
+          return db.collection('pendingInvites').doc(inviteDocId).delete();
+        }
+        var batch = db.batch();
+        var memberRef = db.collection('clubs').doc(clubId).collection('members').doc(user.uid);
+        var userClubRef = db.collection('users').doc(user.uid).collection('clubs').doc(clubId);
+        batch.set(memberRef, {
+          uid: user.uid,
+          name: user.displayName || user.email,
+          email: user.email,
+          role: 'member',
+          joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        batch.set(userClubRef, {
+          clubName: clubName || 'Club',
+          role: 'member',
+          logoBase64: logoBase64 || null,
+          joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        // Delete the invite after joining
+        batch.delete(db.collection('pendingInvites').doc(inviteDocId));
+        return batch.commit();
+      }).then(function() {
+        showToast('Auto-joined: ' + (clubName || 'a club') + '!', 'success');
+      });
+  }
+
+  function toggleViewAs() {
+    if (!isActualTreasurer()) return;
+    viewingAs = viewingAs ? null : 'member';
+    updateRoleVisibility();
+    renderDashboard();
+    renderHistory();
+    renderMembers();
+    showToast(viewingAs ? 'Previewing as Member — UI shows member experience' : 'Back to ' + myRole + ' view', 'success');
+  }
+
+  function formatNum(n) {
+    return Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function escHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function showToast(msg, type) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast ' + (type || '') + ' show';
+    clearTimeout(el._timeout);
+    el._timeout = setTimeout(function() { el.classList.remove('show'); }, 3000);
+  }
+  // ═══════════════════════════════════════════════════════════
+  // ── PWA: Service Worker + iOS Faux-Install ──
+  // ═══════════════════════════════════════════════════════════
+  (function() {
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(function() {});
+    }
+
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    var isStandalone = window.navigator.standalone === true
+                    || window.matchMedia('(display-mode: standalone)').matches;
+    var isAndroid = /Android/.test(navigator.userAgent);
+
+    // ── Android: capture native beforeinstallprompt ──
+    var deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      // Show our prompt instead of the browser mini-bar
+      showPwaPrompt('android');
+    });
+
+    // ── iOS: show faux-install after a short delay ──
+    if (isIOS && !isStandalone && !localStorage.getItem('pwaPromptDismissed')) {
+      setTimeout(function() { showPwaPrompt('ios'); }, 4000);
+    }
+
+    function showPwaPrompt(platform) {
+      var steps = document.getElementById('pwaSteps');
+      var btn   = document.getElementById('pwaShareBtn');
+      if (platform === 'ios') {
+        steps.innerHTML = '1. Tap the <b>Share</b> button <span style="font-size:17px">⎋</span> at the bottom of Safari<br>'
+                        + '2. Scroll down and tap <b>Add to Home Screen</b><br>'
+                        + '3. Tap <b>Add</b> — done!';
+        btn.textContent = 'Open Share Menu';
+        btn.style.display = navigator.share ? '' : 'none';
+      } else {
+        steps.innerHTML = 'Tap the button below to install Clubhouse on your device.';
+        btn.textContent = 'Install App';
+        btn.style.display = '';
+      }
+      document.getElementById('pwaInstallPrompt').style.display = 'block';
+    }
+
+    // Expose globally so onclick handlers work
+    window.pwaShare = function() {
+      if (deferredPrompt) {
+        // Android native install
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
+        dismissPwaPrompt();
+        return;
+      }
+      // iOS: trigger Web Share so user can "Add to Home Screen"
+      if (navigator.share) {
+        navigator.share({ title: 'Clubhouse', url: location.href }).catch(function() {});
+      }
+      dismissPwaPrompt();
+    };
+
+    window.dismissPwaPrompt = function() {
+      document.getElementById('pwaInstallPrompt').style.display = 'none';
+      localStorage.setItem('pwaPromptDismissed', '1');
+    };
+  })();
+</script>
+</body>
+</html>
