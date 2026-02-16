@@ -194,7 +194,8 @@
   @media (pointer: coarse) { .tx-delete { display: block; } }
 
   /* Multi-select */
-  .history-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .history-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+  .sort-select { width: auto; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 11px; font-weight: 600; color: var(--text-secondary); background: var(--card); cursor: pointer; }
   .select-toggle { background: none; border: 1.5px solid var(--border); border-radius: 8px; padding: 5px 12px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--text-secondary); }
   .select-toggle.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
   .tx-checkbox { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; flex-shrink: 0; margin-right: 2px; }
@@ -473,7 +474,16 @@
       <button class="chip" data-filter="sponsorship" onclick="setHistoryFilter(this)">🤝</button>
     </div>
     <div class="history-toolbar">
-      <a href="#" class="export-link" onclick="exportExcel();return false;">📥 Export to Excel</a>
+      <a href="#" class="export-link" onclick="exportExcel();return false;">📥 Export</a>
+      <select class="sort-select" id="historySortSelect" onchange="setHistorySort(this.value)">
+        <option value="date-desc">Date ↓ (Newest)</option>
+        <option value="date-asc">Date ↑ (Oldest)</option>
+        <option value="amount-desc">Amount ↓ (Highest)</option>
+        <option value="amount-asc">Amount ↑ (Lowest)</option>
+        <option value="member-asc">Member A→Z</option>
+        <option value="member-desc">Member Z→A</option>
+        <option value="category-asc">Category A→Z</option>
+      </select>
       <button class="select-toggle" id="selectToggleBtn" onclick="toggleSelectMode()" style="display:none;">☐ Select</button>
     </div>
     <div class="tx-list" id="historyTxList"></div>
@@ -672,6 +682,7 @@
   var myRole = null; // 'owner', 'treasurer', 'member'
   var unsubs = []; // Firestore snapshot unsubscribers
   var currentHistoryFilter = 'all';
+  var currentHistorySort = 'date-desc';
   var pendingJoinClubId = null;
   var pendingLogoBase64 = null;
   var viewingAs = null; // null = actual role; 'member' = preview as member
@@ -1479,6 +1490,25 @@
       });
     }
 
+    // Sort
+    var sort = currentHistorySort;
+    list = list.slice(); // clone before sorting
+    if (sort === 'date-desc') {
+      list.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    } else if (sort === 'date-asc') {
+      list.sort(function(a, b) { return (a.date || '').localeCompare(b.date || ''); });
+    } else if (sort === 'amount-desc') {
+      list.sort(function(a, b) { return (parseFloat(b.amount) || 0) - (parseFloat(a.amount) || 0); });
+    } else if (sort === 'amount-asc') {
+      list.sort(function(a, b) { return (parseFloat(a.amount) || 0) - (parseFloat(b.amount) || 0); });
+    } else if (sort === 'member-asc') {
+      list.sort(function(a, b) { return (a.recordedBy && a.recordedBy.name || '').localeCompare(b.recordedBy && b.recordedBy.name || ''); });
+    } else if (sort === 'member-desc') {
+      list.sort(function(a, b) { return (b.recordedBy && b.recordedBy.name || '').localeCompare(a.recordedBy && a.recordedBy.name || ''); });
+    } else if (sort === 'category-asc') {
+      list.sort(function(a, b) { return (a.category || '').localeCompare(b.category || ''); });
+    }
+
     var html = '';
     if (list.length === 0) {
       html = '<div class="text-center" style="padding:40px;color:var(--text-secondary);">No transactions found</div>';
@@ -1627,6 +1657,11 @@
     document.querySelectorAll('#historyFilters .chip').forEach(function(c) { c.classList.remove('active'); });
     btn.classList.add('active');
     currentHistoryFilter = btn.dataset.filter;
+    renderHistory();
+  }
+
+  function setHistorySort(val) {
+    currentHistorySort = val;
     renderHistory();
   }
 
