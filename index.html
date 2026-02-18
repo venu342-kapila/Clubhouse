@@ -717,6 +717,10 @@
       <label>Opponent (optional)</label>
       <input type="text" id="pollOpponent" placeholder="e.g. Chennai Tigers" maxlength="60" />
     </div>
+    <div class="form-group">
+      <label>Location (optional)</label>
+      <input type="text" id="pollLocation" placeholder="e.g. YMCA Ground, Nandambakkam" maxlength="100" />
+    </div>
     <button class="submit-btn" id="createPollBtn" onclick="createPoll()" style="margin-bottom:8px;">Create & Share</button>
     <button class="submit-btn" onclick="closeCreatePollModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
   </div>
@@ -769,6 +773,7 @@
   var viewingAs = null; // null = actual role; 'member' = preview as member
   var polls = []; // availability polls
   var pendingPollNav = false; // true when navigating from a poll link
+  var pendingVote = null; // { pollId, vote } for deep-link voting
 
   var DEFAULT_CATEGORIES = [
     'Ground Fees', 'Equipment', 'Jerseys', 'Travel', 'Food & Drinks',
@@ -793,10 +798,13 @@
         // Check for poll link
         var pollId = params.get('poll');
         var pollClubId = params.get('club');
+        var voteParam = params.get('vote');
         if (!pollId) pollId = sessionStorage.getItem('pendingPoll');
         if (!pollClubId) pollClubId = sessionStorage.getItem('pendingPollClub');
+        if (!voteParam) voteParam = sessionStorage.getItem('pendingVote');
         sessionStorage.removeItem('pendingPoll');
         sessionStorage.removeItem('pendingPollClub');
+        sessionStorage.removeItem('pendingVote');
 
         // Clean URL
         if (params.has('join') || params.has('poll')) {
@@ -806,6 +814,9 @@
         if (pollId && pollClubId) {
           // Poll link: enter the club and navigate to polls
           pendingPollNav = true;
+          if (voteParam && ['yes','no','maybe'].indexOf(voteParam) >= 0) {
+            pendingVote = { pollId: pollId, vote: voteParam };
+          }
           handleJoinClub(pollClubId);
         } else if (joinId) {
           history.replaceState(null, '', window.location.pathname);
@@ -824,6 +835,8 @@
       if (joinId) sessionStorage.setItem('pendingJoin', joinId);
       if (pollId) sessionStorage.setItem('pendingPoll', pollId);
       if (pollClubId) sessionStorage.setItem('pendingPollClub', pollClubId);
+      var voteP = params.get('vote');
+      if (voteP) sessionStorage.setItem('pendingVote', voteP);
       showScreen('signin');
     }
   });
@@ -1112,8 +1125,16 @@
 
         showScreen('app');
         if (pendingPollNav) {
+          var voteToCast = pendingVote;
           pendingPollNav = false;
+          pendingVote = null;
           showTab('polls');
+          // If deep-link vote, auto-submit after a short delay for Firestore to sync
+          if (voteToCast) {
+            setTimeout(function() {
+              respondToPoll(voteToCast.pollId, voteToCast.vote);
+            }, 1500);
+          }
         } else {
           showTab('dashboard');
         }
@@ -2172,6 +2193,7 @@
     document.getElementById('pollQuestion').value = '';
     document.getElementById('pollMatchDate').value = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
     document.getElementById('pollOpponent').value = '';
+    document.getElementById('pollLocation').value = '';
     document.getElementById('createPollModal').classList.add('show');
   }
 
@@ -2184,6 +2206,7 @@
     var question = document.getElementById('pollQuestion').value.trim();
     var matchDate = document.getElementById('pollMatchDate').value;
     var opponent = document.getElementById('pollOpponent').value.trim();
+    var location = document.getElementById('pollLocation').value.trim();
 
     if (!question) { showToast('Enter a question', 'error'); return; }
     if (!matchDate) { showToast('Pick a match date', 'error'); return; }
@@ -2196,6 +2219,7 @@
       question: question,
       matchDate: matchDate,
       opponent: opponent || null,
+      location: location || null,
       createdBy: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       status: 'open',
@@ -2206,7 +2230,7 @@
       closeCreatePollModal();
       showToast('Poll created!', 'success');
       // Auto-share to WhatsApp
-      sharePollToWhatsApp(docRef.id, question, matchDate, opponent);
+      sharePollToWhatsApp(docRef.id, question, matchDate, opponent, location);
     }).catch(function(err) {
       btn.disabled = false;
       btn.textContent = 'Create & Share';
@@ -2226,10 +2250,43 @@
     db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
       .update(update)
       .then(function() {
-        showToast('Response recorded: ' + response.toUpperCase(), 'success');
+        var icon = response === 'yes' ? '✅' : response === 'no' ? '❌' : '🤔';
+        showToast('Response recorded: ' + icon + ' ' + response.toUpperCase(), 'success');
+        // Offer to share vote to WhatsApp group for team visibility
+        shareVoteToWhatsApp(pollId, response);
       }).catch(function(err) {
         showToast('Error: ' + err.message, 'error');
       });
+  }
+
+  function shareVoteToWhatsApp(pollId, response) {
+    var poll = polls.find(function(p) { return p.id === pollId; });
+    if (!poll || !currentClub) return;
+    var clubName = currentClub.name || 'Club';
+    var icon = response === 'yes' ? '✅' : response === 'no' ? '❌' : '🤔';
+    var label = response === 'yes' ? 'Available' : response === 'no' ? 'Not Available' : 'Maybe';
+    var name = currentUser.displayName || currentUser.email;
+
+    var text = icon + ' *' + name + '* voted *' + label + '*\n\n';
+    text += '📊 ' + clubName + '\n';
+    text += '❓ ' + (poll.question || '') + '\n';
+    if (poll.matchDate) text += '📅 ' + poll.matchDate;
+    if (poll.opponent) text += ' vs ' + poll.opponent;
+    if (poll.location) text += '\n📍 ' + poll.location;
+
+    // Show current tally
+    var responses = poll.responses || {};
+    // Include current vote in tally (may not be in snapshot yet)
+    responses[currentUser.uid] = { response: response };
+    var y = 0, n = 0, m = 0;
+    Object.keys(responses).forEach(function(uid) {
+      if (responses[uid].response === 'yes') y++;
+      else if (responses[uid].response === 'no') n++;
+      else m++;
+    });
+    text += '\n\n📊 *Tally:* ✅ ' + y + ' | ❌ ' + n + ' | 🤔 ' + m;
+
+    shareViaWhatsApp(text);
   }
 
   function closePoll(pollId) {
@@ -2258,7 +2315,7 @@
       .catch(function(err) { showToast('Error: ' + err.message, 'error'); });
   }
 
-  function sharePollToWhatsApp(pollId, question, matchDate, opponent) {
+  function sharePollToWhatsApp(pollId, question, matchDate, opponent, location) {
     if (!currentClub) return;
     // If question not provided, look up from polls array
     if (!question) {
@@ -2267,17 +2324,22 @@
       question = poll.question;
       matchDate = poll.matchDate;
       opponent = poll.opponent;
+      location = poll.location;
     }
     var clubName = currentClub.name || 'Club';
     var baseUrl = window.location.origin + window.location.pathname;
-    var link = baseUrl + '?poll=' + pollId + '&club=' + currentClub.id;
+    var base = baseUrl + '?poll=' + pollId + '&club=' + currentClub.id;
 
     var text = '📊 *' + clubName + ' \u2014 Availability Poll*\n\n';
     text += '❓ ' + question + '\n';
     if (matchDate) text += '📅 Match Date: ' + matchDate + '\n';
     if (opponent) text += '🆚 vs ' + opponent + '\n';
-    text += '\n👉 Tap to respond:\n' + link;
-    text += '\n\n\u2014 _via Club Expense Tracker_';
+    if (location) text += '📍 ' + location + '\n';
+    text += '\n👉 *Tap your response:*\n';
+    text += '✅ Yes \u2192 ' + base + '&vote=yes\n';
+    text += '❌ No  \u2192 ' + base + '&vote=no\n';
+    text += '🤔 Maybe \u2192 ' + base + '&vote=maybe\n';
+    text += '\n\u2014 _via Club Expense Tracker_';
 
     shareViaWhatsApp(text);
   }
@@ -2299,6 +2361,7 @@
     text += '❓ ' + (poll.question || '') + '\n';
     if (poll.matchDate) text += '📅 ' + poll.matchDate;
     if (poll.opponent) text += ' vs ' + poll.opponent;
+    if (poll.location) text += '\n📍 ' + poll.location;
     text += '\n\n';
     text += '✅ *Available (' + yes.length + '):*\n';
     text += yes.length ? yes.join(', ') : '\u2014';
@@ -2345,6 +2408,7 @@
         html += '    <span class="poll-status ' + poll.status + '">' + (isOpen ? 'Open' : 'Closed') + '</span>';
         if (poll.matchDate) html += '    <span>📅 ' + poll.matchDate + '</span>';
         if (poll.opponent) html += '    <span>🆚 ' + escHtml(poll.opponent) + '</span>';
+        if (poll.location) html += '    <span>📍 ' + escHtml(poll.location) + '</span>';
         html += '  </div>';
 
         // Response bar
