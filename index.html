@@ -293,6 +293,49 @@
   .pending-invite-item .pi-remove { background: none; border: none; color: #ccc; cursor: pointer; font-size: 14px; padding: 2px; }
   .section-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .section-row .section-title { margin-bottom: 0; }
+
+  /* ── Share Buttons ── */
+  .tx-share { position: absolute; top: 6px; right: 6px; background: none; border: none; color: #ccc; font-size: 13px; cursor: pointer; display: none; padding: 4px; }
+  .tx-item:hover .tx-share { display: block; }
+  .tx-delete + .tx-share { right: 28px; }
+  @media (pointer: coarse) { .tx-share { display: block; } }
+  .share-summary-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 10px; background: #E8F5E9; color: var(--primary); border: 1.5px dashed var(--primary); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 14px; transition: all 0.15s; }
+  .share-summary-btn:active { background: var(--primary); color: white; }
+
+  /* ── Polls ── */
+  .polls-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .poll-card { background: var(--card); border-radius: 12px; padding: 14px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .poll-card .poll-q { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .poll-card .poll-meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .poll-status { padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 10px; }
+  .poll-status.open { background: #E8F5E9; color: #2E7D32; }
+  .poll-status.closed { background: #FFEBEE; color: #C62828; }
+  .poll-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #F0F0F0; margin-bottom: 6px; }
+  .poll-bar .bar-yes { background: #4CAF50; }
+  .poll-bar .bar-no { background: #F44336; }
+  .poll-bar .bar-maybe { background: #FF9800; }
+  .poll-counts { display: flex; gap: 10px; font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+  .poll-counts span { font-weight: 600; }
+  .poll-counts .c-yes { color: #2E7D32; }
+  .poll-counts .c-no { color: #C62828; }
+  .poll-counts .c-maybe { color: #E65100; }
+  .poll-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .poll-actions button { padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .poll-actions button:active { transform: scale(0.96); }
+  .poll-btn-yes { border-color: #4CAF50 !important; color: #2E7D32; }
+  .poll-btn-yes.voted { background: #4CAF50 !important; color: white !important; }
+  .poll-btn-no { border-color: #F44336 !important; color: #C62828; }
+  .poll-btn-no.voted { background: #F44336 !important; color: white !important; }
+  .poll-btn-maybe { border-color: #FF9800 !important; color: #E65100; }
+  .poll-btn-maybe.voted { background: #FF9800 !important; color: white !important; }
+  .poll-btn-share { color: var(--primary) !important; border-color: var(--primary) !important; }
+  .poll-btn-close { color: var(--danger) !important; border-color: var(--danger) !important; font-size: 11px; }
+  .poll-detail-list { margin-top: 8px; padding: 8px 12px; background: var(--bg); border-radius: 8px; max-height: 200px; overflow-y: auto; }
+  .poll-detail-item { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+  .poll-detail-item:last-child { border-bottom: none; }
+  .poll-empty { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 13px; }
+  .new-poll-btn { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; padding: 10px; background: var(--primary-light); color: var(--primary); border: 1.5px dashed var(--primary); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+  .new-poll-btn:active { background: var(--primary); color: white; }
 </style>
 </head>
 <body>
@@ -421,6 +464,7 @@
       <div class="summary-item sponsorship"><div class="val" id="dashSponsorships">₹0</div><div class="lbl">Sponsorships</div></div>
       <div class="summary-item expense"><div class="val" id="dashExpense">₹0</div><div class="lbl">Expenses</div></div>
     </div>
+    <button class="share-summary-btn" onclick="shareSummaryToWhatsApp()">📲 Share Summary to WhatsApp</button>
     <div class="section-row">
       <div class="section-title">Recent Transactions</div>
       <a href="#" class="export-link" onclick="showTab('history');return false;">See All ›</a>
@@ -509,6 +553,16 @@
     <div style="display:flex;gap:8px;margin-top:8px;">
       <button class="submit-btn" onclick="copyInviteLink()" style="background:var(--primary-light);color:var(--primary);font-size:13px;padding:10px;">🔗 Invite Link</button>
       <button class="submit-btn" onclick="copyClubId()" style="background:#F5F5F5;color:var(--text);font-size:13px;padding:10px;">🆔 Club ID</button>
+    </div>
+    <!-- Polls Section -->
+    <div class="polls-section">
+      <div class="section-row">
+        <div class="section-title">Availability Polls</div>
+      </div>
+      <div id="createPollSection" style="display:none;">
+        <button class="new-poll-btn" onclick="openCreatePollModal()">📊 Create New Poll</button>
+      </div>
+      <div id="pollsList"></div>
     </div>
   </div>
 
@@ -641,6 +695,28 @@
   </div>
 </div>
 
+<!-- ── Create Poll Modal ── -->
+<div id="createPollModal" class="modal-overlay" onclick="if(event.target===this)closeCreatePollModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>📊 New Availability Poll</h2>
+    <div class="form-group">
+      <label>Question</label>
+      <input type="text" id="pollQuestion" placeholder="e.g. Are you available for the match?" maxlength="120" />
+    </div>
+    <div class="form-group">
+      <label>Match Date</label>
+      <input type="date" id="pollMatchDate" />
+    </div>
+    <div class="form-group">
+      <label>Opponent (optional)</label>
+      <input type="text" id="pollOpponent" placeholder="e.g. Chennai Tigers" maxlength="60" />
+    </div>
+    <button class="submit-btn" id="createPollBtn" onclick="createPoll()" style="margin-bottom:8px;">Create & Share</button>
+    <button class="submit-btn" onclick="closeCreatePollModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
 <!-- ── Toast ── -->
 <div id="toast" class="toast"></div>
 
@@ -686,6 +762,8 @@
   var pendingJoinClubId = null;
   var pendingLogoBase64 = null;
   var viewingAs = null; // null = actual role; 'member' = preview as member
+  var polls = []; // availability polls
+  var pendingPollNav = false; // true when navigating from a poll link
 
   var DEFAULT_CATEGORIES = [
     'Ground Fees', 'Equipment', 'Jerseys', 'Travel', 'Food & Drinks',
@@ -701,13 +779,30 @@
     if (user) {
       // Check for pending invites (added by treasurer via email)
       checkPendingInvites(user).then(function() {
+        var params = new URLSearchParams(window.location.search);
         // Check for pending join from URL
-        var joinId = new URLSearchParams(window.location.search).get('join');
+        var joinId = params.get('join');
         if (!joinId) joinId = sessionStorage.getItem('pendingJoin');
         sessionStorage.removeItem('pendingJoin');
 
-        if (joinId) {
-          // Clean URL
+        // Check for poll link
+        var pollId = params.get('poll');
+        var pollClubId = params.get('club');
+        if (!pollId) pollId = sessionStorage.getItem('pendingPoll');
+        if (!pollClubId) pollClubId = sessionStorage.getItem('pendingPollClub');
+        sessionStorage.removeItem('pendingPoll');
+        sessionStorage.removeItem('pendingPollClub');
+
+        // Clean URL
+        if (params.has('join') || params.has('poll')) {
+          history.replaceState(null, '', window.location.pathname);
+        }
+
+        if (pollId && pollClubId) {
+          // Poll link: enter the club and navigate to polls
+          pendingPollNav = true;
+          handleJoinClub(pollClubId);
+        } else if (joinId) {
           history.replaceState(null, '', window.location.pathname);
           handleJoinClub(joinId);
         } else {
@@ -716,9 +811,14 @@
         }
       });
     } else {
-      // Check if there's a join param to save for after sign-in
-      var joinId = new URLSearchParams(window.location.search).get('join');
+      // Check if there's a join/poll param to save for after sign-in
+      var params = new URLSearchParams(window.location.search);
+      var joinId = params.get('join');
+      var pollId = params.get('poll');
+      var pollClubId = params.get('club');
       if (joinId) sessionStorage.setItem('pendingJoin', joinId);
+      if (pollId) sessionStorage.setItem('pendingPoll', pollId);
+      if (pollClubId) sessionStorage.setItem('pendingPollClub', pollClubId);
       showScreen('signin');
     }
   });
@@ -991,11 +1091,27 @@
             .onSnapshot(function(snap) {
               members = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
               renderMembers();
+              renderPolls();
+            })
+        );
+
+        // Subscribe to polls
+        unsubs.push(
+          db.collection('clubs').doc(clubId).collection('polls')
+            .orderBy('createdAt', 'desc')
+            .onSnapshot(function(snap) {
+              polls = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+              renderPolls();
             })
         );
 
         showScreen('app');
-        showTab('dashboard');
+        if (pendingPollNav) {
+          pendingPollNav = false;
+          showTab('members');
+        } else {
+          showTab('dashboard');
+        }
         populateRecordForm();
       }).catch(function(err) {
         showToast('Error: ' + err.message, 'error');
@@ -1010,6 +1126,7 @@
     currentClub = null;
     transactions = [];
     members = [];
+    polls = [];
     myRole = null;
     viewingAs = null;
     showScreen('clubs');
@@ -1552,6 +1669,7 @@
     if (showActions && isTreasurer()) {
       html += '<button class="tx-delete" onclick="deleteTransaction(\'' + tx.id + '\')" title="Delete">✕</button>';
     }
+    html += '<button class="tx-share" onclick="event.stopPropagation();shareTxToWhatsApp(\'' + tx.id + '\')" title="Share">📲</button>';
     html += '</div>';
     return html;
   }
@@ -1650,6 +1768,7 @@
     }
     if (name === 'members') {
       renderMembers();
+      renderPolls();
     }
   }
 
@@ -1962,6 +2081,307 @@
       };
       commitNext();
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── WhatsApp Sharing (P0) ──
+  // ═══════════════════════════════════════════════════════════
+  function shareTxToWhatsApp(txId) {
+    var tx = transactions.find(function(t) { return t.id === txId; });
+    if (!tx) return;
+    var curr = (currentClub && currentClub.currency) || '₹';
+    var clubName = (currentClub && currentClub.name) || 'Club';
+    var type = tx.type || 'contribution';
+    var emoji = type === 'expense' ? '🧾' : type === 'sponsorship' ? '🤝' : '💰';
+    var sign = type === 'expense' ? '-' : '+';
+    var amt = parseFloat(tx.amount) || 0;
+    var recorder = tx.recordedBy ? tx.recordedBy.name : 'Unknown';
+
+    var text = '📊 *' + clubName + '*\n';
+    text += emoji + ' ' + type.charAt(0).toUpperCase() + type.slice(1) + '\n';
+    text += '💵 ' + sign + curr + formatNum(amt) + '\n';
+    text += '📝 ' + (tx.description || '') + '\n';
+    if (tx.category) text += '🏷️ ' + tx.category + '\n';
+    if (tx.date) text += '📅 ' + tx.date + '\n';
+    text += '👤 ' + recorder + '\n';
+    text += '\n\u2014 _via Club Expense Tracker_';
+
+    var encoded = encodeURIComponent(text);
+    window.open('https://wa.me/?text=' + encoded, '_blank');
+  }
+
+  function shareSummaryToWhatsApp() {
+    if (!currentClub) return;
+    var curr = currentClub.currency || '₹';
+    var clubName = currentClub.name || 'Club';
+
+    var approvedTx = transactions.filter(function(t) { return t.status === 'approved'; });
+    var pendingTx = transactions.filter(function(t) { return t.status === 'pending'; });
+
+    var contributions = 0, sponsorships = 0, expenses = 0, pendingAmt = 0;
+    approvedTx.forEach(function(t) {
+      var amt = parseFloat(t.amount) || 0;
+      if (t.type === 'expense') expenses += amt;
+      else if (t.type === 'sponsorship') sponsorships += amt;
+      else contributions += amt;
+    });
+    pendingTx.forEach(function(t) { pendingAmt += parseFloat(t.amount) || 0; });
+
+    var balance = (contributions + sponsorships) - expenses;
+
+    var text = '📊 *' + clubName + ' \u2014 Financial Summary*\n\n';
+    text += '💰 *Balance: ' + curr + formatNum(balance) + '*\n';
+    text += '📈 Contributions: ' + curr + formatNum(contributions) + '\n';
+    text += '🤝 Sponsorships: ' + curr + formatNum(sponsorships) + '\n';
+    text += '🧾 Expenses: ' + curr + formatNum(expenses) + '\n';
+    if (currentClub.requireApproval && pendingTx.length > 0) {
+      text += '⏳ Pending: ' + curr + formatNum(pendingAmt) + ' (' + pendingTx.length + ' txn' + (pendingTx.length > 1 ? 's' : '') + ')\n';
+    }
+    text += '👥 ' + members.length + ' member' + (members.length !== 1 ? 's' : '') + '\n';
+    text += '\n\u2014 _via Club Expense Tracker_';
+
+    var encoded = encodeURIComponent(text);
+    window.open('https://wa.me/?text=' + encoded, '_blank');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Availability Polls (P1) ──
+  // ═══════════════════════════════════════════════════════════
+  function openCreatePollModal() {
+    document.getElementById('pollQuestion').value = '';
+    document.getElementById('pollMatchDate').value = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+    document.getElementById('pollOpponent').value = '';
+    document.getElementById('createPollModal').classList.add('show');
+  }
+
+  function closeCreatePollModal() {
+    document.getElementById('createPollModal').classList.remove('show');
+  }
+
+  function createPoll() {
+    if (!isActualTreasurer() || !currentClub) return;
+    var question = document.getElementById('pollQuestion').value.trim();
+    var matchDate = document.getElementById('pollMatchDate').value;
+    var opponent = document.getElementById('pollOpponent').value.trim();
+
+    if (!question) { showToast('Enter a question', 'error'); return; }
+    if (!matchDate) { showToast('Pick a match date', 'error'); return; }
+
+    var btn = document.getElementById('createPollBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+    db.collection('clubs').doc(currentClub.id).collection('polls').add({
+      question: question,
+      matchDate: matchDate,
+      opponent: opponent || null,
+      createdBy: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      status: 'open',
+      responses: {}
+    }).then(function(docRef) {
+      btn.disabled = false;
+      btn.textContent = 'Create & Share';
+      closeCreatePollModal();
+      showToast('Poll created!', 'success');
+      // Auto-share to WhatsApp
+      sharePollToWhatsApp(docRef.id, question, matchDate, opponent);
+    }).catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = 'Create & Share';
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function respondToPoll(pollId, response) {
+    if (!currentClub || !currentUser) return;
+    var field = 'responses.' + currentUser.uid;
+    var update = {};
+    update[field] = {
+      response: response,
+      name: currentUser.displayName || currentUser.email,
+      respondedAt: new Date().toISOString()
+    };
+    db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
+      .update(update)
+      .then(function() {
+        showToast('Response recorded: ' + response.toUpperCase(), 'success');
+      }).catch(function(err) {
+        showToast('Error: ' + err.message, 'error');
+      });
+  }
+
+  function closePoll(pollId) {
+    if (!isActualTreasurer() || !currentClub) return;
+    if (!confirm('Close this poll? Members will no longer be able to respond.')) return;
+    db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
+      .update({ status: 'closed' })
+      .then(function() { showToast('Poll closed', 'success'); })
+      .catch(function(err) { showToast('Error: ' + err.message, 'error'); });
+  }
+
+  function reopenPoll(pollId) {
+    if (!isActualTreasurer() || !currentClub) return;
+    db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
+      .update({ status: 'open' })
+      .then(function() { showToast('Poll reopened', 'success'); })
+      .catch(function(err) { showToast('Error: ' + err.message, 'error'); });
+  }
+
+  function deletePoll(pollId) {
+    if (!isActualTreasurer() || !currentClub) return;
+    if (!confirm('Delete this poll permanently?')) return;
+    db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
+      .delete()
+      .then(function() { showToast('Poll deleted', 'success'); })
+      .catch(function(err) { showToast('Error: ' + err.message, 'error'); });
+  }
+
+  function sharePollToWhatsApp(pollId, question, matchDate, opponent) {
+    if (!currentClub) return;
+    // If question not provided, look up from polls array
+    if (!question) {
+      var poll = polls.find(function(p) { return p.id === pollId; });
+      if (!poll) return;
+      question = poll.question;
+      matchDate = poll.matchDate;
+      opponent = poll.opponent;
+    }
+    var clubName = currentClub.name || 'Club';
+    var baseUrl = window.location.origin + window.location.pathname;
+    var link = baseUrl + '?poll=' + pollId + '&club=' + currentClub.id;
+
+    var text = '📊 *' + clubName + ' \u2014 Availability Poll*\n\n';
+    text += '❓ ' + question + '\n';
+    if (matchDate) text += '📅 Match Date: ' + matchDate + '\n';
+    if (opponent) text += '🆚 vs ' + opponent + '\n';
+    text += '\n👉 Tap to respond:\n' + link;
+    text += '\n\n\u2014 _via Club Expense Tracker_';
+
+    var encoded = encodeURIComponent(text);
+    window.open('https://wa.me/?text=' + encoded, '_blank');
+  }
+
+  function sharePollResultsToWhatsApp(pollId) {
+    var poll = polls.find(function(p) { return p.id === pollId; });
+    if (!poll || !currentClub) return;
+    var clubName = currentClub.name || 'Club';
+    var responses = poll.responses || {};
+    var yes = [], no = [], maybe = [];
+    Object.keys(responses).forEach(function(uid) {
+      var r = responses[uid];
+      if (r.response === 'yes') yes.push(r.name || 'Unknown');
+      else if (r.response === 'no') no.push(r.name || 'Unknown');
+      else maybe.push(r.name || 'Unknown');
+    });
+
+    var text = '📊 *' + clubName + ' \u2014 Poll Results*\n\n';
+    text += '❓ ' + (poll.question || '') + '\n';
+    if (poll.matchDate) text += '📅 ' + poll.matchDate;
+    if (poll.opponent) text += ' vs ' + poll.opponent;
+    text += '\n\n';
+    text += '✅ *Available (' + yes.length + '):*\n';
+    text += yes.length ? yes.join(', ') : '\u2014';
+    text += '\n\n❌ *Not Available (' + no.length + '):*\n';
+    text += no.length ? no.join(', ') : '\u2014';
+    text += '\n\n🤔 *Maybe (' + maybe.length + '):*\n';
+    text += maybe.length ? maybe.join(', ') : '\u2014';
+    text += '\n\n\u2014 _via Club Expense Tracker_';
+
+    var encoded = encodeURIComponent(text);
+    window.open('https://wa.me/?text=' + encoded, '_blank');
+  }
+
+  function renderPolls() {
+    if (!currentClub) return;
+    // Show create button for treasurers
+    document.getElementById('createPollSection').style.display = isActualTreasurer() ? '' : 'none';
+
+    var html = '';
+    if (polls.length === 0) {
+      html = '<div class="poll-empty">No polls yet' + (isActualTreasurer() ? ' \u2014 create one above!' : '') + '</div>';
+    } else {
+      // Sort: open first, then by matchDate descending
+      var sorted = polls.slice().sort(function(a, b) {
+        if (a.status !== b.status) return a.status === 'open' ? -1 : 1;
+        return (b.matchDate || '').localeCompare(a.matchDate || '');
+      });
+
+      sorted.forEach(function(poll) {
+        var responses = poll.responses || {};
+        var yes = 0, no = 0, maybe = 0, total = 0;
+        var myResponse = responses[currentUser.uid] ? responses[currentUser.uid].response : null;
+        Object.keys(responses).forEach(function(uid) {
+          total++;
+          if (responses[uid].response === 'yes') yes++;
+          else if (responses[uid].response === 'no') no++;
+          else maybe++;
+        });
+
+        var isOpen = poll.status === 'open';
+
+        html += '<div class="poll-card">';
+        html += '  <div class="poll-q">' + escHtml(poll.question || '') + '</div>';
+        html += '  <div class="poll-meta">';
+        html += '    <span class="poll-status ' + poll.status + '">' + (isOpen ? 'Open' : 'Closed') + '</span>';
+        if (poll.matchDate) html += '    <span>📅 ' + poll.matchDate + '</span>';
+        if (poll.opponent) html += '    <span>🆚 ' + escHtml(poll.opponent) + '</span>';
+        html += '  </div>';
+
+        // Response bar
+        if (total > 0) {
+          var yPct = (yes / total * 100).toFixed(0);
+          var nPct = (no / total * 100).toFixed(0);
+          var mPct = (maybe / total * 100).toFixed(0);
+          html += '  <div class="poll-bar">';
+          if (yes > 0) html += '<div class="bar-yes" style="width:' + yPct + '%"></div>';
+          if (no > 0) html += '<div class="bar-no" style="width:' + nPct + '%"></div>';
+          if (maybe > 0) html += '<div class="bar-maybe" style="width:' + mPct + '%"></div>';
+          html += '  </div>';
+          html += '  <div class="poll-counts">';
+          html += '    <span class="c-yes">✅ ' + yes + '</span>';
+          html += '    <span class="c-no">❌ ' + no + '</span>';
+          html += '    <span class="c-maybe">🤔 ' + maybe + '</span>';
+          html += '    <span>· ' + total + '/' + members.length + ' responded</span>';
+          html += '  </div>';
+        } else {
+          html += '  <div class="poll-counts"><span>No responses yet · 0/' + members.length + '</span></div>';
+        }
+
+        // Actions
+        html += '  <div class="poll-actions">';
+        if (isOpen) {
+          html += '    <button class="poll-btn-yes' + (myResponse === 'yes' ? ' voted' : '') + '" onclick="respondToPoll(\'' + poll.id + '\',\'yes\')">✅ Yes</button>';
+          html += '    <button class="poll-btn-no' + (myResponse === 'no' ? ' voted' : '') + '" onclick="respondToPoll(\'' + poll.id + '\',\'no\')">❌ No</button>';
+          html += '    <button class="poll-btn-maybe' + (myResponse === 'maybe' ? ' voted' : '') + '" onclick="respondToPoll(\'' + poll.id + '\',\'maybe\')">🤔 Maybe</button>';
+        }
+        html += '    <button class="poll-btn-share" onclick="sharePollToWhatsApp(\'' + poll.id + '\')">📲</button>';
+        if (isActualTreasurer()) {
+          html += '    <button class="poll-btn-share" onclick="sharePollResultsToWhatsApp(\'' + poll.id + '\')">📋 Results</button>';
+          if (isOpen) {
+            html += '    <button class="poll-btn-close" onclick="closePoll(\'' + poll.id + '\')">🔒 Close</button>';
+          } else {
+            html += '    <button style="font-size:11px;" onclick="reopenPoll(\'' + poll.id + '\')">🔓 Reopen</button>';
+          }
+          html += '    <button class="poll-btn-close" onclick="deletePoll(\'' + poll.id + '\')">🗑</button>';
+        }
+        html += '  </div>';
+
+        // Detail list (show names)
+        if (total > 0) {
+          html += '  <div class="poll-detail-list">';
+          Object.keys(responses).forEach(function(uid) {
+            var r = responses[uid];
+            var icon = r.response === 'yes' ? '✅' : r.response === 'no' ? '❌' : '🤔';
+            html += '    <div class="poll-detail-item"><span>' + icon + '</span><span style="flex:1;">' + escHtml(r.name || 'Unknown') + '</span></div>';
+          });
+          html += '  </div>';
+        }
+
+        html += '</div>';
+      });
+    }
+    document.getElementById('pollsList').innerHTML = html;
   }
 
   // ═══════════════════════════════════════════════════════════
