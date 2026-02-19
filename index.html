@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="theme-color" content="#1B5E20" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="ClubMates" />
+<link rel="apple-touch-icon" href="clubmates-180.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="clubmates-192.png" />
 <title>ClubMates</title>
 <style>
   /* ── Reset & Base ── */
@@ -544,6 +547,11 @@
 
   <!-- Tab: Members -->
   <div id="tab-members" class="tab-content">
+    <!-- Quick Access: Invite & Club ID -->
+    <div class="members-quick-bar" style="display:flex;gap:8px;margin-bottom:14px;">
+      <button onclick="copyInviteLink()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">🔗 Copy Invite Link</button>
+      <button onclick="copyClubId()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#F5F5F5;color:var(--text);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">🆔 Copy Club ID</button>
+    </div>
     <div class="section-title" style="margin-bottom:12px;">Members</div>
     <div id="membersList" style="padding:0 0 12px;"></div>
     <div id="addMemberSection" style="display:none;">
@@ -552,10 +560,6 @@
         <button onclick="addMemberByEmail()">+ Add</button>
       </div>
       <div id="pendingInvitesList"></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:8px;">
-      <button class="submit-btn" onclick="copyInviteLink()" style="background:var(--primary-light);color:var(--primary);font-size:13px;padding:10px;">🔗 Invite Link</button>
-      <button class="submit-btn" onclick="copyClubId()" style="background:#F5F5F5;color:var(--text);font-size:13px;padding:10px;">🆔 Club ID</button>
     </div>
   </div>
 
@@ -2335,11 +2339,11 @@
     if (matchDate) text += '📅 Match Date: ' + matchDate + '\n';
     if (opponent) text += '🆚 vs ' + opponent + '\n';
     if (location) text += '📍 ' + location + '\n';
-    text += '\n👉 *Tap your response:*\n';
-    text += '✅ Yes \u2192 ' + base + '&vote=yes\n';
-    text += '❌ No  \u2192 ' + base + '&vote=no\n';
-    text += '🤔 Maybe \u2192 ' + base + '&vote=maybe\n';
-    text += '\n\u2014 _via ClubMates_';
+    text += '\n� *Tap your response:*\n\n';
+    text += '🟢 *YES, I\'m in!*\n' + base + '&vote=yes\n\n';
+    text += '🔴 *NO, can\'t make it*\n' + base + '&vote=no\n\n';
+    text += '🟡 *MAYBE*\n' + base + '&vote=maybe\n\n';
+    text += '\u2014 _via ClubMates_';
 
     shareViaWhatsApp(text);
   }
