@@ -1,0 +1,18 @@
+{
+  "name": "ClubMates",
+  "short_name": "ClubMates",
+  "description": "Manage expenses, contributions, and availability for your sports club or team",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1B5E20",
+  "theme_color": "#1B5E20",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='96' fill='%231B5E20'/><text x='256' y='340' font-size='280' text-anchor='middle' fill='white'>🏏</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
