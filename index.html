@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="ClubMates" />
 <link rel="apple-touch-icon" href="clubmates-180.png" />
 <link rel="icon" type="image/png" sizes="192x192" href="clubmates-192.png" />
+<link rel="manifest" href="manifest.json" />
 <title>ClubMates</title>
 <style>
   /* ── Reset & Base ── */
@@ -3860,6 +3861,35 @@
     el.className = 'toast ' + (type || '') + ' show';
     clearTimeout(el._timeout);
     el._timeout = setTimeout(function() { el.classList.remove('show'); }, 3000);
+  }
+
+  // ── Service Worker Registration & Auto-Update ──
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      // Check for updates every 5 minutes
+      setInterval(function() { reg.update(); }, 5 * 60 * 1000);
+
+      reg.addEventListener('updatefound', function() {
+        var newWorker = reg.installing;
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'activated') {
+            // New version activated — show toast then reload
+            showToast('\u2728 App updated! Refreshing...', 'success');
+            setTimeout(function() { window.location.reload(); }, 1500);
+          }
+        });
+      });
+    }).catch(function(err) {
+      console.log('SW registration failed:', err);
+    });
+
+    // Handle controller change (when skipWaiting fires from new SW)
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (!window._swReloading) {
+        window._swReloading = true;
+        window.location.reload();
+      }
+    });
   }
 </script>
 </body>
