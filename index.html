@@ -151,10 +151,18 @@
   .tab-content.active { display: block; }
 
   /* ── Dashboard ── */
-  .balance-card { background: linear-gradient(135deg, var(--primary) 0%, #2E7D32 100%); color: white; border-radius: var(--radius); padding: 18px 16px; margin-bottom: 10px; }
+  .balance-card { background: linear-gradient(135deg, var(--primary) 0%, #2E7D32 100%); color: white; border-radius: var(--radius); padding: 18px 16px; margin-bottom: 10px; position: relative; display: flex; align-items: stretch; gap: 12px; }
+  .balance-left { flex: 1; min-width: 0; }
+  .balance-right { text-align: right; font-size: 11px; opacity: 0.7; display: flex; flex-direction: column; justify-content: center; max-width: 45%; }
+  .balance-right .member-count { font-size: 13px; font-weight: 700; opacity: 0.9; }
+  .balance-right .manager-names { font-size: 10px; font-weight: 700; margin-top: 2px; line-height: 1.3; color: #fff; opacity: 1; }
   .balance-card .label { font-size: 11px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
   .balance-card .amount { font-size: 28px; font-weight: 800; margin: 4px 0; letter-spacing: -0.5px; }
   .balance-card .sub { font-size: 11px; opacity: 0.65; }
+  .balance-share-btn { position: absolute; top: 6px; right: 6px; background: none; border: none; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; z-index: 2; }
+  .balance-share-btn .share-circle { background: rgba(255,255,255,0.2); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; pointer-events: none; }
+  .balance-share-btn:active .share-circle { background: rgba(255,255,255,0.4); }
+  .balance-share-btn svg { pointer-events: none; }
   .pending-card { background: var(--pending-light); border: 1.5px solid var(--pending); border-radius: 12px; padding: 12px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
   .pending-card .icon { font-size: 22px; }
   .pending-card .info { flex: 1; }
@@ -222,6 +230,7 @@
   .filter-row::-webkit-scrollbar { display: none; }
   .chip { padding: 6px 12px; border-radius: 18px; border: 1px solid var(--border); background: var(--card); font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
   .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .polls-subtab.active { color: var(--primary) !important; border-bottom-color: var(--primary) !important; }
   .chip .badge { background: var(--pending); color: white; border-radius: 8px; padding: 1px 5px; font-size: 9px; margin-left: 3px; }
 
   /* ── More Tab ── */
@@ -239,6 +248,7 @@
   .member-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .member-item:last-child { border-bottom: none; }
   .member-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .member-avatar.placeholder { border: 2px dashed var(--pending); background: #FFF8E1; color: var(--pending); }
   .member-info { flex: 1; min-width: 0; }
   .member-info .name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .member-info .email { font-size: 10px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -262,6 +272,21 @@
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal-handle { width: 36px; height: 4px; background: #DDD; border-radius: 2px; margin: 0 auto 14px; }
   .modal h2 { font-size: 16px; margin-bottom: 14px; }
+
+  /* ── App Guide Accordion ── */
+  .guide-section { border-bottom: 1px solid #EEE; }
+  .guide-section:last-child { border-bottom: none; }
+  .guide-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text); }
+  .guide-header .guide-icon { font-size: 16px; width: 24px; text-align: center; margin-right: 8px; flex-shrink: 0; }
+  .guide-header .guide-arrow { font-size: 12px; color: #999; transition: transform 0.2s; }
+  .guide-section.open .guide-arrow { transform: rotate(90deg); }
+  .guide-body { display: none; padding: 0 0 12px 32px; font-size: 12px; color: #555; line-height: 1.6; }
+  .guide-section.open .guide-body { display: block; }
+  .guide-body ul { margin: 4px 0; padding-left: 16px; }
+  .guide-body li { margin-bottom: 3px; }
+  .guide-role { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; margin-left: 4px; }
+  .guide-role.all { background: #E8F5E9; color: var(--primary); }
+  .guide-role.treasurer { background: #FFF3E0; color: #E65100; }
 
   /* ── Toast ── */
   .toast { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 8px); left: 50%; transform: translateX(-50%); background: rgba(30,30,30,0.92); color: white; padding: 10px 20px; border-radius: 10px; font-size: 13px; z-index: 9999; opacity: 0; transition: opacity 0.25s; pointer-events: none; max-width: 85%; text-align: center; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
@@ -302,9 +327,7 @@
   .tx-item:hover .tx-share { display: block; }
   .tx-delete + .tx-share { right: 28px; }
   @media (pointer: coarse) { .tx-share { display: block; } }
-  .share-summary-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; background: #E8F5E9; color: #25D366; border: 1.5px solid #25D366; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 14px; transition: all 0.15s; }
-  .share-summary-btn:active { background: #25D366; color: white; }
-  .share-summary-btn:active svg { fill: white; }
+
   .wa-icon { display: inline-block; vertical-align: middle; line-height: 0; }
   .history-back { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--primary); cursor: pointer; margin-bottom: 10px; background: none; border: none; padding: 4px 0; }
 
@@ -341,6 +364,28 @@
   .poll-empty { text-align: center; padding: 20px; color: var(--text-secondary); font-size: 13px; }
   .new-poll-btn { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; padding: 10px; background: var(--primary-light); color: var(--primary); border: 1.5px dashed var(--primary); border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
   .new-poll-btn:active { background: var(--primary); color: white; }
+
+  /* Umpiring Roster */
+  .umpire-card { display: flex; align-items: flex-start; gap: 10px; background: var(--card); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .umpire-card.my-duty { border-left: 3px solid var(--primary); }
+  .umpire-card.open-slot { border-left: 3px solid var(--warning); background: #FFFDE7; }
+  .umpire-card.past { opacity: 0.6; }
+  .umpire-date { font-size: 11px; font-weight: 700; color: var(--primary); white-space: nowrap; min-width: 72px; padding-top: 2px; }
+  .umpire-details { flex: 1; min-width: 0; }
+  .umpire-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .umpire-venue { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
+  .umpire-assignee { font-size: 12px; color: var(--text); margin-bottom: 4px; }
+  .swap-btn { font-size: 11px; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; margin-right: 4px; margin-top: 4px; }
+  .swap-btn:active { transform: scale(0.96); }
+  .swap-btn.accept { border-color: #4CAF50; color: #2E7D32; }
+  .swap-btn.decline { border-color: #F44336; color: #C62828; }
+  .swap-btn.volunteer { border-color: var(--primary); color: var(--primary); }
+  .stats-table { background: var(--card); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .stats-row { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .stats-row:last-child { border-bottom: none; }
+  .stats-medal { width: 24px; text-align: center; font-size: 16px; }
+  .stats-name { flex: 1; font-size: 13px; font-weight: 500; }
+  .stats-count { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -361,6 +406,10 @@
     <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.998 23.998 0 000 24c0 3.77.9 7.35 2.56 10.53l7.97-5.94z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.94C6.51 42.62 14.62 48 24 48z"/></svg>
     Sign in with Google
   </button>
+  <button class="guest-btn" onclick="signInAsGuest()" style="margin-top:14px;background:none;border:1.5px solid rgba(255,255,255,0.5);color:white;border-radius:24px;padding:10px 28px;font-size:13px;font-weight:500;cursor:pointer;opacity:0.85;">
+    👁️ Continue as Guest
+  </button>
+  <p style="font-size:11px;opacity:0.6;margin-top:10px;">Guests can view club finances and vote on polls</p>
 </div>
 
 <!-- ── Club List Screen ── -->
@@ -369,7 +418,7 @@
     <h1>My Clubs</h1>
     <p id="userGreeting"></p>
   </div>
-  <div class="clubs-actions">
+  <div class="clubs-actions" id="clubsActions">
     <button onclick="showScreen('create')">+ Create Club</button>
     <button onclick="toggleJoinSection()">🔗 Join Club</button>
   </div>
@@ -445,17 +494,26 @@
     <h1 id="appClubName"></h1>
     <div class="user-avatar" id="appUserAvatar" onclick="openMenu()"></div>
   </div>
-  <div id="viewAsBanner" class="view-as-banner hidden">
-    <span>👁️ Previewing as <strong>Member</strong></span>
-    <button onclick="toggleViewAs()">Exit Preview</button>
+  <div id="guestBanner" class="view-as-banner hidden" style="background:#E3F2FD;color:#1565C0;">
+    <span>👁️ <span id="guestBannerName">Guest</span> — read only</span>
+    <button onclick="upgradeFromGuest()" style="background:#1565C0;">Sign In</button>
   </div>
+
+  <div id="pollReminderBanner" style="padding: 0 14px;"></div>
 
   <!-- Tab: Dashboard -->
   <div id="tab-dashboard" class="tab-content active">
     <div id="balanceCard" class="balance-card">
-      <div class="label">Approved Balance</div>
-      <div class="amount" id="dashBalance">₹0</div>
-      <div class="sub" id="dashBalanceSub"></div>
+      <button class="balance-share-btn" onclick="shareSummaryToWhatsApp()" title="Share summary on WhatsApp"><div class="share-circle"><svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div></button>
+      <div class="balance-left">
+        <div class="label">Approved Balance</div>
+        <div class="amount" id="dashBalance">₹0</div>
+        <div class="sub" id="dashBalanceSub"></div>
+      </div>
+      <div class="balance-right">
+        <div class="member-count" id="dashMemberCount"></div>
+        <div class="manager-names" id="dashManagerNames"></div>
+      </div>
     </div>
     <div id="pendingCard" class="pending-card hidden">
       <div class="icon">⏳</div>
@@ -469,7 +527,6 @@
       <div class="summary-item sponsorship"><div class="val" id="dashSponsorships">₹0</div><div class="lbl">Sponsorships</div></div>
       <div class="summary-item expense"><div class="val" id="dashExpense">₹0</div><div class="lbl">Expenses</div></div>
     </div>
-    <button class="share-summary-btn" onclick="shareSummaryToWhatsApp()"><span class="wa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span> Share Summary on WhatsApp</button>
     <div class="section-row">
       <div class="section-title">Recent Transactions</div>
       <a href="#" class="export-link" onclick="showTab('history');return false;">See All ›</a>
@@ -490,6 +547,10 @@
       <button class="type-btn" data-type="sponsorship" onclick="selectType(this)">
         <span class="emoji">🤝</span> Sponsorship
       </button>
+    </div>
+    <div class="form-group" id="recordForGroup" style="display:none;">
+      <label>Record For</label>
+      <select id="recordForMember"></select>
     </div>
     <div class="form-group">
       <label>Amount</label>
@@ -552,30 +613,58 @@
       <button onclick="copyInviteLink()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">🔗 Copy Invite Link</button>
       <button onclick="copyClubId()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#F5F5F5;color:var(--text);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">🆔 Copy Club ID</button>
     </div>
-    <div class="section-title" style="margin-bottom:12px;">Members</div>
-    <div id="membersList" style="padding:0 0 12px;"></div>
-    <div id="addMemberSection" style="display:none;">
+    <div id="addMemberSection" style="display:none;margin-bottom:14px;">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button onclick="openAddPlaceholderModal()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#E8F5E9;color:var(--primary);border:1.5px solid var(--primary);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">👤+ Add Member</button>
+      </div>
       <div class="add-member-form">
         <input type="email" id="addMemberEmail" placeholder="member@gmail.com" />
-        <button onclick="addMemberByEmail()">+ Add</button>
+        <button onclick="addMemberByEmail()">✉️ Invite</button>
       </div>
       <div id="pendingInvitesList"></div>
     </div>
+    <div class="section-title" style="margin-bottom:12px;">Members</div>
+    <div id="membersList" style="padding:0 0 12px;"></div>
   </div>
 
   <!-- Tab: Polls -->
   <div id="tab-polls" class="tab-content">
-    <div class="section-title" style="margin-bottom:12px;">Availability Polls</div>
-    <div id="createPollSection" style="display:none;">
-      <button class="new-poll-btn" onclick="openCreatePollModal()">📊 Create New Poll</button>
+    <!-- Sub-tabs: Polls | Umpiring -->
+    <div class="polls-subtabs" style="display:flex;border-bottom:2px solid var(--border);margin-bottom:14px;">
+      <button class="polls-subtab active" onclick="switchPollsSubtab('availability')" id="subtabAvailability" style="flex:1;padding:10px 0;font-size:14px;font-weight:600;background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;color:var(--text-secondary);">🗳️ Polls</button>
+      <button class="polls-subtab" onclick="switchPollsSubtab('umpiring')" id="subtabUmpiring" style="flex:1;padding:10px 0;font-size:14px;font-weight:600;background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;color:var(--text-secondary);">🏏 Umpiring</button>
     </div>
-    <div id="pollsList"></div>
+
+    <!-- Sub-panel: Availability Polls -->
+    <div id="pollsSubpanel" class="polls-subpanel">
+      <div id="createPollSection" style="display:none;">
+        <button class="new-poll-btn" onclick="openCreatePollModal()">📊 Create New Poll</button>
+      </div>
+      <div id="pollsList"></div>
+    </div>
+
+    <!-- Sub-panel: Umpiring Roster -->
+    <div id="umpiringSubpanel" class="polls-subpanel" style="display:none;">
+      <div id="createUmpireSection" style="display:none;">
+        <button class="new-poll-btn" onclick="openCreateUmpireModal()" style="background:#E8F5E9;color:var(--primary);border:1.5px solid var(--primary);">🏏 Assign Umpire</button>
+      </div>
+
+      <div class="filter-row" style="margin-bottom:12px;">
+        <button class="chip active" data-ufilter="upcoming" onclick="setUmpireFilter(this)">📅 Upcoming</button>
+        <button class="chip" data-ufilter="my" onclick="setUmpireFilter(this)">👤 My Duties</button>
+        <button class="chip" data-ufilter="past" onclick="setUmpireFilter(this)">📜 Past</button>
+        <button class="chip" data-ufilter="stats" onclick="setUmpireFilter(this)">📊 Stats</button>
+      </div>
+
+      <div id="umpireList"></div>
+      <div id="umpireStats" style="display:none;"></div>
+    </div>
   </div>
 
   <!-- Bottom Nav -->
   <nav class="bottom-nav" id="bottomNav">
     <button class="nav-item active" onclick="showTab('dashboard')"><span class="ni-icon">📊</span>Dashboard</button>
-    <button class="nav-item" onclick="showTab('record')"><span class="ni-icon">➕</span>Record</button>
+    <button class="nav-item" id="navRecord" onclick="showTab('record')"><span class="ni-icon">➕</span>Record</button>
     <button class="nav-item" onclick="showTab('polls')"><span class="ni-icon">🗳️</span>Polls</button>
     <button class="nav-item" onclick="showTab('members')"><span class="ni-icon">👥</span>Members</button>
   </nav>
@@ -604,12 +693,7 @@
     <div class="menu-item" onclick="openSettingsModal();closeMenu();">
       <span class="menu-icon">⚙️</span> Club Settings
     </div>
-    <div class="menu-item" onclick="toggleViewAs();closeMenu();">
-      <span class="menu-icon">👁️</span> <span id="viewAsLabel">Preview as Member</span>
-    </div>
-    <div class="menu-item" id="menuImportItem" onclick="openImportModal();closeMenu();" style="display:none;">
-      <span class="menu-icon">📥</span> Import from V1
-    </div>
+
   </div>
 
   <div class="menu-group">
@@ -635,37 +719,13 @@
     <div class="menu-item" onclick="signOut();closeMenu();">
       <span class="menu-icon">🔒</span> Sign Out
     </div>
+    <div class="menu-item" onclick="openAppGuide();closeMenu();">
+      <span class="menu-icon">ℹ️</span> App Guide
+    </div>
   </div>
 </div>
 
-<!-- ── Import V1 Modal ── -->
-<div id="importModal" class="modal-overlay" onclick="if(event.target===this)closeImportModal()">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2>📥 Import from V1</h2>
-    <p style="font-size:12px;color:var(--text-secondary);margin:0 0 16px;">Import transactions from your V1 Google Sheets app into this club.</p>
-    <div class="form-group">
-      <label>V1 Apps Script URL</label>
-      <input type="url" id="importV1Url" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px;" />
-      <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">Paste the same URL used in your V1 app settings</div>
-    </div>
-    <div id="importPreview" style="display:none;">
-      <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:16px;">
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Preview</div>
-        <div id="importPreviewStats" style="font-size:12px;color:var(--text-secondary);"></div>
-      </div>
-    </div>
-    <div id="importProgress" style="display:none;margin-bottom:16px;">
-      <div style="background:var(--border);border-radius:6px;height:8px;overflow:hidden;">
-        <div id="importProgressBar" style="background:var(--primary);height:100%;width:0%;transition:width 0.3s;"></div>
-      </div>
-      <div id="importProgressText" style="font-size:11px;color:var(--text-secondary);margin-top:4px;text-align:center;"></div>
-    </div>
-    <button class="submit-btn" id="importFetchBtn" onclick="fetchV1Data()" style="margin-bottom:8px;">Fetch V1 Data</button>
-    <button class="submit-btn" id="importRunBtn" onclick="runV1Import()" style="margin-bottom:8px;display:none;">Import All Transactions</button>
-    <button class="submit-btn" onclick="closeImportModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
-  </div>
-</div>
+
 
 <!-- ── Settings Modal ── -->
 <div id="settingsModal" class="modal-overlay" onclick="if(event.target===this)closeSettingsModal()">
@@ -699,6 +759,19 @@
         </label>
       </div>
     </div>
+    <div class="form-group">
+      <label>Guest Access</label>
+      <div class="sublabel" style="margin-bottom:6px;">Allow non-members to view club finances</div>
+      <select id="settingsGuestAccess" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;">
+        <option value="disabled">Disabled — members only</option>
+        <option value="open">Open — anyone with Club ID can view</option>
+        <option value="pin">PIN protected — require a PIN to view</option>
+      </select>
+    </div>
+    <div class="form-group" id="guestPinGroup" style="display:none;">
+      <label>Guest PIN</label>
+      <input type="text" id="settingsGuestPin" maxlength="8" placeholder="e.g. 1234" style="width:120px;" />
+    </div>
     <button class="submit-btn" onclick="saveClubSettings()" style="margin-bottom:12px;">Save Settings</button>
     <button class="submit-btn" onclick="closeSettingsModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
   </div>
@@ -727,6 +800,190 @@
     </div>
     <button class="submit-btn" id="createPollBtn" onclick="createPoll()" style="margin-bottom:8px;">Create & Share</button>
     <button class="submit-btn" onclick="closeCreatePollModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Add Placeholder Member Modal ── -->
+<div id="addPlaceholderModal" class="modal-overlay" onclick="if(event.target===this)closeAddPlaceholderModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>👤 Add Member Manually</h2>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Add a member who hasn't signed up yet. They can claim their account later by signing in with the matching email.</p>
+    <div class="form-group">
+      <label>Name *</label>
+      <input type="text" id="phMemberName" placeholder="e.g. Ravi Kumar" maxlength="60" />
+    </div>
+    <div class="form-group">
+      <label>Email (optional)</label>
+      <input type="email" id="phMemberEmail" placeholder="e.g. ravi@gmail.com" />
+    </div>
+    <button class="submit-btn" id="addPhBtn" onclick="addPlaceholderMember()" style="margin-bottom:8px;">Add Member</button>
+    <button class="submit-btn" onclick="closeAddPlaceholderModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Create Umpire Assignment Modal ── -->
+<div id="createUmpireModal" class="modal-overlay" onclick="if(event.target===this)closeCreateUmpireModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>🏏 Umpire Duty</h2>
+    <div class="form-group">
+      <label>Match Title *</label>
+      <input type="text" id="umpireMatchTitle" placeholder="e.g. vs Chennai Tigers" maxlength="80" />
+    </div>
+    <div class="form-group">
+      <label>Match Date *</label>
+      <input type="date" id="umpireMatchDate" />
+    </div>
+    <div class="form-group">
+      <label>Venue</label>
+      <input type="text" id="umpireVenue" placeholder="e.g. YMCA Ground" maxlength="100" />
+    </div>
+    <div class="form-group">
+      <label>Assignment Method</label>
+      <select id="umpireMethod" onchange="onUmpireMethodChange()">
+        <option value="volunteer">🙋 Open for Volunteers</option>
+        <option value="manual">👤 Manual Pick</option>
+        <option value="dice">🎲 Dice Roll (random from lowest-count)</option>
+      </select>
+    </div>
+    <div id="umpireVolunteerNote" style="text-align:center;padding:12px;background:#E8F5E9;border-radius:8px;font-size:12px;color:var(--primary);">🙋 Will be shared on WhatsApp for volunteers to claim</div>
+    <div id="umpireAssignToGroup" class="form-group" style="display:none;">
+      <label>Assign To</label>
+      <select id="umpireAssignTo"></select>
+    </div>
+    <div id="diceResult" style="display:none;text-align:center;padding:16px;">
+      <div style="font-size:40px;" id="diceEmoji">🎲</div>
+      <div style="font-size:14px;font-weight:600;margin-top:8px;" id="diceResultName"></div>
+    </div>
+    <button class="submit-btn" id="createUmpireBtn" onclick="createUmpireAssignment()" style="margin-bottom:8px;">Create & Share</button>
+    <button class="submit-btn" onclick="closeCreateUmpireModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
+<!-- ── App Guide Modal ── -->
+<div id="appGuideModal" class="modal-overlay" onclick="if(event.target===this)closeAppGuide()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>ℹ️ ClubMates — App Guide</h2>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">📊</span>Dashboard</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li>Live <b>approved balance</b> (income − expenses)</li>
+          <li>Pending transactions awaiting approval</li>
+          <li>Quick summary: contributions, expenses, sponsorships</li>
+          <li>Member count &amp; club managers at a glance</li>
+          <li>Share balance summary via WhatsApp</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">➕</span>Record Transactions</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li><b>Expense</b> — ground fees, equipment, travel, etc.</li>
+          <li><b>Contribution</b> — member dues, match-day fees</li>
+          <li><b>Sponsorship</b> — sponsor payments</li>
+          <li>Add description, amount, date, and category</li>
+          <li>Treasurer approves or rejects submissions <span class="guide-role treasurer">Treasurer</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">📋</span>Transaction History</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li>Full list of all transactions (approved, pending, rejected)</li>
+          <li>Search by description, member, or category</li>
+          <li>Filter by type (expense / contribution / sponsorship)</li>
+          <li>Tap any transaction to see details</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">👥</span>Members</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li>View all club members and their roles</li>
+          <li><b>Add manually</b> — create placeholder members <span class="guide-role treasurer">Treasurer</span></li>
+          <li><b>Invite by email</b> — send email invitations <span class="guide-role treasurer">Treasurer</span></li>
+          <li><b>Invite link</b> — share join link via WhatsApp</li>
+          <li>Change roles: Owner, Treasurer, Member <span class="guide-role treasurer">Treasurer</span></li>
+          <li>Members can claim placeholder accounts after joining</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">📢</span>Polls (Match Availability)</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li>Create polls for upcoming matches <span class="guide-role treasurer">Treasurer</span></li>
+          <li>Members respond: ✅ Yes, ❌ No, or 🤔 Maybe</li>
+          <li>Share poll links on WhatsApp <span class="guide-role treasurer">Treasurer</span></li>
+          <li>Auto-reminder banner when match is within 2 days &amp; &lt;11 confirmed</li>
+          <li>Nudge non-responders via WhatsApp <span class="guide-role treasurer">Treasurer</span></li>
+          <li>View results: who's in, who's out, who hasn't responded</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">🏏</span>Umpire Duty</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li>Create umpire assignments for matches <span class="guide-role treasurer">Treasurer</span></li>
+          <li><b>Volunteer mode</b> — share on WhatsApp, members tap to claim</li>
+          <li><b>Assign mode</b> — pick a member or use 🎲 random dice</li>
+          <li>Swap requests — members can request swaps, others accept</li>
+          <li>Track umpire history per member</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">👁️</span>Guest Access</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li>Enable in Club Settings <span class="guide-role treasurer">Treasurer</span></li>
+          <li><b>Open</b> — anyone with the link can view (read-only)</li>
+          <li><b>PIN protected</b> — guests need a 4-digit PIN to access</li>
+          <li>Guests can see balances, polls &amp; respond to polls</li>
+          <li>Guests cannot record transactions or manage members</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">🔑</span>Roles &amp; Permissions</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li><b>Owner</b> — full control, can delete club, manage all settings</li>
+          <li><b>Treasurer</b> — approve/reject transactions, create polls, manage members</li>
+          <li><b>Member</b> — record transactions, vote in polls, volunteer for umpire</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section" onclick="toggleGuide(this)">
+      <div class="guide-header"><span><span class="guide-icon">📤</span>Export &amp; Backup</span><span class="guide-arrow">▶</span></div>
+      <div class="guide-body">
+        <ul>
+          <li><b>Export to Excel</b> — download all transactions as .xlsx</li>
+          <li><b>Export JSON</b> — full backup of all club data</li>
+          <li>Access from the ☰ menu</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:12px;">
+      <button class="submit-btn" onclick="closeAppGuide()" style="background:#F5F5F5;color:var(--text);">Close</button>
+    </div>
   </div>
 </div>
 
@@ -774,10 +1031,13 @@
   var currentHistorySort = 'date-desc';
   var pendingJoinClubId = null;
   var pendingLogoBase64 = null;
-  var viewingAs = null; // null = actual role; 'member' = preview as member
+
   var polls = []; // availability polls
+  var umpireAssignments = []; // umpiring assignments
+  var currentUmpireFilter = 'upcoming'; // upcoming, my, past, stats
   var pendingPollNav = false; // true when navigating from a poll link
   var pendingVote = null; // { pollId, vote } for deep-link voting
+  var pendingUmpireVolunteer = null; // { assignmentId } for deep-link umpire volunteer
 
   var DEFAULT_CATEGORIES = [
     'Ground Fees', 'Equipment', 'Jerseys', 'Travel', 'Food & Drinks',
@@ -791,8 +1051,9 @@
   auth.onAuthStateChanged(function(user) {
     currentUser = user;
     if (user) {
-      // Check for pending invites (added by treasurer via email)
-      checkPendingInvites(user).then(function() {
+      // For anonymous (guest) users, skip invites — go straight to guest club entry
+      var initPromise = user.isAnonymous ? Promise.resolve() : checkPendingInvites(user);
+      initPromise.then(function() {
         var params = new URLSearchParams(window.location.search);
         // Check for pending join from URL
         var joinId = params.get('join');
@@ -811,20 +1072,46 @@
         sessionStorage.removeItem('pendingVote');
 
         // Clean URL
-        if (params.has('join') || params.has('poll')) {
+        if (params.has('join') || params.has('poll') || params.has('umpire')) {
           history.replaceState(null, '', window.location.pathname);
         }
 
-        if (pollId && pollClubId) {
+        // Check for umpire volunteer link
+        var umpireId = params.get('umpire');
+        var umpireClubId = params.get('club') || pollClubId;
+        var umpireAction = params.get('action');
+        if (!umpireId) umpireId = sessionStorage.getItem('pendingUmpire');
+        if (!umpireClubId) umpireClubId = sessionStorage.getItem('pendingUmpireClub');
+        if (!umpireAction) umpireAction = sessionStorage.getItem('pendingUmpireAction');
+        sessionStorage.removeItem('pendingUmpire');
+        sessionStorage.removeItem('pendingUmpireClub');
+        sessionStorage.removeItem('pendingUmpireAction');
+
+        if (umpireId && umpireClubId && umpireAction === 'volunteer') {
+          pendingUmpireVolunteer = { assignmentId: umpireId };
+          if (user.isAnonymous) {
+            enterClubAsGuest(umpireClubId);
+          } else {
+            handleJoinClub(umpireClubId);
+          }
+        } else if (pollId && pollClubId) {
           // Poll link: enter the club and navigate to polls
           pendingPollNav = true;
           if (voteParam && ['yes','no','maybe'].indexOf(voteParam) >= 0) {
             pendingVote = { pollId: pollId, vote: voteParam };
           }
-          handleJoinClub(pollClubId);
+          if (user.isAnonymous) {
+            enterClubAsGuest(pollClubId);
+          } else {
+            handleJoinClub(pollClubId);
+          }
         } else if (joinId) {
           history.replaceState(null, '', window.location.pathname);
-          handleJoinClub(joinId);
+          if (user.isAnonymous) {
+            enterClubAsGuest(joinId);
+          } else {
+            handleJoinClub(joinId);
+          }
         } else {
           showScreen('clubs');
           loadMyClubs();
@@ -841,6 +1128,12 @@
       if (pollClubId) sessionStorage.setItem('pendingPollClub', pollClubId);
       var voteP = params.get('vote');
       if (voteP) sessionStorage.setItem('pendingVote', voteP);
+      var uId = params.get('umpire');
+      if (uId) sessionStorage.setItem('pendingUmpire', uId);
+      var uClub = params.get('club');
+      if (uClub) sessionStorage.setItem('pendingUmpireClub', uClub);
+      var uAction = params.get('action');
+      if (uAction) sessionStorage.setItem('pendingUmpireAction', uAction);
       showScreen('signin');
     }
   });
@@ -867,6 +1160,25 @@
     });
   }
 
+  function signInAsGuest() {
+    var name = prompt('Enter your name (so others can identify you):');
+    if (!name || !name.trim()) {
+      showToast('A name is required for guest access', 'error');
+      return;
+    }
+    name = name.trim();
+    auth.signInAnonymously().then(function(cred) {
+      return cred.user.updateProfile({ displayName: name });
+    }).catch(function(err) {
+      console.error('Guest sign-in error:', err);
+      showToast('Guest sign-in failed: ' + err.message, 'error');
+    });
+  }
+
+  function isGuest() {
+    return currentUser && currentUser.isAnonymous;
+  }
+
   function signOut() {
     auth.signOut().then(function() {
       currentUser = null;
@@ -883,6 +1195,24 @@
   // ── Club Management ──
   // ═══════════════════════════════════════════════════════════
   function loadMyClubs() {
+    if (isGuest()) {
+      document.getElementById('userGreeting').textContent = 'Browsing as Guest';
+      document.getElementById('clubsActions').style.display = 'none';
+      // Hide create/join buttons for guests, show a prompt to enter a club ID
+      document.getElementById('clubList').innerHTML =
+        '<div class="empty-state">' +
+        '  <div class="icon">👁️</div>' +
+        '  <h3>Guest Mode</h3>' +
+        '  <p>Enter a Club ID or use an invite link to view a club\'s finances.</p>' +
+        '  <div style="padding:12px 0;">' +
+        '    <input type="text" id="guestClubId" placeholder="Paste Club ID here" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;box-sizing:border-box;" />' +
+        '    <button onclick="guestEnterClub()" style="width:100%;margin-top:10px;padding:10px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">View Club</button>' +
+        '  </div>' +
+        '  <p style="font-size:12px;color:var(--text-secondary);margin-top:8px;">Want full access? <a href="#" onclick="upgradeFromGuest();return false;" style="color:var(--primary);font-weight:600;">Sign in with Google</a></p>' +
+        '</div>';
+      return;
+    }
+    document.getElementById('clubsActions').style.display = '';
     document.getElementById('userGreeting').textContent = 'Hi, ' + (currentUser.displayName || currentUser.email);
     var listEl = document.getElementById('clubList');
     listEl.innerHTML = '<div class="text-center" style="padding:40px;color:var(--text-secondary);">Loading...</div>';
@@ -1068,7 +1398,6 @@
     unsubs = [];
     transactions = [];
     members = [];
-    viewingAs = null;
 
     // Verify membership
     db.collection('clubs').doc(clubId).collection('members').doc(currentUser.uid).get()
@@ -1114,6 +1443,8 @@
               members = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
               renderMembers();
               renderPolls();
+              renderDashboard();
+              populateRecordForm();
             })
         );
 
@@ -1124,11 +1455,28 @@
             .onSnapshot(function(snap) {
               polls = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
               renderPolls();
+              renderPollReminders();
+            })
+        );
+        unsubs.push(
+          db.collection('clubs').doc(clubId).collection('umpireAssignments')
+            .orderBy('matchDate', 'desc')
+            .onSnapshot(function(snap) {
+              umpireAssignments = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+              renderUmpiring();
             })
         );
 
         showScreen('app');
-        if (pendingPollNav) {
+        if (pendingUmpireVolunteer) {
+          var umpVol = pendingUmpireVolunteer;
+          pendingUmpireVolunteer = null;
+          showTab('polls');
+          switchPollsSubtab('umpiring');
+          setTimeout(function() {
+            volunteerUmpire(umpVol.assignmentId);
+          }, 1500);
+        } else if (pendingPollNav) {
           var voteToCast = pendingVote;
           pendingPollNav = false;
           pendingVote = null;
@@ -1157,10 +1505,143 @@
     transactions = [];
     members = [];
     polls = [];
+    umpireAssignments = [];
     myRole = null;
-    viewingAs = null;
     showScreen('clubs');
     loadMyClubs();
+  }
+
+  // ── Guest Club Entry ──
+  function guestEnterClub() {
+    var input = document.getElementById('guestClubId');
+    var clubId = (input ? input.value : '').trim();
+    if (!clubId) {
+      showToast('Enter a Club ID', 'error');
+      return;
+    }
+    enterClubAsGuest(clubId);
+  }
+
+  function enterClubAsGuest(clubId) {
+    // Check if club exists and allows guest access
+    db.collection('clubs').doc(clubId).get().then(function(clubDoc) {
+      if (!clubDoc.exists) {
+        showToast('Club not found. Check the Club ID.', 'error');
+        return;
+      }
+      var clubData = clubDoc.data();
+      var guestAccess = clubData.guestAccess || 'disabled';
+
+      if (guestAccess === 'disabled') {
+        showToast('This club does not allow guest access. Sign in to join.', 'error');
+        return;
+      }
+
+      if (guestAccess === 'pin') {
+        var pin = prompt('Enter the club PIN to view:');
+        if (!pin || pin !== clubData.guestPin) {
+          showToast('Incorrect PIN', 'error');
+          return;
+        }
+      }
+
+      // Guest access granted — set up read-only view
+      unsubs.forEach(function(u) { u(); });
+      unsubs = [];
+      transactions = [];
+      members = [];
+      polls = [];
+      myRole = 'guest';
+
+      // Subscribe to club settings
+      unsubs.push(
+        db.collection('clubs').doc(clubId).onSnapshot(function(snap) {
+          if (snap.exists) {
+            currentClub = { id: clubId, ...snap.data() };
+            renderAppHeader();
+            renderDashboard();
+            renderHistory();
+            updateRoleVisibility();
+          }
+        })
+      );
+
+      // Subscribe to transactions (read-only)
+      unsubs.push(
+        db.collection('clubs').doc(clubId).collection('transactions')
+          .orderBy('createdAt', 'desc')
+          .onSnapshot(function(snap) {
+            transactions = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+            renderDashboard();
+            renderHistory();
+          })
+      );
+
+      // Subscribe to members (read-only)
+      unsubs.push(
+        db.collection('clubs').doc(clubId).collection('members')
+          .onSnapshot(function(snap) {
+            members = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+            renderMembers();
+            renderPolls();
+            renderDashboard();
+          })
+      );
+
+      // Subscribe to polls (can vote)
+      unsubs.push(
+        db.collection('clubs').doc(clubId).collection('polls')
+          .orderBy('createdAt', 'desc')
+          .onSnapshot(function(snap) {
+            polls = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+            renderPolls();
+            renderPollReminders();
+          })
+      );
+
+      // Subscribe to umpire assignments (read-only for guests)
+      unsubs.push(
+        db.collection('clubs').doc(clubId).collection('umpireAssignments')
+          .orderBy('matchDate', 'desc')
+          .onSnapshot(function(snap) {
+            umpireAssignments = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
+            renderUmpiring();
+          })
+      );
+
+      showScreen('app');
+      if (pendingUmpireVolunteer) {
+        var umpVol = pendingUmpireVolunteer;
+        pendingUmpireVolunteer = null;
+        showTab('polls');
+        switchPollsSubtab('umpiring');
+        setTimeout(function() {
+          volunteerUmpire(umpVol.assignmentId);
+        }, 1500);
+      } else if (pendingPollNav) {
+        var voteToCast = pendingVote;
+        pendingPollNav = false;
+        pendingVote = null;
+        showTab('polls');
+        if (voteToCast) {
+          setTimeout(function() {
+            respondToPoll(voteToCast.pollId, voteToCast.vote);
+          }, 1500);
+        }
+      } else {
+        showTab('dashboard');
+      }
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function upgradeFromGuest() {
+    // Sign out anonymous, then sign in with Google
+    auth.signOut().then(function() {
+      // The onAuthStateChanged will show the signin screen, then they can click Google button
+      showToast('Sign in with Google for full access', 'success');
+    });
   }
 
   function leaveThisClub() {
@@ -1207,6 +1688,22 @@
     document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('txAmount').value = '';
     document.getElementById('txDescription').value = '';
+
+    // Record For dropdown — treasurers/owners see all members, others see only Myself
+    var rfGroup = document.getElementById('recordForGroup');
+    var rfSelect = document.getElementById('recordForMember');
+    if (isTreasurer() && members.length > 0) {
+      rfGroup.style.display = '';
+      var opts = '<option value="__myself__">Myself (' + escHtml(currentUser.displayName || currentUser.email) + ')</option>';
+      members.forEach(function(m) {
+        if (m.uid === currentUser.uid) return; // skip self, already "Myself"
+        opts += '<option value="' + escHtml(m.uid) + '">' + escHtml(m.name || m.email || m.uid) + '</option>';
+      });
+      rfSelect.innerHTML = opts;
+    } else {
+      rfGroup.style.display = 'none';
+      rfSelect.innerHTML = '<option value="__myself__">Myself</option>';
+    }
   }
 
   function submitTransaction() {
@@ -1229,6 +1726,19 @@
       status = 'pending';
     }
 
+    // Determine who the transaction is recorded for
+    var rfValue = document.getElementById('recordForMember').value;
+    var recordedFor;
+    if (rfValue && rfValue !== '__myself__') {
+      var targetMember = members.find(function(m) { return m.uid === rfValue; });
+      if (targetMember) {
+        recordedFor = { uid: targetMember.uid, name: targetMember.name || targetMember.email || targetMember.uid, email: targetMember.email || '' };
+      }
+    }
+    if (!recordedFor) {
+      recordedFor = { uid: currentUser.uid, name: currentUser.displayName || currentUser.email, email: currentUser.email };
+    }
+
     var txData = {
       type: type,
       amount: amount,
@@ -1240,6 +1750,7 @@
         name: currentUser.displayName || currentUser.email,
         email: currentUser.email
       },
+      recordedFor: recordedFor,
       status: status,
       approvedBy: status === 'approved' ? {
         uid: currentUser.uid,
@@ -1331,12 +1842,80 @@
 
     var batch = db.batch();
     batch.delete(db.collection('clubs').doc(currentClub.id).collection('members').doc(memberId));
-    // Try to clean up user's club reference too
+    // Try to clean up user's club reference too (skip for placeholder members)
     batch.commit().then(function() {
-      // Best-effort cleanup of user's clubs reference
-      db.collection('users').doc(memberId).collection('clubs').doc(currentClub.id)
-        .delete().catch(function() { /* May fail - that's OK, user will see stale entry */ });
+      if (memberId.indexOf('ph_') !== 0) {
+        db.collection('users').doc(memberId).collection('clubs').doc(currentClub.id)
+          .delete().catch(function() { /* May fail - that's OK */ });
+      }
       showToast(memberName + ' removed', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  // ── Placeholder Claim Flow (Guest → Treasurer Approval) ──
+  function claimPlaceholder(placeholderUid, placeholderName) {
+    if (!currentClub || !currentUser) return;
+    var guestName = currentUser.displayName || 'Guest';
+    if (!confirm('Claim "' + placeholderName + '" as your profile?\n\nThe treasurer will be notified to approve.')) return;
+
+    db.collection('clubs').doc(currentClub.id).collection('members').doc(placeholderUid).update({
+      claimRequest: {
+        guestUid: currentUser.uid,
+        guestName: guestName,
+        requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }
+    }).then(function() {
+      showToast('Claim request sent! The treasurer will review it.', 'success');
+    }).catch(function(err) {
+      showToast('Could not send claim: ' + err.message, 'error');
+    });
+  }
+
+  function approveClaimRequest(placeholderUid) {
+    if (!isTreasurer() || !currentClub) return;
+    var placeholder = members.find(function(m) { return m.uid === placeholderUid; });
+    if (!placeholder || !placeholder.claimRequest) {
+      showToast('No pending claim found', 'error');
+      return;
+    }
+    var claim = placeholder.claimRequest;
+    if (!confirm('Approve ' + claim.guestName + ' claiming "' + (placeholder.name || '') + '"?')) return;
+
+    // Create a real member doc under the guest's UID, copying placeholder data
+    var newDoc = {
+      uid: claim.guestUid,
+      name: placeholder.name,
+      email: placeholder.email || '',
+      role: 'member',
+      isPlaceholder: false,
+      claimedFromPlaceholder: placeholderUid,
+      claimedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      joinedAt: placeholder.joinedAt || firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    var batch = db.batch();
+    // Create new member doc for the guest
+    batch.set(db.collection('clubs').doc(currentClub.id).collection('members').doc(claim.guestUid), newDoc);
+    // Delete the old placeholder doc
+    batch.delete(db.collection('clubs').doc(currentClub.id).collection('members').doc(placeholderUid));
+
+    batch.commit().then(function() {
+      showToast(claim.guestName + ' approved as ' + (placeholder.name || 'member') + '!', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function rejectClaimRequest(placeholderUid) {
+    if (!isTreasurer() || !currentClub) return;
+    if (!confirm('Reject this claim request?')) return;
+
+    db.collection('clubs').doc(currentClub.id).collection('members').doc(placeholderUid).update({
+      claimRequest: firebase.firestore.FieldValue.delete()
+    }).then(function() {
+      showToast('Claim rejected', 'success');
     }).catch(function(err) {
       showToast('Error: ' + err.message, 'error');
     });
@@ -1395,7 +1974,7 @@
   // ── Club Settings ──
   // ═══════════════════════════════════════════════════════════
   function openSettingsModal() {
-    if (!isActualTreasurer()) { showToast('Only treasurers can edit settings', 'error'); return; }
+    if (!isTreasurer()) { showToast('Only treasurers can edit settings', 'error'); return; }
     pendingLogoBase64 = null;
     var preview = document.getElementById('settingsLogoPreview');
     if (currentClub.logoBase64) {
@@ -1406,19 +1985,35 @@
     document.getElementById('settingsClubName').value = currentClub.name || '';
     document.getElementById('settingsCurrency').value = currentClub.currency || '₹';
     document.getElementById('settingsApproval').checked = !!currentClub.requireApproval;
+    // Guest access
+    var gaSelect = document.getElementById('settingsGuestAccess');
+    gaSelect.value = currentClub.guestAccess || 'disabled';
+    document.getElementById('settingsGuestPin').value = currentClub.guestPin || '';
+    toggleGuestPinVisibility();
+    gaSelect.onchange = toggleGuestPinVisibility;
     document.getElementById('settingsModal').classList.add('show');
+  }
+  function toggleGuestPinVisibility() {
+    var v = document.getElementById('settingsGuestAccess').value;
+    document.getElementById('guestPinGroup').style.display = v === 'pin' ? '' : 'none';
   }
   function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('show'); }
 
+  function openAppGuide() { document.getElementById('appGuideModal').classList.add('show'); }
+  function closeAppGuide() { document.getElementById('appGuideModal').classList.remove('show'); }
+  function toggleGuide(el) { el.classList.toggle('open'); }
+
   function saveClubSettings() {
-    if (!isActualTreasurer()) return;
+    if (!isTreasurer()) return;
     var name = document.getElementById('settingsClubName').value.trim();
     if (!name) { showToast('Club name required', 'error'); return; }
 
     var updates = {
       name: name,
       currency: document.getElementById('settingsCurrency').value.trim() || '₹',
-      requireApproval: document.getElementById('settingsApproval').checked
+      requireApproval: document.getElementById('settingsApproval').checked,
+      guestAccess: document.getElementById('settingsGuestAccess').value || 'disabled',
+      guestPin: document.getElementById('settingsGuestPin').value.trim() || ''
     };
     if (pendingLogoBase64 !== null) updates.logoBase64 = pendingLogoBase64;
 
@@ -1453,21 +2048,22 @@
       logo.classList.add('hidden');
     }
     var avatar = document.getElementById('appUserAvatar');
-    avatar.textContent = (currentUser.displayName || currentUser.email || '?').charAt(0).toUpperCase();
+    var guest = isGuest() || myRole === 'guest';
+    var guestName = guest && currentUser.displayName ? currentUser.displayName : null;
+    avatar.textContent = guest ? (guestName ? guestName.charAt(0).toUpperCase() : '👁') : (currentUser.displayName || currentUser.email || '?').charAt(0).toUpperCase();
     // Update menu panel header
-    document.getElementById('menuUserName').textContent = currentUser.displayName || 'User';
-    document.getElementById('menuUserEmail').textContent = currentUser.email || '';
+    document.getElementById('menuUserName').textContent = guest ? (guestName || 'Guest') : (currentUser.displayName || 'User');
+    document.getElementById('menuUserEmail').textContent = guest ? 'Guest — read-only access' : (currentUser.email || '');
   }
 
   function updateRoleVisibility() {
+    var guest = isGuest() || myRole === 'guest';
     // Show/hide treasurer-only elements
-    var isActual = isActualTreasurer();
+    var isActual = isTreasurer();
     document.getElementById('menuSettingsGroup').style.display = isActual ? '' : 'none';
     document.getElementById('addMemberSection').style.display = isActual ? 'block' : 'none';
     if (isActual && currentClub) loadPendingInvites();
-    document.getElementById('menuImportItem').style.display = isActual ? '' : 'none';
-    document.getElementById('viewAsBanner').classList.toggle('hidden', !viewingAs);
-    document.getElementById('viewAsLabel').textContent = viewingAs ? '✅ Exit Member Preview' : '👁️ Preview as Member';
+
     // Show/hide pending chip based on approval workflow
     var chipPending = document.getElementById('chipPending');
     if (currentClub && currentClub.requireApproval) {
@@ -1475,10 +2071,134 @@
     } else {
       chipPending.classList.add('hidden');
     }
+    // Guest mode: hide Record tab, show guest banner
+    document.getElementById('navRecord').style.display = guest ? 'none' : '';
+    var guestBanner = document.getElementById('guestBanner');
+    if (guest) {
+      guestBanner.classList.remove('hidden');
+      var gn = currentUser && currentUser.displayName ? currentUser.displayName : 'Guest';
+      document.getElementById('guestBannerName').textContent = gn + ' (Guest)';
+    } else {
+      guestBanner.classList.add('hidden');
+    }
+  }
+
+  // ── Poll Reminder Banner + Browser Notification ──
+  var pollReminderNotified = {}; // track which polls we've already notified for this session
+  var pollReminderDismissed = {}; // track dismissed banners for this session
+
+  function dismissPollReminder(pollId) {
+    pollReminderDismissed[pollId] = true;
+    renderPollReminders();
+  }
+
+  function renderPollReminders() {
+    var banner = document.getElementById('pollReminderBanner');
+    if (!banner || !isTreasurer() || !currentClub) { if (banner) banner.innerHTML = ''; return; }
+
+    var now = new Date();
+    var twoDaysMs = 2 * 24 * 60 * 60 * 1000;
+    var html = '';
+
+    polls.forEach(function(poll) {
+      if (poll.status !== 'open' || !poll.matchDate) return;
+      if (pollReminderDismissed[poll.id]) return;
+      var matchDate = new Date(poll.matchDate + 'T00:00:00');
+      var diff = matchDate.getTime() - now.getTime();
+      if (diff < 0 || diff > twoDaysMs) return; // only within 2 days
+
+      var responses = poll.responses || {};
+      var yesCount = 0;
+      Object.keys(responses).forEach(function(uid) {
+        if (responses[uid].response === 'yes') yesCount++;
+      });
+
+      if (yesCount >= 11) return; // already have enough
+
+      // Find non-responders and non-yes members
+      var nonResponders = members.filter(function(m) {
+        if (m.isPlaceholder) return false;
+        var r = responses[m.id];
+        return !r || r.response !== 'yes';
+      });
+      var names = nonResponders.map(function(m) { return m.name || 'Unknown'; });
+      var daysText = diff < 24 * 60 * 60 * 1000 ? 'TODAY' : 'in 1 day';
+
+      html += '<div class="poll-reminder" style="background:#FFF3E0;border:1px solid #FF9800;border-radius:10px;padding:12px;margin-bottom:12px;position:relative;">';
+      html += '  <button onclick="dismissPollReminder(\'' + poll.id + '\')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#999;font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;" title="Dismiss">✕</button>';
+      html += '  <div style="font-weight:600;font-size:13px;padding-right:24px;">⚠️ Match ' + daysText + (poll.opponent ? ' vs ' + escHtml(poll.opponent) : '') + ' — only ' + yesCount + '/11 confirmed!</div>';
+      html += '  <div style="font-size:11px;color:#666;margin-top:4px;">' + names.length + ' member' + (names.length > 1 ? 's' : '') + ' haven\'t confirmed: ' + escHtml(names.slice(0, 5).join(', ')) + (names.length > 5 ? '…' : '') + '</div>';
+      html += '  <button onclick="nudgeNonResponders(\'' + poll.id + '\')" style="margin-top:8px;padding:6px 14px;background:#25D366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">' + WA_ICON_HTML + ' Nudge on WhatsApp</button>';
+      html += '</div>';
+
+      // Browser notification (once per poll per session)
+      if (!pollReminderNotified[poll.id]) {
+        pollReminderNotified[poll.id] = true;
+        firePollReminderNotification(poll, yesCount, daysText);
+      }
+    });
+
+    banner.innerHTML = html;
+  }
+
+  function nudgeNonResponders(pollId) {
+    var poll = polls.find(function(p) { return p.id === pollId; });
+    if (!poll || !currentClub) return;
+    var responses = poll.responses || {};
+    var nonResponders = members.filter(function(m) {
+      if (m.isPlaceholder) return false;
+      var r = responses[m.id];
+      return !r || r.response !== 'yes';
+    });
+    var names = nonResponders.map(function(m) { return m.name || 'Unknown'; });
+    var clubName = currentClub.name || 'Club';
+    var yesCount = 0;
+    Object.keys(responses).forEach(function(uid) {
+      if (responses[uid].response === 'yes') yesCount++;
+    });
+
+    var text = '🏏 *' + clubName + ' — Availability Reminder*\n\n';
+    text += '📅 Match: ' + (poll.matchDate || 'TBD');
+    if (poll.opponent) text += ' vs ' + poll.opponent;
+    if (poll.location) text += '\n📍 ' + poll.location;
+    text += '\n\n⚠️ We only have *' + yesCount + '/11* confirmed so far!\n\n';
+    text += '🙏 Waiting for response from:\n';
+    names.forEach(function(n) { text += '• ' + n + '\n'; });
+    text += '\n👉 Please respond ASAP:\n';
+
+    var baseUrl = window.location.origin + window.location.pathname;
+    var base = baseUrl + '?poll=' + pollId + '&club=' + currentClub.id;
+    text += '• ✅ Yes → ' + base + '&vote=yes\n';
+    text += '• ❌ No → ' + base + '&vote=no\n';
+    text += '• 🤔 Maybe → ' + base + '&vote=maybe\n';
+    text += '\n— _via ClubMates_';
+
+    shareViaWhatsApp(text);
+  }
+
+  function firePollReminderNotification(poll, yesCount, daysText) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+      showPollNotification(poll, yesCount, daysText);
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(function(perm) {
+        if (perm === 'granted') showPollNotification(poll, yesCount, daysText);
+      });
+    }
+  }
+
+  function showPollNotification(poll, yesCount, daysText) {
+    var title = '🏏 Match ' + daysText + '!';
+    var body = 'Only ' + yesCount + '/11 confirmed' + (poll.opponent ? ' for vs ' + poll.opponent : '') + '. Open ClubMates to nudge your team.';
+    try {
+      var n = new Notification(title, { body: body, icon: '🏏', tag: 'poll-' + poll.id });
+      n.onclick = function() { window.focus(); showTab('polls'); };
+    } catch(e) { /* ignore */ }
   }
 
   function renderDashboard() {
     if (!currentClub) return;
+    renderPollReminders();
     var curr = currentClub.currency || '₹';
 
     var approvedTx = transactions.filter(function(t) { return t.status === 'approved'; });
@@ -1497,6 +2217,15 @@
     var balance = income - expenses;
     document.getElementById('dashBalance').textContent = curr + formatNum(balance);
     document.getElementById('dashBalanceSub').textContent = 'Income: ' + curr + formatNum(income) + ' | Expenses: ' + curr + formatNum(expenses);
+
+    // Member count + manager names on balance card (right column)
+    var managers = members.filter(function(m) { return m.role === 'owner' || m.role === 'treasurer'; })
+      .map(function(m) { return m.name || m.email || 'Unknown'; })
+      .sort(function(a, b) { return a.localeCompare(b); })
+      .slice(0, 3);
+    document.getElementById('dashMemberCount').textContent = '👥 ' + members.length + ' member' + (members.length !== 1 ? 's' : '');
+    document.getElementById('dashManagerNames').textContent = managers.length > 0 ? 'Managed by ' + managers.join(', ') : '';
+
     document.getElementById('dashContributions').textContent = curr + formatNum(contributions);
     document.getElementById('dashSponsorships').textContent = curr + formatNum(sponsorships);
     document.getElementById('dashExpense').textContent = curr + formatNum(expenses);
@@ -1617,7 +2346,7 @@
     var filter = currentHistoryFilter;
 
     // Show/hide select button for treasurers
-    document.getElementById('selectToggleBtn').style.display = isActualTreasurer() ? '' : 'none';
+    document.getElementById('selectToggleBtn').style.display = isTreasurer() ? '' : 'none';
 
     var list = transactions;
 
@@ -1631,9 +2360,12 @@
     // Search
     if (query) {
       list = list.filter(function(t) {
+        var ownerName = (getTxOwner(t).name || '').toLowerCase();
+        var recorderName = (t.recordedBy && t.recordedBy.name || '').toLowerCase();
         return (t.description || '').toLowerCase().includes(query) ||
                (t.category || '').toLowerCase().includes(query) ||
-               (t.recordedBy && t.recordedBy.name || '').toLowerCase().includes(query);
+               ownerName.includes(query) ||
+               recorderName.includes(query);
       });
     }
 
@@ -1649,9 +2381,9 @@
     } else if (sort === 'amount-asc') {
       list.sort(function(a, b) { return (parseFloat(a.amount) || 0) - (parseFloat(b.amount) || 0); });
     } else if (sort === 'member-asc') {
-      list.sort(function(a, b) { return (a.recordedBy && a.recordedBy.name || '').localeCompare(b.recordedBy && b.recordedBy.name || ''); });
+      list.sort(function(a, b) { return (getTxOwner(a).name || '').localeCompare(getTxOwner(b).name || ''); });
     } else if (sort === 'member-desc') {
-      list.sort(function(a, b) { return (b.recordedBy && b.recordedBy.name || '').localeCompare(a.recordedBy && a.recordedBy.name || ''); });
+      list.sort(function(a, b) { return (getTxOwner(b).name || '').localeCompare(getTxOwner(a).name || ''); });
     } else if (sort === 'category-asc') {
       list.sort(function(a, b) { return (a.category || '').localeCompare(b.category || ''); });
     }
@@ -1667,18 +2399,28 @@
     if (selectMode) updateBulkBar();
   }
 
+  // Get the effective owner of a transaction (recordedFor, falling back to recordedBy)
+  function getTxOwner(tx) {
+    return tx.recordedFor || tx.recordedBy || { uid: null, name: 'Unknown', email: '' };
+  }
+
   function renderTxItem(tx, showActions) {
     var curr = (currentClub && currentClub.currency) || '₹';
     var type = tx.type || 'expense';
     var isPending = tx.status === 'pending';
     var amount = parseFloat(tx.amount) || 0;
     var sign = type === 'expense' ? '-' : '+';
-    var recorder = tx.recordedBy ? tx.recordedBy.name : 'Unknown';
+    var owner = getTxOwner(tx);
+    var recorder = owner.name || 'Unknown';
+    // Show "(by Recorder)" suffix if someone else recorded on behalf
+    if (tx.recordedFor && tx.recordedBy && tx.recordedFor.uid !== tx.recordedBy.uid) {
+      recorder += ' (by ' + tx.recordedBy.name + ')';
+    }
     var emoji = type === 'expense' ? '🧾' : type === 'sponsorship' ? '🤝' : '💰';
     var isSelected = selectMode && selectedTxIds[tx.id];
 
     var html = '<div class="tx-item' + (isPending ? ' pending' : '') + (isSelected ? ' selected' : '') + '" data-txid="' + tx.id + '">';
-    if (selectMode && showActions && isActualTreasurer()) {
+    if (selectMode && showActions && isTreasurer()) {
       html += '<input type="checkbox" class="tx-checkbox"' + (isSelected ? ' checked' : '') + ' onclick="toggleTxSelect(\'' + tx.id + '\')" />';
     }
     html += '  <div class="tx-icon ' + type + '">' + emoji + '</div>';
@@ -1710,7 +2452,8 @@
     var memberStats = {};
     transactions.forEach(function(tx) {
       if (tx.status && tx.status !== 'approved') return;
-      var uid = tx.recordedBy ? tx.recordedBy.uid : null;
+      var owner = getTxOwner(tx);
+      var uid = owner.uid;
       if (!uid) return;
       if (!memberStats[uid]) memberStats[uid] = { contribution: 0, expense: 0, sponsorship: 0 };
       var amt = parseFloat(tx.amount) || 0;
@@ -1722,17 +2465,24 @@
 
     var html = '';
     members.sort(function(a, b) {
+      // Placeholder members go to the bottom
+      var aph = a.isPlaceholder ? 1 : 0;
+      var bph = b.isPlaceholder ? 1 : 0;
+      if (aph !== bph) return aph - bph;
       var order = { owner: 0, treasurer: 1, member: 2 };
       return (order[a.role] || 2) - (order[b.role] || 2);
     });
     members.forEach(function(m) {
       var initial = (m.name || '?').charAt(0).toUpperCase();
       var stats = memberStats[m.uid] || { contribution: 0, expense: 0, sponsorship: 0 };
-      html += '<div class="member-item">';
-      html += '  <div class="member-avatar">' + initial + '</div>';
+      var isPlaceholder = m.isPlaceholder === true;
+      html += '<div class="member-item' + (isPlaceholder ? ' placeholder-member' : '') + '">';
+      html += '  <div class="member-avatar' + (isPlaceholder ? ' placeholder' : '') + '">' + initial + '</div>';
       html += '  <div class="member-info">';
-      html += '    <div class="name">' + escHtml(m.name || 'Unknown') + (m.uid === currentUser.uid ? ' (you)' : '') + '</div>';
-      html += '    <div class="email">' + escHtml(m.email || '') + '</div>';
+      html += '    <div class="name">' + escHtml(m.name || 'Unknown') + (m.uid === currentUser.uid ? ' (you)' : '');
+      if (isPlaceholder) html += ' <span style="font-size:10px;color:var(--pending);font-weight:600;background:#FFF3E0;padding:1px 6px;border-radius:8px;margin-left:4px;">placeholder</span>';
+      html += '</div>';
+      html += '    <div class="email">' + escHtml(m.email || (isPlaceholder ? 'No account yet' : '')) + '</div>';
       // Stats row
       var hasStats = stats.contribution > 0 || stats.expense > 0 || stats.sponsorship > 0;
       if (hasStats) {
@@ -1745,17 +2495,37 @@
       html += '  </div>';
 
       if (isTreasurer() && m.uid !== currentUser.uid) {
-        // Role selector
-        html += '  <select class="member-role-select" onchange="changeMemberRole(\'' + m.uid + '\', this.value)">';
-        html += '    <option value="member"' + (m.role === 'member' ? ' selected' : '') + '>Member</option>';
-        html += '    <option value="treasurer"' + (m.role === 'treasurer' ? ' selected' : '') + '>Treasurer</option>';
-        if (myRole === 'owner') {
-          html += '    <option value="owner"' + (m.role === 'owner' ? ' selected' : '') + '>Owner</option>';
+        if (isPlaceholder) {
+          // Placeholder members can only be 'member' role — just show badge + remove button
+          html += '  <span class="role-badge role-member">member</span>';
+          // Show pending claim request to treasurer
+          if (m.claimRequest) {
+            html += '  <div style="margin-top:4px;font-size:11px;">';
+            html += '    <span style="color:var(--pending);font-weight:600;">🙋 Claim by ' + escHtml(m.claimRequest.guestName) + '</span><br>';
+            html += '    <button style="font-size:11px;padding:2px 8px;margin-top:2px;background:var(--primary);color:white;border:none;border-radius:6px;cursor:pointer;margin-right:4px;" onclick="approveClaimRequest(\'' + m.uid + '\')">✅ Approve</button>';
+            html += '    <button style="font-size:11px;padding:2px 8px;margin-top:2px;background:var(--danger);color:white;border:none;border-radius:6px;cursor:pointer;" onclick="rejectClaimRequest(\'' + m.uid + '\')">❌ Reject</button>';
+            html += '  </div>';
+          }
+        } else {
+          // Role selector for real members
+          html += '  <select class="member-role-select" onchange="changeMemberRole(\'' + m.uid + '\', this.value)">';
+          html += '    <option value="member"' + (m.role === 'member' ? ' selected' : '') + '>Member</option>';
+          html += '    <option value="treasurer"' + (m.role === 'treasurer' ? ' selected' : '') + '>Treasurer</option>';
+          if (myRole === 'owner') {
+            html += '    <option value="owner"' + (m.role === 'owner' ? ' selected' : '') + '>Owner</option>';
+          }
+          html += '  </select>';
         }
-        html += '  </select>';
         html += '  <button style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:4px;" onclick="removeMember(\'' + m.uid + '\', \'' + escHtml(m.name || '') + '\')" title="Remove">✕</button>';
       } else {
         html += '  <span class="role-badge role-' + (m.role || 'member') + '">' + (m.role || 'member') + '</span>';
+        // Guest: show "This is me" claim button on unclaimed placeholders
+        var guest = isGuest() || myRole === 'guest';
+        if (guest && isPlaceholder && !m.claimRequest) {
+          html += '  <button style="font-size:11px;padding:4px 10px;background:#E3F2FD;color:#1565C0;border:1px solid #1565C0;border-radius:8px;cursor:pointer;margin-left:4px;" onclick="claimPlaceholder(\'' + m.uid + '\', \'' + escHtml(m.name || '') + '\')">🙋 This is me</button>';
+        } else if (guest && isPlaceholder && m.claimRequest && m.claimRequest.guestUid === currentUser.uid) {
+          html += '  <span style="font-size:11px;color:var(--pending);font-weight:600;margin-left:4px;">⏳ Pending approval</span>';
+        }
       }
       html += '</div>';
     });
@@ -1775,11 +2545,24 @@
   function openMenu() {
     document.getElementById('menuOverlay').classList.add('show');
     document.getElementById('menuPanel').classList.add('show');
+    // Update menu for guest mode
+    var guest = isGuest() || myRole === 'guest';
+    document.getElementById('menuUserName').textContent = guest ? 'Guest' : (currentUser.displayName || 'User');
+    document.getElementById('menuUserEmail').textContent = guest ? 'Read-only access' : (currentUser.email || '');
   }
 
   function closeMenu() {
     document.getElementById('menuOverlay').classList.remove('show');
     document.getElementById('menuPanel').classList.remove('show');
+  }
+
+  function switchPollsSubtab(sub) {
+    document.querySelectorAll('.polls-subtab').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById(sub === 'umpiring' ? 'subtabUmpiring' : 'subtabAvailability').classList.add('active');
+    document.querySelectorAll('.polls-subpanel').forEach(function(p) { p.style.display = 'none'; });
+    document.getElementById(sub === 'umpiring' ? 'umpiringSubpanel' : 'pollsSubpanel').style.display = '';
+    if (sub === 'umpiring') renderUmpiring();
+    else renderPolls();
   }
 
   function showTab(name) {
@@ -1800,7 +2583,10 @@
       renderMembers();
     }
     if (name === 'polls') {
-      renderPolls();
+      var activeSubtab = document.querySelector('.polls-subtab.active');
+      var sub = activeSubtab && activeSubtab.id === 'subtabUmpiring' ? 'umpiring' : 'availability';
+      if (sub === 'availability') renderPolls();
+      else renderUmpiring();
     }
     if (name === 'history') {
       renderHistory();
@@ -1894,228 +2680,404 @@
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ── V1 Import ──
+  // ── Umpiring Roster ──
   // ═══════════════════════════════════════════════════════════
-  var v1ImportData = [];
+  function openCreateUmpireModal() {
+    if (!isTreasurer()) return;
+    document.getElementById('umpireMatchTitle').value = '';
+    document.getElementById('umpireMatchDate').value = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+    document.getElementById('umpireVenue').value = '';
+    document.getElementById('umpireMethod').value = 'volunteer';
+    document.getElementById('diceResult').style.display = 'none';
 
-  function openImportModal() {
-    if (!isActualTreasurer()) { showToast('Only treasurers can import data', 'error'); return; }
-    v1ImportData = [];
-    document.getElementById('importV1Url').value = '';
-    document.getElementById('importPreview').style.display = 'none';
-    document.getElementById('importProgress').style.display = 'none';
-    document.getElementById('importFetchBtn').style.display = '';
-    document.getElementById('importRunBtn').style.display = 'none';
-    document.getElementById('importFetchBtn').disabled = false;
-    document.getElementById('importFetchBtn').textContent = 'Fetch V1 Data';
-    document.getElementById('importModal').style.display = 'flex';
+    // Populate assignee dropdown
+    var sel = document.getElementById('umpireAssignTo');
+    var opts = '';
+    members.forEach(function(m) {
+      if (m.isPlaceholder) return;
+      opts += '<option value="' + escHtml(m.uid) + '">' + escHtml(m.name || m.email || m.uid) + '</option>';
+    });
+    sel.innerHTML = opts;
+
+    // Set initial UI state
+    onUmpireMethodChange();
+    document.getElementById('createUmpireModal').classList.add('show');
   }
 
-  function closeImportModal() {
-    document.getElementById('importModal').style.display = 'none';
-  }
+  function onUmpireMethodChange() {
+    var method = document.getElementById('umpireMethod').value;
+    var assignGroup = document.getElementById('umpireAssignToGroup');
+    var volunteerNote = document.getElementById('umpireVolunteerNote');
+    var diceResult = document.getElementById('diceResult');
+    var btn = document.getElementById('createUmpireBtn');
 
-  function fetchV1Data() {
-    var url = document.getElementById('importV1Url').value.trim();
-    if (!url) { showToast('Paste the V1 Apps Script URL', 'error'); return; }
+    assignGroup.style.display = 'none';
+    volunteerNote.style.display = 'none';
+    diceResult.style.display = 'none';
 
-    var btn = document.getElementById('importFetchBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Fetching...';
-
-    // JSONP fetch from V1 Google Apps Script
-    var callbackName = '_v1import_' + Date.now();
-    var separator = url.indexOf('?') >= 0 ? '&' : '?';
-    var fullUrl = url + separator + 'action=getAll&callback=' + callbackName;
-
-    var timer = setTimeout(function() {
-      cleanup();
-      btn.disabled = false;
-      btn.textContent = 'Fetch V1 Data';
-      showToast('Timeout: Could not reach V1 API', 'error');
-    }, 15000);
-
-    window[callbackName] = function(result) {
-      cleanup();
-      btn.disabled = false;
-      btn.textContent = 'Fetch V1 Data';
-
-      if (!result || !result.success || !result.data || !result.data.length) {
-        showToast('No transactions found in V1', 'error');
-        return;
-      }
-
-      v1ImportData = result.data;
-
-      // Count by type
-      var counts = { contribution: 0, expense: 0, sponsorship: 0 };
-      var total = 0;
-      v1ImportData.forEach(function(tx) {
-        var t = (tx.type || '').toLowerCase();
-        if (counts[t] !== undefined) counts[t]++;
-        total += parseFloat(tx.amount) || 0;
-      });
-
-      document.getElementById('importPreviewStats').innerHTML =
-        '<div>' + v1ImportData.length + ' transactions found</div>' +
-        '<div style="margin-top:4px;">💰 ' + counts.contribution + ' contributions · 🧾 ' + counts.expense + ' expenses · 🤝 ' + counts.sponsorship + ' sponsorships</div>';
-      document.getElementById('importPreview').style.display = '';
-      document.getElementById('importFetchBtn').style.display = 'none';
-      document.getElementById('importRunBtn').style.display = '';
-    };
-
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[callbackName];
-      if (script && script.parentNode) script.parentNode.removeChild(script);
+    if (method === 'volunteer') {
+      volunteerNote.style.display = '';
+      btn.textContent = 'Create & Share';
+    } else if (method === 'manual') {
+      assignGroup.style.display = '';
+      btn.textContent = 'Assign';
+    } else if (method === 'dice') {
+      diceResult.style.display = '';
+      btn.textContent = 'Assign';
+      rollUmpireDice();
     }
-
-    var script = document.createElement('script');
-    script.src = fullUrl;
-    script.onerror = function() {
-      cleanup();
-      btn.disabled = false;
-      btn.textContent = 'Fetch V1 Data';
-      showToast('Failed to connect to V1 API', 'error');
-    };
-    document.head.appendChild(script);
   }
 
-  function runV1Import() {
-    if (!v1ImportData.length || !currentClub) return;
+  function closeCreateUmpireModal() {
+    document.getElementById('createUmpireModal').classList.remove('show');
+  }
 
-    var btn = document.getElementById('importRunBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Importing...';
-
-    document.getElementById('importProgress').style.display = '';
-    var bar = document.getElementById('importProgressBar');
-    var text = document.getElementById('importProgressText');
-    var total = v1ImportData.length;
-    var done = 0;
-    var skipped = 0;
-    var failed = 0;
-    var batch = db.batch();
-    var txRef = db.collection('clubs').doc(currentClub.id).collection('transactions');
-
-    // Convert and batch-write all transactions
-    v1ImportData.forEach(function(v1tx) {
-      var type = (v1tx.type || 'contribution').toLowerCase();
-      if (type !== 'contribution' && type !== 'expense' && type !== 'sponsorship') {
-        type = 'contribution';
+  function rollUmpireDice() {
+    // Find members with lowest umpire count (smart dice)
+    var counts = {};
+    members.forEach(function(m) { counts[m.uid] = 0; });
+    umpireAssignments.forEach(function(a) {
+      if (a.assignedTo && a.assignedTo.uid) {
+        counts[a.assignedTo.uid] = (counts[a.assignedTo.uid] || 0) + 1;
       }
-
-      var date = v1tx.date || '';
-      // Handle date objects or ISO strings
-      if (date && date.length > 10) date = date.split('T')[0];
-
-      var txData = {
-        type: type,
-        amount: parseFloat(v1tx.amount) || 0,
-        description: v1tx.description || '',
-        category: v1tx.category || 'General',
-        date: date,
-        recordedBy: {
-          uid: currentUser.uid,
-          name: v1tx.recordedby || v1tx.recordedBy || currentUser.displayName || currentUser.email,
-          email: currentUser.email
-        },
-        status: 'approved',
-        approvedBy: {
-          uid: currentUser.uid,
-          name: currentUser.displayName || currentUser.email
-        },
-        approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        importedFrom: 'v1',
-        v1Id: v1tx.id || null
-      };
-
-      var docRef = txRef.doc();
-      batch.set(docRef, txData);
     });
 
-    // Firestore batches have a 500 doc limit, so split if needed
-    if (total <= 500) {
-      batch.commit().then(function() {
-        bar.style.width = '100%';
-        text.textContent = total + ' / ' + total + ' imported';
+    // Find the minimum count
+    var minCount = Infinity;
+    members.forEach(function(m) {
+      var c = counts[m.uid] || 0;
+      if (c < minCount) minCount = c;
+    });
+
+    // Eligible = members with min count
+    var eligible = members.filter(function(m) { return (counts[m.uid] || 0) === minCount; });
+    if (eligible.length === 0) eligible = members;
+
+    // Random pick
+    var picked = eligible[Math.floor(Math.random() * eligible.length)];
+
+    // Show dice animation
+    var diceDiv = document.getElementById('diceResult');
+    diceDiv.style.display = '';
+    var diceEmoji = document.getElementById('diceEmoji');
+    var diceNameEl = document.getElementById('diceResultName');
+
+    // Animate dice
+    var faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+    var rolls = 0;
+    var interval = setInterval(function() {
+      diceEmoji.textContent = faces[Math.floor(Math.random() * 6)];
+      rolls++;
+      if (rolls > 10) {
+        clearInterval(interval);
+        diceEmoji.textContent = '🎯';
+        diceNameEl.textContent = picked.name + '!';
+        // Auto-select in dropdown
+        document.getElementById('umpireAssignTo').value = picked.uid;
+      }
+    }, 100);
+  }
+
+  function createUmpireAssignment() {
+    if (!isTreasurer() || !currentClub) return;
+    var title = document.getElementById('umpireMatchTitle').value.trim();
+    var date = document.getElementById('umpireMatchDate').value;
+    var venue = document.getElementById('umpireVenue').value.trim();
+    var method = document.getElementById('umpireMethod').value;
+
+    if (!title) { showToast('Enter a match title', 'error'); return; }
+    if (!date) { showToast('Select a match date', 'error'); return; }
+
+    var assignee = null;
+    if (method !== 'volunteer') {
+      var assignToUid = document.getElementById('umpireAssignTo').value;
+      if (!assignToUid) { showToast('Select who to assign', 'error'); return; }
+      assignee = members.find(function(m) { return m.uid === assignToUid; });
+      if (!assignee) { showToast('Member not found', 'error'); return; }
+    }
+
+    var btn = document.getElementById('createUmpireBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+    // Determine season (e.g. "2025")
+    var season = date.split('-')[0];
+
+    var data = {
+      matchTitle: title,
+      matchDate: date,
+      venue: venue,
+      assignedTo: assignee ? { uid: assignee.uid, name: assignee.name || assignee.email } : null,
+      assignedBy: method,
+      assignedByUser: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
+      status: 'upcoming',
+      swapRequestedWith: null,
+      season: season,
+      rewardPoints: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').add(data)
+      .then(function(docRef) {
         btn.disabled = false;
-        btn.textContent = 'Done!';
-        btn.style.background = 'var(--primary)';
-        showToast('Imported ' + total + ' transactions from V1!', 'success');
+        btn.textContent = method === 'volunteer' ? 'Create & Share' : 'Assign';
+        if (method === 'volunteer') {
+          showToast('Umpire slot created — sharing to WhatsApp!', 'success');
+          shareUmpireVolunteerToWhatsApp(docRef.id, title, date, venue);
+        } else {
+          showToast('Umpire assigned: ' + assignee.name + ' 🏏', 'success');
+          shareUmpireToWhatsApp(docRef.id);
+        }
+        closeCreateUmpireModal();
       }).catch(function(err) {
         btn.disabled = false;
-        btn.textContent = 'Import Failed';
-        showToast('Import error: ' + err.message, 'error');
+        btn.textContent = method === 'volunteer' ? 'Create & Share' : 'Assign';
+        showToast('Error: ' + err.message, 'error');
       });
-    } else {
-      // Split into batches of 500
-      var batches = [];
-      var currentBatch = db.batch();
-      var count = 0;
+  }
 
-      v1ImportData.forEach(function(v1tx) {
-        var type = (v1tx.type || 'contribution').toLowerCase();
-        if (type !== 'contribution' && type !== 'expense' && type !== 'sponsorship') type = 'contribution';
-        var date = v1tx.date || '';
-        if (date && date.length > 10) date = date.split('T')[0];
+  function setUmpireFilter(el) {
+    currentUmpireFilter = el.dataset.ufilter;
+    document.querySelectorAll('[data-ufilter]').forEach(function(c) { c.classList.remove('active'); });
+    el.classList.add('active');
+    renderUmpiring();
+  }
 
-        var txData = {
-          type: type,
-          amount: parseFloat(v1tx.amount) || 0,
-          description: v1tx.description || '',
-          category: v1tx.category || 'General',
-          date: date,
-          recordedBy: {
-            uid: currentUser.uid,
-            name: v1tx.recordedby || v1tx.recordedBy || currentUser.displayName || currentUser.email,
-            email: currentUser.email
-          },
-          status: 'approved',
-          approvedBy: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
-          approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          importedFrom: 'v1',
-          v1Id: v1tx.id || null
-        };
+  function renderUmpiring() {
+    if (!currentClub) return;
+    var guest = isGuest() || myRole === 'guest';
 
-        currentBatch.set(txRef.doc(), txData);
-        count++;
+    // Show/hide create section
+    var createSection = document.getElementById('createUmpireSection');
+    createSection.style.display = isTreasurer() ? '' : 'none';
 
-        if (count >= 500) {
-          batches.push(currentBatch);
-          currentBatch = db.batch();
-          count = 0;
-        }
-      });
-      if (count > 0) batches.push(currentBatch);
+    var today = new Date().toISOString().split('T')[0];
+    var filter = currentUmpireFilter;
 
-      var batchDone = 0;
-      var commitNext = function() {
-        if (batchDone >= batches.length) {
-          bar.style.width = '100%';
-          text.textContent = total + ' / ' + total + ' imported';
-          btn.disabled = false;
-          btn.textContent = 'Done!';
-          btn.style.background = 'var(--primary)';
-          showToast('Imported ' + total + ' transactions from V1!', 'success');
-          return;
-        }
-        batches[batchDone].commit().then(function() {
-          batchDone++;
-          var progress = Math.min(100, Math.round((batchDone * 500 / total) * 100));
-          bar.style.width = progress + '%';
-          text.textContent = Math.min(batchDone * 500, total) + ' / ' + total;
-          commitNext();
-        }).catch(function(err) {
-          btn.disabled = false;
-          btn.textContent = 'Import Failed';
-          showToast('Batch error: ' + err.message, 'error');
-        });
-      };
-      commitNext();
+    // Stats view
+    if (filter === 'stats') {
+      document.getElementById('umpireList').style.display = 'none';
+      document.getElementById('umpireStats').style.display = '';
+      renderUmpireStats();
+      return;
     }
+
+    document.getElementById('umpireList').style.display = '';
+    document.getElementById('umpireStats').style.display = 'none';
+
+    var list = umpireAssignments.slice();
+
+    if (filter === 'upcoming') {
+      list = list.filter(function(a) { return a.matchDate >= today; });
+      list.sort(function(a, b) { return (a.matchDate || '').localeCompare(b.matchDate || ''); });
+    } else if (filter === 'my') {
+      list = list.filter(function(a) { return a.assignedTo && a.assignedTo.uid === currentUser.uid; });
+    } else if (filter === 'past') {
+      list = list.filter(function(a) { return a.matchDate < today; });
+    }
+
+    var html = '';
+    if (list.length === 0) {
+      html = '<div class="empty-state" style="padding:24px;"><div class="icon">🏏</div><p>No assignments found</p></div>';
+    } else {
+      list.forEach(function(a) {
+        var isPast = a.matchDate < today;
+        var isMe = a.assignedTo && a.assignedTo.uid === currentUser.uid;
+        var isOpen = !a.assignedTo; // open volunteer slot
+        html += '<div class="umpire-card' + (isMe ? ' my-duty' : '') + (isPast ? ' past' : '') + (isOpen ? ' open-slot' : '') + '">';
+        html += '  <div class="umpire-date">' + escHtml(a.matchDate || '') + '</div>';
+        html += '  <div class="umpire-details">';
+        html += '    <div class="umpire-title">' + escHtml(a.matchTitle || '') + '</div>';
+        if (a.venue) html += '    <div class="umpire-venue">📍 ' + escHtml(a.venue) + '</div>';
+
+        if (isOpen) {
+          // Open volunteer slot
+          html += '    <div class="umpire-assignee" style="color:var(--warning);font-weight:600;">🙋 Awaiting Volunteer</div>';
+          if (!isPast && !guest) {
+            html += '    <button class="swap-btn volunteer" style="background:#E8F5E9;font-weight:600;" onclick="volunteerUmpire(\'' + a.id + '\')">🙋 I\'ll Volunteer!</button>';
+          }
+          // Treasurer can manually assign if nobody volunteers
+          if (!isPast && isTreasurer()) {
+            html += '    <button class="swap-btn" onclick="manualAssignUmpire(\'' + a.id + '\')">👤 Assign Manually</button>';
+          }
+        } else {
+          // Assigned slot
+          html += '    <div class="umpire-assignee">🏏 ' + escHtml(a.assignedTo.name);
+          if (a.assignedBy === 'dice') html += ' <span style="font-size:10px;color:var(--text-secondary);">(🎲 dice roll)</span>';
+          else if (a.assignedBy === 'voluntary') html += ' <span style="font-size:10px;color:var(--text-secondary);">(🙋 volunteered)</span>';
+          html += '</div>';
+          // Swap button: current assignee can request swap, or anyone can volunteer for swap
+          if (!isPast && !guest) {
+            if (isMe && !a.swapRequestedWith) {
+              html += '    <button class="swap-btn" onclick="requestUmpireSwap(\'' + a.id + '\')">🔄 Request Swap</button>';
+            } else if (a.swapRequestedWith && a.swapRequestedWith.uid === currentUser.uid) {
+              html += '    <button class="swap-btn accept" onclick="acceptUmpireSwap(\'' + a.id + '\')">✅ Accept Swap</button>';
+              html += '    <button class="swap-btn decline" onclick="declineUmpireSwap(\'' + a.id + '\')">❌ Decline</button>';
+            } else if (a.swapRequestedWith) {
+              html += '    <div style="font-size:11px;color:var(--pending);">🔄 Swap requested with ' + escHtml(a.swapRequestedWith.name) + '</div>';
+            }
+          }
+        }
+        // WhatsApp share button (treasurer only)
+        if (isTreasurer()) {
+          html += '    <button class="swap-btn" style="background:#E8F5E9;color:#25D366;border-color:#25D366;margin-top:4px;" onclick="' + (isOpen ? 'shareUmpireVolunteerToWhatsApp(\'' + a.id + '\',\'' + escHtml(a.matchTitle || '') + '\',\'' + (a.matchDate || '') + '\',\'' + escHtml(a.venue || '') + '\')' : 'shareUmpireToWhatsApp(\'' + a.id + '\')') + '">' + WA_ICON_HTML + ' Share</button>';
+        }
+        html += '  </div>';
+        // Delete for treasurer
+        if (isTreasurer()) {
+          html += '  <button style="background:none;border:none;color:var(--danger);font-size:16px;cursor:pointer;padding:4px;flex-shrink:0;" onclick="deleteUmpireAssignment(\'' + a.id + '\')" title="Delete">✕</button>';
+        }
+        html += '</div>';
+      });
+    }
+    document.getElementById('umpireList').innerHTML = html;
+  }
+
+  function renderUmpireStats() {
+    // Count assignments per member across all time and current season
+    var season = new Date().getFullYear().toString();
+    var totalCounts = {};
+    var seasonCounts = {};
+    umpireAssignments.forEach(function(a) {
+      if (!a.assignedTo) return;
+      var uid = a.assignedTo.uid;
+      var name = a.assignedTo.name;
+      if (!totalCounts[uid]) totalCounts[uid] = { name: name, count: 0 };
+      totalCounts[uid].count++;
+      if (a.season === season) {
+        if (!seasonCounts[uid]) seasonCounts[uid] = { name: name, count: 0 };
+        seasonCounts[uid].count++;
+      }
+    });
+
+    // Sort by count descending
+    var sortedTotal = Object.values(totalCounts).sort(function(a, b) { return b.count - a.count; });
+    var sortedSeason = Object.values(seasonCounts).sort(function(a, b) { return b.count - a.count; });
+
+    var html = '<div class="section-title" style="margin-bottom:8px;">📊 Season ' + season + '</div>';
+    if (sortedSeason.length === 0) {
+      html += '<div style="padding:12px;color:var(--text-secondary);font-size:13px;">No assignments this season</div>';
+    } else {
+      html += '<div class="stats-table">';
+      sortedSeason.forEach(function(s, i) {
+        var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+        html += '<div class="stats-row">';
+        html += '  <span class="stats-medal">' + medal + '</span>';
+        html += '  <span class="stats-name">' + escHtml(s.name) + '</span>';
+        html += '  <span class="stats-count">' + s.count + ' match' + (s.count !== 1 ? 'es' : '') + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    html += '<div class="section-title" style="margin:16px 0 8px;">📋 All Time</div>';
+    if (sortedTotal.length > 0) {
+      html += '<div class="stats-table">';
+      sortedTotal.forEach(function(s) {
+        html += '<div class="stats-row">';
+        html += '  <span class="stats-medal"></span>';
+        html += '  <span class="stats-name">' + escHtml(s.name) + '</span>';
+        html += '  <span class="stats-count">' + s.count + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
+    document.getElementById('umpireStats').innerHTML = html;
+  }
+
+  function requestUmpireSwap(assignmentId) {
+    // Show list of members to swap with
+    var otherMembers = members.filter(function(m) { return m.uid !== currentUser.uid; });
+    if (otherMembers.length === 0) { showToast('No other members to swap with', 'error'); return; }
+
+    var names = otherMembers.map(function(m, i) { return (i + 1) + '. ' + m.name; }).join('\n');
+    var choice = prompt('Who would you like to swap with?\n\n' + names + '\n\nEnter number:');
+    if (!choice) return;
+    var idx = parseInt(choice) - 1;
+    if (isNaN(idx) || idx < 0 || idx >= otherMembers.length) { showToast('Invalid choice', 'error'); return; }
+
+    var target = otherMembers[idx];
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
+      swapRequestedWith: { uid: target.uid, name: target.name }
+    }).then(function() {
+      showToast('Swap request sent to ' + target.name, 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function acceptUmpireSwap(assignmentId) {
+    var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
+    if (!assignment) return;
+    if (!confirm('Accept umpire duty for ' + assignment.matchTitle + '?')) return;
+
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
+      assignedTo: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
+      swapRequestedWith: null,
+      status: 'swapped'
+    }).then(function() {
+      showToast('Swap accepted! You are now assigned 🏏', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function declineUmpireSwap(assignmentId) {
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
+      swapRequestedWith: null
+    }).then(function() {
+      showToast('Swap declined', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function volunteerUmpire(assignmentId) {
+    var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
+    if (!assignment) return;
+    if (!confirm('Volunteer to umpire for ' + assignment.matchTitle + '?')) return;
+
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
+      assignedTo: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
+      assignedBy: 'voluntary',
+      status: 'upcoming'
+    }).then(function() {
+      showToast('You volunteered! Thanks 🏏', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function manualAssignUmpire(assignmentId) {
+    // Treasurer manually assigns an open volunteer slot
+    var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
+    if (!assignment || !isTreasurer()) return;
+
+    var opts = members.filter(function(m) { return !m.isPlaceholder; }).map(function(m) { return m.name || m.email; });
+    var pick = prompt('Assign umpire to which member?\\n\\n' + opts.map(function(n, i) { return (i + 1) + '. ' + n; }).join('\\n') + '\\n\\nEnter the number:');
+    if (!pick) return;
+    var idx = parseInt(pick) - 1;
+    var realMembers = members.filter(function(m) { return !m.isPlaceholder; });
+    if (idx < 0 || idx >= realMembers.length) { showToast('Invalid selection', 'error'); return; }
+    var assignee = realMembers[idx];
+
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
+      assignedTo: { uid: assignee.uid, name: assignee.name || assignee.email },
+      assignedBy: 'manual'
+    }).then(function() {
+      showToast('Assigned to ' + assignee.name + ' 🏏', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function deleteUmpireAssignment(assignmentId) {
+    if (!isTreasurer()) return;
+    if (!confirm('Delete this umpire assignment?')) return;
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).delete()
+      .then(function() { showToast('Assignment deleted', 'success'); })
+      .catch(function(err) { showToast('Error: ' + err.message, 'error'); });
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -2134,6 +3096,41 @@
     window.open('https://api.whatsapp.com/send?text=' + encoded, '_blank');
   }
 
+  function shareUmpireToWhatsApp(assignmentId) {
+    var a = umpireAssignments.find(function(u) { return u.id === assignmentId; });
+    if (!a) return;
+    var clubName = (currentClub && currentClub.name) || 'Club';
+    var text = '🏏 *' + clubName + ' — Umpire Duty*\n\n';
+    text += '📅 Date: ' + (a.matchDate || 'TBD') + '\n';
+    if (a.matchTitle) text += '🆚 Match: ' + a.matchTitle + '\n';
+    if (a.venue) text += '📍 Venue: ' + a.venue + '\n';
+    text += '🧑‍⚖️ Umpire: ' + (a.assignedTo ? a.assignedTo.name : 'TBD') + '\n';
+    if (a.assignedBy === 'dice') text += '🎲 Selected by dice roll\n';
+    else if (a.assignedBy === 'voluntary') text += '🙋 Volunteered\n';
+    text += '\n— _via ClubMates_';
+    shareViaWhatsApp(text);
+  }
+
+  function shareUmpireVolunteerToWhatsApp(assignmentId, title, date, venue) {
+    // If called with just assignmentId, look up details
+    if (!title) {
+      var a = umpireAssignments.find(function(u) { return u.id === assignmentId; });
+      if (a) { title = a.matchTitle; date = a.matchDate; venue = a.venue; }
+    }
+    var clubName = (currentClub && currentClub.name) || 'Club';
+    var baseUrl = window.location.origin + window.location.pathname;
+    var link = baseUrl + '?umpire=' + assignmentId + '&club=' + currentClub.id + '&action=volunteer';
+
+    var text = '🏏 *' + clubName + ' — Umpire Needed!*\n\n';
+    text += '📅 Date: ' + (date || 'TBD') + '\n';
+    if (title) text += '🆚 Match: ' + title + '\n';
+    if (venue) text += '📍 Venue: ' + venue + '\n';
+    text += '\n🙋 *Volunteer to umpire this match!*\n';
+    text += '• 👉 Tap to volunteer → ' + link + '\n';
+    text += '\n— _via ClubMates_';
+    shareViaWhatsApp(text);
+  }
+
   function shareTxToWhatsApp(txId) {
     var tx = transactions.find(function(t) { return t.id === txId; });
     if (!tx) return;
@@ -2143,7 +3140,8 @@
     var emoji = type === 'expense' ? '🧾' : type === 'sponsorship' ? '🤝' : '💰';
     var sign = type === 'expense' ? '-' : '+';
     var amt = parseFloat(tx.amount) || 0;
-    var recorder = tx.recordedBy ? tx.recordedBy.name : 'Unknown';
+    var owner = getTxOwner(tx);
+    var recorder = owner.name || 'Unknown';
 
     var text = '📊 *' + clubName + '*\n';
     text += emoji + ' ' + type.charAt(0).toUpperCase() + type.slice(1) + '\n';
@@ -2152,6 +3150,9 @@
     if (tx.category) text += '🏷️ ' + tx.category + '\n';
     if (tx.date) text += '📅 ' + tx.date + '\n';
     text += '👤 ' + recorder + '\n';
+    if (tx.recordedFor && tx.recordedBy && tx.recordedFor.uid !== tx.recordedBy.uid) {
+      text += '✍️ Recorded by ' + tx.recordedBy.name + '\n';
+    }
     text += '\n\u2014 _via ClubMates_';
 
     shareViaWhatsApp(text);
@@ -2206,7 +3207,7 @@
   }
 
   function createPoll() {
-    if (!isActualTreasurer() || !currentClub) return;
+    if (!isTreasurer() || !currentClub) return;
     var question = document.getElementById('pollQuestion').value.trim();
     var matchDate = document.getElementById('pollMatchDate').value;
     var opponent = document.getElementById('pollOpponent').value.trim();
@@ -2256,8 +3257,6 @@
       .then(function() {
         var icon = response === 'yes' ? '✅' : response === 'no' ? '❌' : '🤔';
         showToast('Response recorded: ' + icon + ' ' + response.toUpperCase(), 'success');
-        // Offer to share vote to WhatsApp group for team visibility
-        shareVoteToWhatsApp(pollId, response);
       }).catch(function(err) {
         showToast('Error: ' + err.message, 'error');
       });
@@ -2294,7 +3293,7 @@
   }
 
   function closePoll(pollId) {
-    if (!isActualTreasurer() || !currentClub) return;
+    if (!isTreasurer() || !currentClub) return;
     if (!confirm('Close this poll? Members will no longer be able to respond.')) return;
     db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
       .update({ status: 'closed' })
@@ -2303,7 +3302,7 @@
   }
 
   function reopenPoll(pollId) {
-    if (!isActualTreasurer() || !currentClub) return;
+    if (!isTreasurer() || !currentClub) return;
     db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
       .update({ status: 'open' })
       .then(function() { showToast('Poll reopened', 'success'); })
@@ -2311,7 +3310,7 @@
   }
 
   function deletePoll(pollId) {
-    if (!isActualTreasurer() || !currentClub) return;
+    if (!isTreasurer() || !currentClub) return;
     if (!confirm('Delete this poll permanently?')) return;
     db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
       .delete()
@@ -2339,11 +3338,11 @@
     if (matchDate) text += '📅 Match Date: ' + matchDate + '\n';
     if (opponent) text += '🆚 vs ' + opponent + '\n';
     if (location) text += '📍 ' + location + '\n';
-    text += '\n� *Tap your response:*\n\n';
-    text += '🟢 *YES, I\'m in!*\n' + base + '&vote=yes\n\n';
-    text += '🔴 *NO, can\'t make it*\n' + base + '&vote=no\n\n';
-    text += '🟡 *MAYBE*\n' + base + '&vote=maybe\n\n';
-    text += '\u2014 _via ClubMates_';
+    text += '\n👉 *Tap your response:*\n';
+    text += '• ✅ Yes → ' + base + '&vote=yes\n';
+    text += '• ❌ No → ' + base + '&vote=no\n';
+    text += '• 🤔 Maybe → ' + base + '&vote=maybe\n';
+    text += '\n— _via ClubMates_';
 
     shareViaWhatsApp(text);
   }
@@ -2356,9 +3355,11 @@
     var yes = [], no = [], maybe = [];
     Object.keys(responses).forEach(function(uid) {
       var r = responses[uid];
-      if (r.response === 'yes') yes.push(r.name || 'Unknown');
-      else if (r.response === 'no') no.push(r.name || 'Unknown');
-      else maybe.push(r.name || 'Unknown');
+      var member = members.find(function(m) { return m.id === uid; });
+      var name = (member && member.name) || r.name || 'Unknown';
+      if (r.response === 'yes') yes.push(name);
+      else if (r.response === 'no') no.push(name);
+      else maybe.push(name);
     });
 
     var text = '📊 *' + clubName + ' \u2014 Poll Results*\n\n';
@@ -2381,11 +3382,11 @@
   function renderPolls() {
     if (!currentClub) return;
     // Show create button for treasurers
-    document.getElementById('createPollSection').style.display = isActualTreasurer() ? '' : 'none';
+    document.getElementById('createPollSection').style.display = isTreasurer() ? '' : 'none';
 
     var html = '';
     if (polls.length === 0) {
-      html = '<div class="poll-empty">No polls yet' + (isActualTreasurer() ? ' \u2014 create one above!' : '') + '</div>';
+      html = '<div class="poll-empty">No polls yet' + (isTreasurer() ? ' \u2014 create one above!' : '') + '</div>';
     } else {
       // Sort: open first, then by matchDate descending
       var sorted = polls.slice().sort(function(a, b) {
@@ -2407,7 +3408,11 @@
         var isOpen = poll.status === 'open';
 
         html += '<div class="poll-card">';
-        html += '  <div class="poll-q">' + escHtml(poll.question || '') + '</div>';
+        html += '  <div style="display:flex;align-items:center;gap:8px;"><div class="poll-q" style="flex:1;">' + escHtml(poll.question || '') + '</div>';
+        if (isTreasurer()) {
+          html += '<button class="poll-btn-share" onclick="sharePollToWhatsApp(\'' + poll.id + '\')" title="Share poll on WhatsApp" style="flex-shrink:0;">' + WA_ICON_HTML + '</button>';
+        }
+        html += '</div>';
         html += '  <div class="poll-meta">';
         html += '    <span class="poll-status ' + poll.status + '">' + (isOpen ? 'Open' : 'Closed') + '</span>';
         if (poll.matchDate) html += '    <span>📅 ' + poll.matchDate + '</span>';
@@ -2442,8 +3447,10 @@
           html += '    <button class="poll-btn-no' + (myResponse === 'no' ? ' voted' : '') + '" onclick="respondToPoll(\'' + poll.id + '\',\'no\')">❌ No</button>';
           html += '    <button class="poll-btn-maybe' + (myResponse === 'maybe' ? ' voted' : '') + '" onclick="respondToPoll(\'' + poll.id + '\',\'maybe\')">🤔 Maybe</button>';
         }
-        html += '    <button class="poll-btn-share" onclick="sharePollToWhatsApp(\'' + poll.id + '\')">' + WA_ICON_HTML + '</button>';
-        if (isActualTreasurer()) {
+        if (myResponse) {
+          html += '    <button class="poll-btn-share" onclick="shareVoteToWhatsApp(\'' + poll.id + '\',\'' + myResponse + '\')" title="Share my vote">' + WA_ICON_HTML + ' My Vote</button>';
+        }
+        if (isTreasurer()) {
           html += '    <button class="poll-btn-share" onclick="sharePollResultsToWhatsApp(\'' + poll.id + '\')">📋 Results</button>';
           if (isOpen) {
             html += '    <button class="poll-btn-close" onclick="closePoll(\'' + poll.id + '\')">🔒 Close</button>';
@@ -2460,7 +3467,9 @@
           Object.keys(responses).forEach(function(uid) {
             var r = responses[uid];
             var icon = r.response === 'yes' ? '✅' : r.response === 'no' ? '❌' : '🤔';
-            html += '    <div class="poll-detail-item"><span>' + icon + '</span><span style="flex:1;">' + escHtml(r.name || 'Unknown') + '</span></div>';
+            var member = members.find(function(m) { return m.id === uid; });
+            var dName = (member && member.name) || r.name || 'Unknown';
+            html += '    <div class="poll-detail-item"><span>' + icon + '</span><span style="flex:1;">' + escHtml(dName) + '</span></div>';
           });
           html += '  </div>';
         }
@@ -2475,11 +3484,6 @@
   // ── Utilities ──
   // ═══════════════════════════════════════════════════════════
   function isTreasurer() {
-    if (viewingAs === 'member') return false;
-    return myRole === 'owner' || myRole === 'treasurer';
-  }
-
-  function isActualTreasurer() {
     return myRole === 'owner' || myRole === 'treasurer';
   }
 
@@ -2524,7 +3528,7 @@
   // ── Add Member by Email ──
   // ═══════════════════════════════════════════════════════════
   function addMemberByEmail() {
-    if (!isActualTreasurer() || !currentClub) return;
+    if (!isTreasurer() || !currentClub) return;
     var emailInput = document.getElementById('addMemberEmail');
     var email = emailInput.value.trim().toLowerCase();
     if (!email || !email.includes('@')) {
@@ -2579,6 +3583,87 @@
     });
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // ── Placeholder Members ──
+  // ═══════════════════════════════════════════════════════════
+  function openAddPlaceholderModal() {
+    document.getElementById('phMemberName').value = '';
+    document.getElementById('phMemberEmail').value = '';
+    document.getElementById('addPlaceholderModal').classList.add('show');
+  }
+
+  function closeAddPlaceholderModal() {
+    document.getElementById('addPlaceholderModal').classList.remove('show');
+  }
+
+  function addPlaceholderMember() {
+    if (!isTreasurer() || !currentClub) return;
+    var name = document.getElementById('phMemberName').value.trim();
+    var email = (document.getElementById('phMemberEmail').value || '').trim().toLowerCase();
+
+    if (!name) {
+      showToast('Enter a name for the member', 'error');
+      return;
+    }
+
+    // Check for duplicate name
+    var dupName = members.find(function(m) { return (m.name || '').toLowerCase() === name.toLowerCase(); });
+    if (dupName) {
+      showToast('A member with this name already exists', 'error');
+      return;
+    }
+
+    // Check for duplicate email if provided
+    if (email) {
+      var dupEmail = members.find(function(m) { return m.email && m.email.toLowerCase() === email; });
+      if (dupEmail) {
+        showToast(email + ' is already a member', 'error');
+        return;
+      }
+    }
+
+    var btn = document.getElementById('addPhBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Adding...';
+
+    // Generate a unique placeholder UID
+    var phUid = 'ph_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+
+    var memberDoc = {
+      uid: phUid,
+      name: name,
+      email: email || '',
+      role: 'member',
+      isPlaceholder: true,
+      joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      addedBy: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email }
+    };
+
+    db.collection('clubs').doc(currentClub.id).collection('members').doc(phUid).set(memberDoc)
+      .then(function() {
+        // If email provided, also create a pendingInvite so auto-claim works on sign-in
+        if (email) {
+          db.collection('pendingInvites').add({
+            email: email,
+            clubId: currentClub.id,
+            clubName: currentClub.name,
+            logoBase64: currentClub.logoBase64 || null,
+            invitedBy: currentUser.displayName || currentUser.email,
+            invitedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            placeholderUid: phUid  // signals this is a placeholder claim, not just an invite
+          });
+        }
+        btn.disabled = false;
+        btn.textContent = 'Add Member';
+        showToast(name + ' added as a member! 👤', 'success');
+        closeAddPlaceholderModal();
+      }).catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = 'Add Member';
+        showToast('Error: ' + err.message, 'error');
+      });
+  }
+
   function checkPendingInvites(user) {
     return db.collection('pendingInvites')
       .where('email', '==', user.email.toLowerCase())
@@ -2587,8 +3672,14 @@
         var promises = [];
         snap.docs.forEach(function(inviteDoc) {
           var inv = inviteDoc.data();
-          var p = autoJoinClub(inv.clubId, inv.clubName, inv.logoBase64, user, inviteDoc.id);
-          promises.push(p);
+          if (inv.placeholderUid) {
+            // This is a placeholder claim — migrate the placeholder member
+            var p = claimPlaceholderMember(inv.clubId, inv.clubName, inv.logoBase64, inv.placeholderUid, user, inviteDoc.id);
+            promises.push(p);
+          } else {
+            var p = autoJoinClub(inv.clubId, inv.clubName, inv.logoBase64, user, inviteDoc.id);
+            promises.push(p);
+          }
         });
         return Promise.all(promises);
       }).catch(function(err) {
@@ -2628,15 +3719,130 @@
       });
   }
 
-  function toggleViewAs() {
-    if (!isActualTreasurer()) return;
-    viewingAs = viewingAs ? null : 'member';
-    updateRoleVisibility();
-    renderDashboard();
-    renderHistory();
-    renderMembers();
-    showToast(viewingAs ? 'Previewing as Member — UI shows member experience' : 'Back to ' + myRole + ' view', 'success');
+  // ── Claim placeholder member on sign-in ──
+  function claimPlaceholderMember(clubId, clubName, logoBase64, placeholderUid, user, inviteDocId) {
+    var clubRef = db.collection('clubs').doc(clubId);
+
+    // Step 1: Read the placeholder member doc
+    return clubRef.collection('members').doc(placeholderUid).get()
+      .then(function(phDoc) {
+        if (!phDoc.exists) {
+          // Placeholder already removed — just clean up invite and auto-join
+          return autoJoinClub(clubId, clubName, logoBase64, user, inviteDocId);
+        }
+
+        var phData = phDoc.data();
+        var batch = db.batch();
+
+        // Step 2: Create new member doc with real UID (preserving name from placeholder if user has no display name)
+        var newMemberRef = clubRef.collection('members').doc(user.uid);
+        batch.set(newMemberRef, {
+          uid: user.uid,
+          name: user.displayName || phData.name || user.email,
+          email: user.email,
+          role: phData.role || 'member',
+          joinedAt: phData.joinedAt || firebase.firestore.FieldValue.serverTimestamp(),
+          claimedFrom: placeholderUid,
+          claimedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Step 3: Delete the placeholder member doc
+        batch.delete(clubRef.collection('members').doc(placeholderUid));
+
+        // Step 4: Create user's club reference
+        var userClubRef = db.collection('users').doc(user.uid).collection('clubs').doc(clubId);
+        batch.set(userClubRef, {
+          clubName: clubName || 'Club',
+          role: phData.role || 'member',
+          logoBase64: logoBase64 || null,
+          joinedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Step 5: Delete the pending invite
+        batch.delete(db.collection('pendingInvites').doc(inviteDocId));
+
+        return batch.commit().then(function() {
+          // Step 6: Migrate transactions (recordedFor.uid) — done outside batch since could be many
+          return migrateTransactionOwnership(clubId, placeholderUid, user);
+        }).then(function() {
+          // Step 7: Migrate poll votes
+          return migratePollVotes(clubId, placeholderUid, user);
+        }).then(function() {
+          showToast('Welcome! Your account has been linked to ' + (clubName || 'the club') + ' 🎉', 'success');
+        });
+      });
   }
+
+  function migrateTransactionOwnership(clubId, oldUid, user) {
+    return db.collection('clubs').doc(clubId).collection('transactions')
+      .get().then(function(snap) {
+        // Batch updates in groups of 500 (Firestore limit)
+        var docsToUpdate = snap.docs.filter(function(d) {
+          var data = d.data();
+          return (data.recordedFor && data.recordedFor.uid === oldUid) ||
+                 (data.recordedBy && data.recordedBy.uid === oldUid);
+        });
+        if (docsToUpdate.length === 0) return;
+
+        var batches = [];
+        var currentBatch = db.batch();
+        var count = 0;
+
+        docsToUpdate.forEach(function(doc) {
+          var data = doc.data();
+          var updates = {};
+          if (data.recordedFor && data.recordedFor.uid === oldUid) {
+            updates['recordedFor.uid'] = user.uid;
+            updates['recordedFor.name'] = user.displayName || data.recordedFor.name;
+            if (user.email) updates['recordedFor.email'] = user.email;
+          }
+          if (data.recordedBy && data.recordedBy.uid === oldUid) {
+            updates['recordedBy.uid'] = user.uid;
+            updates['recordedBy.name'] = user.displayName || data.recordedBy.name;
+            if (user.email) updates['recordedBy.email'] = user.email;
+          }
+          currentBatch.update(doc.ref, updates);
+          count++;
+          if (count >= 499) {
+            batches.push(currentBatch.commit());
+            currentBatch = db.batch();
+            count = 0;
+          }
+        });
+        if (count > 0) batches.push(currentBatch.commit());
+        return Promise.all(batches);
+      });
+  }
+
+  function migratePollVotes(clubId, oldUid, user) {
+    return db.collection('clubs').doc(clubId).collection('polls')
+      .get().then(function(snap) {
+        var batches = [];
+        var currentBatch = db.batch();
+        var count = 0;
+        snap.docs.forEach(function(doc) {
+          var data = doc.data();
+          var responses = data.responses || {};
+          if (responses[oldUid] !== undefined) {
+            var vote = responses[oldUid];
+            var updates = {};
+            updates['responses.' + oldUid] = firebase.firestore.FieldValue.delete();
+            updates['responses.' + user.uid] = vote;
+            currentBatch.update(doc.ref, updates);
+            count++;
+            if (count >= 499) {
+              batches.push(currentBatch.commit());
+              currentBatch = db.batch();
+              count = 0;
+            }
+          }
+        });
+        if (count > 0) batches.push(currentBatch.commit());
+        return Promise.all(batches);
+      });
+  }
+
+
 
   function formatNum(n) {
     return Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
