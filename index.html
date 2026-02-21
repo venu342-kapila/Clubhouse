@@ -1004,6 +1004,36 @@
   </div>
 </div>
 
+<!-- ── Assign Umpire Modal (manual assign dropdown) ── -->
+<div id="assignUmpireModal" class="modal-overlay" onclick="if(event.target===this)closeAssignUmpireModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>👤 Assign Umpire</h2>
+    <div id="assignUmpireMatchInfo" style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;"></div>
+    <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block;">Select Member</label>
+    <select id="manualAssignSelect" style="width:100%;padding:12px;font-size:15px;border:1px solid #DDD;border-radius:10px;background:#FAFAFA;margin-bottom:16px;appearance:auto;">
+      <option value="" disabled selected>— Choose a member —</option>
+    </select>
+    <button class="submit-btn" onclick="confirmManualAssign()" style="margin-bottom:8px;">Assign</button>
+    <button class="submit-btn" onclick="closeAssignUmpireModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
+<!-- ── Swap Umpire Modal ── -->
+<div id="swapUmpireModal" class="modal-overlay" onclick="if(event.target===this)closeSwapUmpireModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2>🔄 Request Swap</h2>
+    <div id="swapUmpireMatchInfo" style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;"></div>
+    <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block;">Swap with</label>
+    <select id="swapMemberSelect" style="width:100%;padding:12px;font-size:15px;border:1px solid #DDD;border-radius:10px;background:#FAFAFA;margin-bottom:16px;appearance:auto;">
+      <option value="" disabled selected>— Choose a member —</option>
+    </select>
+    <button class="submit-btn" onclick="confirmSwapRequest()" style="margin-bottom:8px;">Send Request</button>
+    <button class="submit-btn" onclick="closeSwapUmpireModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
+  </div>
+</div>
+
 <!-- ── Toast ── -->
 <div id="toast" class="toast"></div>
 
@@ -1481,6 +1511,7 @@
             .onSnapshot(function(snap) {
               umpireAssignments = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
               renderUmpiring();
+              renderPollReminders();
             })
         );
 
@@ -1623,6 +1654,7 @@
           .onSnapshot(function(snap) {
             umpireAssignments = snap.docs.map(function(d) { return { id: d.id, ...d.data() }; });
             renderUmpiring();
+            renderPollReminders();
           })
       );
 
@@ -2143,49 +2175,100 @@
 
   function renderPollReminders() {
     var banner = document.getElementById('pollReminderBanner');
-    if (!banner || !isTreasurer() || !currentClub) { if (banner) banner.innerHTML = ''; return; }
+    if (!banner || !currentClub) { if (banner) banner.innerHTML = ''; return; }
 
     var now = new Date();
     var twoDaysMs = 2 * 24 * 60 * 60 * 1000;
     var html = '';
+    var myUid = currentUser ? currentUser.uid : null;
 
-    polls.forEach(function(poll) {
-      if (poll.status !== 'open' || !poll.matchDate) return;
-      if (pollReminderDismissed[poll.id]) return;
-      var matchDate = new Date(poll.matchDate + 'T00:00:00');
-      var diff = matchDate.getTime() - now.getTime();
-      if (diff < 0 || diff > twoDaysMs) return; // only within 2 days
+    // ── 1. Umpire duty reminder (all members) ──
+    if (myUid) {
+      umpireAssignments.forEach(function(a) {
+        if (!a.matchDate || !a.assignedTo || a.assignedTo.uid !== myUid) return;
+        if (pollReminderDismissed['umpire-' + a.id]) return;
+        var matchDate = new Date(a.matchDate + 'T00:00:00');
+        var diff = matchDate.getTime() - now.getTime();
+        if (diff < 0 || diff > twoDaysMs) return;
+        var daysText = diff < 24 * 60 * 60 * 1000 ? 'TODAY' : 'in 1 day';
+        html += '<div style="background:#FCE4EC;border:1px solid #E91E63;border-radius:10px;padding:12px;margin-bottom:12px;position:relative;">';
+        html += '  <button onclick="dismissPollReminder(\'umpire-' + a.id + '\')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#999;font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;" title="Dismiss">✕</button>';
+        html += '  <div style="font-weight:600;font-size:13px;padding-right:24px;">⚖️ You\'re umpiring ' + daysText + (a.matchTitle ? ' — ' + escHtml(a.matchTitle) : '') + '!</div>';
+        if (a.venue) html += '  <div style="font-size:11px;color:#666;margin-top:4px;">📍 ' + escHtml(a.venue) + '</div>';
+        html += '</div>';
 
-      var responses = poll.responses || {};
-      var yesCount = 0;
-      Object.keys(responses).forEach(function(uid) {
-        if (responses[uid].response === 'yes') yesCount++;
+        // Browser notification (once per assignment per session)
+        if (!pollReminderNotified['umpire-' + a.id]) {
+          pollReminderNotified['umpire-' + a.id] = true;
+          fireGenericNotification('⚖️ Umpire Duty ' + daysText + '!', 'You\'re umpiring' + (a.matchTitle ? ' for ' + a.matchTitle : '') + (a.venue ? ' at ' + a.venue : '') + '.', 'umpire-' + a.id, 'polls');
+        }
       });
+    }
 
-      if (yesCount >= 11) return; // already have enough
+    // ── 2. Match day reminder for members who voted yes ──
+    if (myUid) {
+      polls.forEach(function(poll) {
+        if (poll.status !== 'open' || !poll.matchDate) return;
+        if (pollReminderDismissed['match-' + poll.id]) return;
+        var matchDate = new Date(poll.matchDate + 'T00:00:00');
+        var diff = matchDate.getTime() - now.getTime();
+        if (diff < 0 || diff > twoDaysMs) return;
+        var responses = poll.responses || {};
+        var myResponse = responses[myUid];
+        if (!myResponse || myResponse.response !== 'yes') return;
+        var daysText = diff < 24 * 60 * 60 * 1000 ? 'TODAY' : 'in 1 day';
+        html += '<div style="background:#E8F5E9;border:1px solid #4CAF50;border-radius:10px;padding:12px;margin-bottom:12px;position:relative;">';
+        html += '  <button onclick="dismissPollReminder(\'match-' + poll.id + '\')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#999;font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;" title="Dismiss">✕</button>';
+        html += '  <div style="font-weight:600;font-size:13px;padding-right:24px;">🏏 Match ' + daysText + (poll.opponent ? ' vs ' + escHtml(poll.opponent) : '') + ' — you\'re playing!</div>';
+        html += '</div>';
 
-      // Find non-responders and non-yes members
-      var nonResponders = members.filter(function(m) {
-        if (m.isPlaceholder) return false;
-        var r = responses[m.id];
-        return !r || r.response !== 'yes';
+        // Browser notification (once per poll per session)
+        if (!pollReminderNotified['match-' + poll.id]) {
+          pollReminderNotified['match-' + poll.id] = true;
+          fireGenericNotification('🏏 Match ' + daysText + '!', 'You\'re playing' + (poll.opponent ? ' vs ' + poll.opponent : '') + '. Get ready!', 'match-' + poll.id, 'polls');
+        }
       });
-      var names = nonResponders.map(function(m) { return m.name || 'Unknown'; });
-      var daysText = diff < 24 * 60 * 60 * 1000 ? 'TODAY' : 'in 1 day';
+    }
 
-      html += '<div class="poll-reminder" style="background:#FFF3E0;border:1px solid #FF9800;border-radius:10px;padding:12px;margin-bottom:12px;position:relative;">';
-      html += '  <button onclick="dismissPollReminder(\'' + poll.id + '\')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#999;font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;" title="Dismiss">✕</button>';
-      html += '  <div style="font-weight:600;font-size:13px;padding-right:24px;">⚠️ Match ' + daysText + (poll.opponent ? ' vs ' + escHtml(poll.opponent) : '') + ' — only ' + yesCount + '/11 confirmed!</div>';
-      html += '  <div style="font-size:11px;color:#666;margin-top:4px;">' + names.length + ' member' + (names.length > 1 ? 's' : '') + ' haven\'t confirmed: ' + escHtml(names.slice(0, 5).join(', ')) + (names.length > 5 ? '…' : '') + '</div>';
-      html += '  <button onclick="nudgeNonResponders(\'' + poll.id + '\')" style="margin-top:8px;padding:6px 14px;background:#25D366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">' + WA_ICON_HTML + ' Nudge on WhatsApp</button>';
-      html += '</div>';
+    // ── 3. Treasurer nudge banner (existing) ──
+    if (isTreasurer()) {
+      polls.forEach(function(poll) {
+        if (poll.status !== 'open' || !poll.matchDate) return;
+        if (pollReminderDismissed[poll.id]) return;
+        var matchDate = new Date(poll.matchDate + 'T00:00:00');
+        var diff = matchDate.getTime() - now.getTime();
+        if (diff < 0 || diff > twoDaysMs) return;
 
-      // Browser notification (once per poll per session)
-      if (!pollReminderNotified[poll.id]) {
-        pollReminderNotified[poll.id] = true;
-        firePollReminderNotification(poll, yesCount, daysText);
-      }
-    });
+        var responses = poll.responses || {};
+        var yesCount = 0;
+        Object.keys(responses).forEach(function(uid) {
+          if (responses[uid].response === 'yes') yesCount++;
+        });
+
+        if (yesCount >= 11) return;
+
+        var nonResponders = members.filter(function(m) {
+          if (m.isPlaceholder) return false;
+          var r = responses[m.id];
+          return !r || r.response !== 'yes';
+        });
+        var names = nonResponders.map(function(m) { return m.name || 'Unknown'; });
+        var daysText = diff < 24 * 60 * 60 * 1000 ? 'TODAY' : 'in 1 day';
+
+        html += '<div class="poll-reminder" style="background:#FFF3E0;border:1px solid #FF9800;border-radius:10px;padding:12px;margin-bottom:12px;position:relative;">';
+        html += '  <button onclick="dismissPollReminder(\'' + poll.id + '\')" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#999;font-size:16px;cursor:pointer;line-height:1;padding:2px 4px;" title="Dismiss">✕</button>';
+        html += '  <div style="font-weight:600;font-size:13px;padding-right:24px;">⚠️ Match ' + daysText + (poll.opponent ? ' vs ' + escHtml(poll.opponent) : '') + ' — only ' + yesCount + '/11 confirmed!</div>';
+        html += '  <div style="font-size:11px;color:#666;margin-top:4px;">' + names.length + ' member' + (names.length > 1 ? 's' : '') + ' haven\'t confirmed: ' + escHtml(names.slice(0, 5).join(', ')) + (names.length > 5 ? '…' : '') + '</div>';
+        html += '  <button onclick="nudgeNonResponders(\'' + poll.id + '\')" style="margin-top:8px;padding:6px 14px;background:#25D366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">' + WA_ICON_HTML + ' Nudge on WhatsApp</button>';
+        html += '</div>';
+
+        // Browser notification (once per poll per session)
+        if (!pollReminderNotified[poll.id]) {
+          pollReminderNotified[poll.id] = true;
+          firePollReminderNotification(poll, yesCount, daysText);
+        }
+      });
+    }
 
     banner.innerHTML = html;
   }
@@ -2225,24 +2308,27 @@
     shareViaWhatsApp(text);
   }
 
-  function firePollReminderNotification(poll, yesCount, daysText) {
+  function fireGenericNotification(title, body, tag, tabOnClick) {
     if (!('Notification' in window)) return;
+    var doShow = function() {
+      try {
+        var n = new Notification(title, { body: body, tag: tag });
+        n.onclick = function() { window.focus(); if (tabOnClick) showTab(tabOnClick); };
+      } catch(e) { /* ignore */ }
+    };
     if (Notification.permission === 'granted') {
-      showPollNotification(poll, yesCount, daysText);
+      doShow();
     } else if (Notification.permission !== 'denied') {
       Notification.requestPermission().then(function(perm) {
-        if (perm === 'granted') showPollNotification(poll, yesCount, daysText);
+        if (perm === 'granted') doShow();
       });
     }
   }
 
-  function showPollNotification(poll, yesCount, daysText) {
+  function firePollReminderNotification(poll, yesCount, daysText) {
     var title = '🏏 Match ' + daysText + '!';
     var body = 'Only ' + yesCount + '/11 confirmed' + (poll.opponent ? ' for vs ' + poll.opponent : '') + '. Open ClubMates to nudge your team.';
-    try {
-      var n = new Notification(title, { body: body, icon: '🏏', tag: 'poll-' + poll.id });
-      n.onclick = function() { window.focus(); showTab('polls'); };
-    } catch(e) { /* ignore */ }
+    fireGenericNotification(title, body, 'poll-' + poll.id, 'polls');
   }
 
   function renderDashboard() {
@@ -2945,9 +3031,12 @@
           if (!isPast && !guest) {
             html += '    <button class="swap-btn volunteer" style="background:#E8F5E9;font-weight:600;" onclick="volunteerUmpire(\'' + a.id + '\')">🙋 I\'ll Volunteer!</button>';
           }
-          // Treasurer can manually assign if nobody volunteers
+          // Treasurer can manually assign or dice roll if nobody volunteers
           if (!isPast && isTreasurer()) {
-            html += '    <button class="swap-btn" onclick="manualAssignUmpire(\'' + a.id + '\')">👤 Assign Manually</button>';
+            html += '    <div id="umpire-actions-' + a.id + '">';
+            html += '      <button class="swap-btn" onclick="manualAssignUmpire(\'' + a.id + '\')">👤 Assign Manually</button>';
+            html += '      <button class="swap-btn" style="background:#FFF3E0;color:#E65100;border-color:#FF9800;" onclick="diceAssignUmpire(\'' + a.id + '\')">🎲 Roll Dice</button>';
+            html += '    </div>';
           }
         } else {
           // Assigned slot
@@ -3035,31 +3124,59 @@
     document.getElementById('umpireStats').innerHTML = html;
   }
 
+  var _swapAssignId = null;
   function requestUmpireSwap(assignmentId) {
-    // Show list of members to swap with
-    var otherMembers = members.filter(function(m) { return m.uid !== currentUser.uid; });
+    // Open swap modal with member dropdown
+    var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
+    if (!assignment) return;
+    var otherMembers = members.filter(function(m) { return !m.isPlaceholder && m.uid !== currentUser.uid; });
     if (otherMembers.length === 0) { showToast('No other members to swap with', 'error'); return; }
 
-    var names = otherMembers.map(function(m, i) { return (i + 1) + '. ' + m.name; }).join('\n');
-    var choice = prompt('Who would you like to swap with?\n\n' + names + '\n\nEnter number:');
-    if (!choice) return;
-    var idx = parseInt(choice) - 1;
-    if (isNaN(idx) || idx < 0 || idx >= otherMembers.length) { showToast('Invalid choice', 'error'); return; }
+    _swapAssignId = assignmentId;
 
-    var target = otherMembers[idx];
-    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
+    // Show match info
+    var info = (assignment.matchDate || '') + (assignment.matchTitle ? ' — ' + assignment.matchTitle : '');
+    document.getElementById('swapUmpireMatchInfo').textContent = info;
+
+    // Populate dropdown
+    var select = document.getElementById('swapMemberSelect');
+    otherMembers.sort(function(a, b) { return (a.name || a.email).localeCompare(b.name || b.email); });
+    select.innerHTML = '<option value="" disabled selected>— Choose a member —</option>';
+    otherMembers.forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m.uid;
+      opt.textContent = m.name || m.email;
+      select.appendChild(opt);
+    });
+
+    document.getElementById('swapUmpireModal').classList.add('show');
+  }
+
+  function confirmSwapRequest() {
+    var select = document.getElementById('swapMemberSelect');
+    var uid = select.value;
+    if (!uid) { showToast('Please select a member', 'error'); return; }
+    var target = members.find(function(m) { return m.uid === uid; });
+    if (!target) { showToast('Member not found', 'error'); return; }
+
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(_swapAssignId).update({
       swapRequestedWith: { uid: target.uid, name: target.name }
     }).then(function() {
       showToast('Swap request sent to ' + target.name, 'success');
+      closeSwapUmpireModal();
     }).catch(function(err) {
       showToast('Error: ' + err.message, 'error');
     });
   }
 
+  function closeSwapUmpireModal() {
+    document.getElementById('swapUmpireModal').classList.remove('show');
+    _swapAssignId = null;
+  }
+
   function acceptUmpireSwap(assignmentId) {
     var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
     if (!assignment) return;
-    if (!confirm('Accept umpire duty for ' + assignment.matchTitle + '?')) return;
 
     db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
       assignedTo: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
@@ -3085,7 +3202,6 @@
   function volunteerUmpire(assignmentId) {
     var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
     if (!assignment) return;
-    if (!confirm('Volunteer to umpire for ' + assignment.matchTitle + '?')) return;
 
     db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
       assignedTo: { uid: currentUser.uid, name: currentUser.displayName || currentUser.email },
@@ -3098,27 +3214,130 @@
     });
   }
 
-  function manualAssignUmpire(assignmentId) {
-    // Treasurer manually assigns an open volunteer slot
+  function diceAssignUmpire(assignmentId) {
+    // Treasurer rolls dice to assign an open volunteer slot
     var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
     if (!assignment || !isTreasurer()) return;
 
-    var opts = members.filter(function(m) { return !m.isPlaceholder; }).map(function(m) { return m.name || m.email; });
-    var pick = prompt('Assign umpire to which member?\\n\\n' + opts.map(function(n, i) { return (i + 1) + '. ' + n; }).join('\\n') + '\\n\\nEnter the number:');
-    if (!pick) return;
-    var idx = parseInt(pick) - 1;
     var realMembers = members.filter(function(m) { return !m.isPlaceholder; });
-    if (idx < 0 || idx >= realMembers.length) { showToast('Invalid selection', 'error'); return; }
-    var assignee = realMembers[idx];
+    if (realMembers.length === 0) { showToast('No members to pick from', 'error'); return; }
 
+    // Smart dice: pick from members with fewest umpire assignments
+    var counts = {};
+    realMembers.forEach(function(m) { counts[m.uid] = 0; });
+    umpireAssignments.forEach(function(a) {
+      if (a.assignedTo && a.assignedTo.uid && counts[a.assignedTo.uid] !== undefined) {
+        counts[a.assignedTo.uid]++;
+      }
+    });
+    var minCount = Infinity;
+    realMembers.forEach(function(m) {
+      var c = counts[m.uid] || 0;
+      if (c < minCount) minCount = c;
+    });
+    var eligible = realMembers.filter(function(m) { return (counts[m.uid] || 0) === minCount; });
+    if (eligible.length === 0) eligible = realMembers;
+
+    var picked = eligible[Math.floor(Math.random() * eligible.length)];
+
+    // Show dice animation in a toast-like overlay
+    var faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+    showToast('🎲 Rolling...', '');
+    var rolls = 0;
+    var interval = setInterval(function() {
+      showToast(faces[Math.floor(Math.random() * 6)] + ' Rolling...', '');
+      rolls++;
+      if (rolls > 8) {
+        clearInterval(interval);
+        showToast('🎯 Dice picked: ' + picked.name + '!', 'success');
+        // Show in-card result panel instead of confirm()
+        setTimeout(function() {
+          var actionsDiv = document.getElementById('umpire-actions-' + assignmentId);
+          if (!actionsDiv) return;
+          actionsDiv.innerHTML =
+            '<div style="background:#F3E5F5;border:1px solid #CE93D8;border-radius:10px;padding:12px;margin-top:6px;text-align:center;">' +
+            '  <div style="font-size:22px;">🎯</div>' +
+            '  <div style="font-size:14px;font-weight:700;margin:6px 0;">Dice picked: ' + escHtml(picked.name) + '</div>' +
+            '  <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">' +
+            '    <button class="swap-btn" style="background:#E8F5E9;color:#1B5E20;border-color:#4CAF50;font-weight:600;" onclick="confirmDiceAssign(\'' + assignmentId + '\',\'' + picked.uid + '\',\'' + escHtml(picked.name || picked.email) + '\')">✅ Assign</button>' +
+            '    <button class="swap-btn" style="background:#FFF3E0;color:#E65100;border-color:#FF9800;font-weight:600;" onclick="diceAssignUmpire(\'' + assignmentId + '\')">🎲 Re-roll</button>' +
+            '    <button class="swap-btn" style="background:#F5F5F5;color:var(--text);border-color:#CCC;" onclick="cancelDiceResult(\'' + assignmentId + '\')">✕</button>' +
+            '  </div>' +
+            '</div>';
+        }, 400);
+      }
+    }, 120);
+  }
+
+  function confirmDiceAssign(assignmentId, uid, name) {
     db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(assignmentId).update({
+      assignedTo: { uid: uid, name: name },
+      assignedBy: 'dice'
+    }).then(function() {
+      showToast('Assigned to ' + name + ' 🏏', 'success');
+    }).catch(function(err) {
+      showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  function cancelDiceResult(assignmentId) {
+    // Restore original buttons
+    var actionsDiv = document.getElementById('umpire-actions-' + assignmentId);
+    if (!actionsDiv) return;
+    actionsDiv.innerHTML =
+      '<button class="swap-btn" onclick="manualAssignUmpire(\'' + assignmentId + '\')">👤 Assign Manually</button>' +
+      '<button class="swap-btn" style="background:#FFF3E0;color:#E65100;border-color:#FF9800;" onclick="diceAssignUmpire(\'' + assignmentId + '\')">🎲 Roll Dice</button>';
+  }
+
+  var _manualAssignId = null;
+  function manualAssignUmpire(assignmentId) {
+    // Treasurer manually assigns an open volunteer slot via modal dropdown
+    var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
+    if (!assignment || !isTreasurer()) return;
+
+    _manualAssignId = assignmentId;
+
+    // Show match info
+    var info = (assignment.matchDate || '') + (assignment.matchTitle ? ' — ' + assignment.matchTitle : '');
+    document.getElementById('assignUmpireMatchInfo').textContent = info;
+
+    // Populate dropdown
+    var select = document.getElementById('manualAssignSelect');
+    var realMembers = members.filter(function(m) { return !m.isPlaceholder; });
+    realMembers.sort(function(a, b) { return (a.name || a.email).localeCompare(b.name || b.email); });
+    select.innerHTML = '<option value="" disabled selected>— Choose a member —</option>';
+    realMembers.forEach(function(m) {
+      var opt = document.createElement('option');
+      opt.value = m.uid;
+      opt.textContent = m.name || m.email;
+      select.appendChild(opt);
+    });
+
+    document.getElementById('assignUmpireModal').classList.add('show');
+  }
+
+  function confirmManualAssign() {
+    var select = document.getElementById('manualAssignSelect');
+    var uid = select.value;
+    if (!uid) { showToast('Please select a member', 'error'); return; }
+    var realMembers = members.filter(function(m) { return !m.isPlaceholder; });
+    var assignee = realMembers.find(function(m) { return m.uid === uid; });
+    if (!assignee) { showToast('Member not found', 'error'); return; }
+
+    db.collection('clubs').doc(currentClub.id).collection('umpireAssignments').doc(_manualAssignId).update({
       assignedTo: { uid: assignee.uid, name: assignee.name || assignee.email },
       assignedBy: 'manual'
     }).then(function() {
       showToast('Assigned to ' + assignee.name + ' 🏏', 'success');
+      closeAssignUmpireModal();
     }).catch(function(err) {
       showToast('Error: ' + err.message, 'error');
     });
+  }
+
+  function closeAssignUmpireModal() {
+    document.getElementById('assignUmpireModal').classList.remove('show');
+    _manualAssignId = null;
   }
 
   function deleteUmpireAssignment(assignmentId) {
@@ -3913,17 +4132,20 @@
 
   // ── Service Worker Registration & Auto-Update ──
   if ('serviceWorker' in navigator) {
+    // Track whether a SW was already controlling this page (to distinguish first-install from update)
+    var hadController = !!navigator.serviceWorker.controller;
+
     navigator.serviceWorker.register('./sw.js').then(function(reg) {
       // Check for updates every 5 minutes
       setInterval(function() { reg.update(); }, 5 * 60 * 1000);
 
       reg.addEventListener('updatefound', function() {
+        if (!hadController) return; // First install — don't toast or reload
         var newWorker = reg.installing;
         newWorker.addEventListener('statechange', function() {
-          if (newWorker.state === 'activated') {
-            // New version activated — show toast then reload
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New version waiting — skipWaiting will trigger controllerchange → reload
             showToast('\u2728 App updated! Refreshing...', 'success');
-            setTimeout(function() { window.location.reload(); }, 1500);
           }
         });
       });
@@ -3933,9 +4155,11 @@
 
     // Handle controller change (when skipWaiting fires from new SW)
     navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (!hadController) { hadController = true; return; } // First install — skip reload
       if (!window._swReloading) {
         window._swReloading = true;
-        window.location.reload();
+        // Small delay so user sees the toast
+        setTimeout(function() { window.location.reload(); }, 1200);
       }
     });
   }
