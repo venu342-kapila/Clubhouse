@@ -697,7 +697,7 @@
 
   </div>
 
-  <div class="menu-group">
+  <div class="menu-group" id="menuExportGroup">
     <div class="menu-group-label">Export</div>
     <div class="menu-item" onclick="exportExcel();closeMenu();">
       <span class="menu-icon">📊</span> Export to Excel
@@ -714,7 +714,7 @@
     <div class="menu-item" onclick="leaveClub();closeMenu();">
       <span class="menu-icon">↩️</span> Back to My Clubs
     </div>
-    <div class="menu-item danger" onclick="leaveThisClub();closeMenu();">
+    <div class="menu-item danger" id="menuLeaveClub" onclick="leaveThisClub();closeMenu();">
       <span class="menu-icon">🚪</span> Leave Club
     </div>
     <div class="menu-item" onclick="signOut();closeMenu();">
@@ -1734,7 +1734,7 @@
     select.innerHTML = cats.map(function(c) {
       return '<option value="' + escHtml(c) + '">' + escHtml(c) + '</option>';
     }).join('');
-    document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('txDate').value = new Date().toLocaleDateString('en-CA');
     document.getElementById('txAmount').value = '';
     document.getElementById('txDescription').value = '';
 
@@ -2682,8 +2682,11 @@
     document.getElementById('menuPanel').classList.add('show');
     // Update menu for guest mode
     var guest = isGuest() || myRole === 'guest';
-    document.getElementById('menuUserName').textContent = guest ? 'Guest' : (currentUser.displayName || 'User');
+    document.getElementById('menuUserName').textContent = guest ? (currentUser.displayName || guestName || 'Guest') : (currentUser.displayName || 'User');
     document.getElementById('menuUserEmail').textContent = guest ? 'Read-only access' : (currentUser.email || '');
+    // Hide export & leave for guests
+    document.getElementById('menuExportGroup').style.display = guest ? 'none' : '';
+    document.getElementById('menuLeaveClub').style.display = guest ? 'none' : '';
   }
 
   function closeMenu() {
@@ -2820,7 +2823,7 @@
   function openCreateUmpireModal() {
     if (!isTreasurer()) return;
     document.getElementById('umpireMatchTitle').value = '';
-    document.getElementById('umpireMatchDate').value = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+    document.getElementById('umpireMatchDate').value = new Date(Date.now() + 7 * 86400000).toLocaleDateString('en-CA');
     document.getElementById('umpireVenue').value = '';
     document.getElementById('umpireMethod').value = 'volunteer';
     document.getElementById('diceResult').style.display = 'none';
@@ -2869,8 +2872,13 @@
 
   function rollUmpireDice() {
     // Find members with lowest umpire count (smart dice)
+    var realMembers = members.filter(function(m) { return !m.isPlaceholder; });
+    if (realMembers.length === 0) {
+      document.getElementById('diceResultName').textContent = 'No members available';
+      return;
+    }
     var counts = {};
-    members.forEach(function(m) { counts[m.uid] = 0; });
+    realMembers.forEach(function(m) { counts[m.uid] = 0; });
     umpireAssignments.forEach(function(a) {
       if (a.assignedTo && a.assignedTo.uid) {
         counts[a.assignedTo.uid] = (counts[a.assignedTo.uid] || 0) + 1;
@@ -2879,14 +2887,14 @@
 
     // Find the minimum count
     var minCount = Infinity;
-    members.forEach(function(m) {
+    realMembers.forEach(function(m) {
       var c = counts[m.uid] || 0;
       if (c < minCount) minCount = c;
     });
 
     // Eligible = members with min count
-    var eligible = members.filter(function(m) { return (counts[m.uid] || 0) === minCount; });
-    if (eligible.length === 0) eligible = members;
+    var eligible = realMembers.filter(function(m) { return (counts[m.uid] || 0) === minCount; });
+    if (eligible.length === 0) eligible = realMembers;
 
     // Random pick
     var picked = eligible[Math.floor(Math.random() * eligible.length)];
@@ -2986,7 +2994,7 @@
     var createSection = document.getElementById('createUmpireSection');
     createSection.style.display = isTreasurer() ? '' : 'none';
 
-    var today = new Date().toISOString().split('T')[0];
+    var today = new Date().toLocaleDateString('en-CA');
     var filter = currentUmpireFilter;
 
     // Stats view
@@ -3214,7 +3222,10 @@
     });
   }
 
+  var _diceInterval = null;
   function diceAssignUmpire(assignmentId) {
+    // Clear any previous dice animation
+    if (_diceInterval) { clearInterval(_diceInterval); _diceInterval = null; }
     // Treasurer rolls dice to assign an open volunteer slot
     var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
     if (!assignment || !isTreasurer()) return;
@@ -3244,11 +3255,12 @@
     var faces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
     showToast('🎲 Rolling...', '');
     var rolls = 0;
-    var interval = setInterval(function() {
+    _diceInterval = setInterval(function() {
       showToast(faces[Math.floor(Math.random() * 6)] + ' Rolling...', '');
       rolls++;
       if (rolls > 8) {
-        clearInterval(interval);
+        clearInterval(_diceInterval);
+        _diceInterval = null;
         showToast('🎯 Dice picked: ' + picked.name + '!', 'success');
         // Show in-card result panel instead of confirm()
         setTimeout(function() {
@@ -3464,7 +3476,7 @@
   // ═══════════════════════════════════════════════════════════
   function openCreatePollModal() {
     document.getElementById('pollQuestion').value = '';
-    document.getElementById('pollMatchDate').value = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+    document.getElementById('pollMatchDate').value = new Date(Date.now() + 7 * 86400000).toLocaleDateString('en-CA');
     document.getElementById('pollOpponent').value = '';
     document.getElementById('pollLocation').value = '';
     document.getElementById('createPollModal').classList.add('show');
@@ -3546,7 +3558,7 @@
     if (poll.location) text += '\n📍 ' + poll.location;
 
     // Show current tally
-    var responses = poll.responses || {};
+    var responses = Object.assign({}, poll.responses || {});
     // Include current vote in tally (may not be in snapshot yet)
     responses[currentUser.uid] = { response: response };
     var y = 0, n = 0, m = 0;
@@ -4113,13 +4125,14 @@
 
 
   function formatNum(n) {
-    return Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var prefix = n < 0 ? '-' : '';
+    return prefix + Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function escHtml(s) {
     var div = document.createElement('div');
     div.textContent = s;
-    return div.innerHTML;
+    return div.innerHTML.replace(/'/g, '&#39;');
   }
 
   function showToast(msg, type) {
