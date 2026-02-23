@@ -694,7 +694,9 @@
     <div class="menu-item" onclick="openSettingsModal();closeMenu();">
       <span class="menu-icon">⚙️</span> Club Settings
     </div>
-
+    <div class="menu-item danger" id="menuDeleteClub" style="display:none;" onclick="openDeleteClubModal();closeMenu();">
+      <span class="menu-icon">🗑️</span> Delete Club
+    </div>
   </div>
 
   <div class="menu-group" id="menuExportGroup">
@@ -1001,6 +1003,20 @@
     <div style="text-align:center;margin-top:12px;">
       <button class="submit-btn" onclick="closeAppGuide()" style="background:#F5F5F5;color:var(--text);">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- ── Delete Club Confirmation Modal ── -->
+<div id="deleteClubModal" class="modal-overlay" onclick="if(event.target===this)closeDeleteClubModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 style="color:var(--danger);">🗑️ Delete Club</h2>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px;">This will <strong>permanently delete</strong> the club and all its data — transactions, polls, umpire assignments, and member records. This action cannot be undone.</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">Type the club name to confirm:</p>
+    <div id="deleteClubNameLabel" style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;text-align:center;"></div>
+    <input type="text" id="deleteClubConfirmInput" placeholder="Type club name here" style="width:100%;padding:12px;font-size:15px;border:1.5px solid var(--border);border-radius:10px;box-sizing:border-box;margin-bottom:16px;" oninput="validateDeleteClubInput()" />
+    <button class="submit-btn" id="deleteClubBtn" onclick="deleteClub()" disabled style="background:var(--danger);margin-bottom:8px;opacity:0.5;">Delete Forever</button>
+    <button class="submit-btn" onclick="closeDeleteClubModal()" style="background:#F5F5F5;color:var(--text);">Cancel</button>
   </div>
 </div>
 
@@ -1714,6 +1730,90 @@
     });
   }
 
+  // ── Delete Club ──
+  function openDeleteClubModal() {
+    if (!currentClub || myRole !== 'owner') {
+      showToast('Only the club owner can delete the club.', 'error');
+      return;
+    }
+    document.getElementById('deleteClubNameLabel').textContent = '"' + currentClub.name + '"';
+    document.getElementById('deleteClubConfirmInput').value = '';
+    var btn = document.getElementById('deleteClubBtn');
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.textContent = 'Delete Forever';
+    document.getElementById('deleteClubModal').classList.add('show');
+  }
+
+  function closeDeleteClubModal() {
+    document.getElementById('deleteClubModal').classList.remove('show');
+  }
+
+  function validateDeleteClubInput() {
+    var input = document.getElementById('deleteClubConfirmInput').value.trim();
+    var match = currentClub && input.toLowerCase() === currentClub.name.toLowerCase();
+    var btn = document.getElementById('deleteClubBtn');
+    btn.disabled = !match;
+    btn.style.opacity = match ? '1' : '0.5';
+  }
+
+  function deleteClub() {
+    if (!currentClub || myRole !== 'owner') return;
+    var clubId = currentClub.id;
+    var clubName = currentClub.name;
+    var btn = document.getElementById('deleteClubBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Deleting...';
+
+    var clubRef = db.collection('clubs').doc(clubId);
+
+    // Helper: delete all docs in a subcollection (batched, max 490 per batch)
+    function deleteSubcollection(name) {
+      return clubRef.collection(name).get().then(function(snap) {
+        if (snap.empty) return Promise.resolve();
+        var batch = db.batch();
+        var count = 0;
+        var batches = [batch];
+        snap.docs.forEach(function(doc) {
+          if (count >= 490) { batch = db.batch(); batches.push(batch); count = 0; }
+          batch.delete(doc.ref);
+          count++;
+        });
+        return Promise.all(batches.map(function(b) { return b.commit(); }));
+      });
+    }
+
+    // Order matters for Firestore security rules:
+    // 1. Delete data subcollections (owner's member doc still exists → isTreasurer passes)
+    // 2. Delete the club document (owner's member doc still exists → owner check passes)
+    // 3. Delete member docs (rules evaluated against pre-batch state, so owner doc still "exists")
+    // 4. Clean up only the current user's users/{uid}/clubs/{clubId} reference
+    //    (other members' stale refs auto-clean when they next open the app via enterClub())
+
+    Promise.all([
+      deleteSubcollection('transactions'),
+      deleteSubcollection('polls'),
+      deleteSubcollection('umpireAssignments')
+    ]).then(function() {
+      // Step 2: Delete the club document itself (owner's member doc still exists)
+      return clubRef.delete();
+    }).then(function() {
+      // Step 3: Delete all member docs
+      return deleteSubcollection('members');
+    }).then(function() {
+      // Step 4: Clean up current user's club reference only
+      return db.collection('users').doc(currentUser.uid).collection('clubs').doc(clubId).delete();
+    }).then(function() {
+      closeDeleteClubModal();
+      showToast('"' + clubName + '" has been permanently deleted.', 'success');
+      leaveClub();
+    }).catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = 'Delete Forever';
+      showToast('Error deleting club: ' + err.message, 'error');
+    });
+  }
+
   // ═══════════════════════════════════════════════════════════
   // ── Transactions ──
   // ═══════════════════════════════════════════════════════════
@@ -2142,6 +2242,7 @@
     // Show/hide treasurer-only elements
     var isActual = isTreasurer();
     document.getElementById('menuSettingsGroup').style.display = isActual ? '' : 'none';
+    document.getElementById('menuDeleteClub').style.display = myRole === 'owner' ? '' : 'none';
     document.getElementById('addMemberSection').style.display = isActual ? 'block' : 'none';
     if (isActual && currentClub) loadPendingInvites();
 
