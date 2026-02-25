@@ -2,7 +2,7 @@
 // ClubMates v3 — Service Worker (Network-First)
 // ═══════════════════════════════════════════════════════════
 // BUMP this version on every deployment to bust the cache:
-var CACHE_VERSION = 'clubmates-v4.0';
+var CACHE_VERSION = 'clubmates-v5.0';
 
 // Files to pre-cache on install (shell files)
 var SHELL_FILES = [
@@ -59,3 +59,4 @@ self.addEventListener('fetch', function(event) {
     })
   );
 });
+
