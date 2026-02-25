@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#1B5E20" />
+<title>ClubMates — User Guide</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #1B5E20; --primary-light: #E8F5E9;
+    --danger: #D32F2F; --danger-light: #FFEBEE;
+    --warning: #F57F17; --warning-light: #FFF9C4;
+    --sponsor: #1565C0; --sponsor-light: #E3F2FD;
+    --pending: #E65100; --pending-light: #FFF3E0;
+    --bg: #F5F6F8; --card: #FFFFFF; --text: #1A1A1A; --text-sec: #8A8A8A;
+    --border: #EBEBEB; --radius: 14px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; -webkit-font-smoothing: antialiased; line-height: 1.6; }
+  @media (min-width: 600px) { body { background: #E8E8E8; } }
+
+  .container { max-width: 480px; margin: 0 auto; background: var(--bg); min-height: 100vh; }
+  @media (min-width: 600px) { .container { box-shadow: 0 0 24px rgba(0,0,0,0.08); } }
+
+  /* Header */
+  .guide-hero { background: linear-gradient(160deg, #1B5E20 0%, #388E3C 50%, #43A047 100%); color: white; padding: 28px 20px 24px; text-align: center; position: sticky; top: 0; z-index: 100; }
+  .guide-hero .logo { font-size: 42px; margin-bottom: 6px; }
+  .guide-hero h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .guide-hero p { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+  .guide-hero .back-link { position: absolute; top: 16px; left: 16px; color: white; text-decoration: none; font-size: 22px; opacity: 0.8; }
+  .guide-hero .back-link:active { opacity: 1; }
+
+  /* TOC */
+  .toc { background: var(--card); margin: 12px 14px; border-radius: var(--radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .toc h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-sec); margin-bottom: 10px; }
+  .toc a { display: flex; align-items: center; gap: 10px; padding: 9px 0; color: var(--text); text-decoration: none; font-size: 13px; font-weight: 500; border-bottom: 1px solid var(--border); }
+  .toc a:last-child { border-bottom: none; }
+  .toc a:active { color: var(--primary); }
+  .toc .toc-icon { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+  .toc .toc-arrow { color: #CCC; margin-left: auto; font-size: 12px; }
+
+  /* Sections */
+  .section { background: var(--card); margin: 12px 14px; border-radius: var(--radius); padding: 18px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .section h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--primary); }
+  .section h2 .s-icon { font-size: 20px; }
+  .section h3 { font-size: 13px; font-weight: 700; margin: 14px 0 6px; color: var(--text); }
+  .section p { font-size: 13px; color: #555; margin-bottom: 8px; }
+  .section ul { margin: 6px 0 10px; padding-left: 18px; }
+  .section li { font-size: 13px; color: #555; margin-bottom: 4px; }
+  .section li b { color: var(--text); }
+
+  /* Role badges */
+  .role { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 700; margin-left: 4px; vertical-align: middle; }
+  .role.owner { background: var(--primary-light); color: var(--primary); }
+  .role.treasurer { background: var(--pending-light); color: var(--pending); }
+  .role.member { background: #F3F3F3; color: var(--text-sec); }
+  .role.all { background: var(--primary-light); color: var(--primary); }
+
+  /* Steps */
+  .steps { counter-reset: step; margin: 8px 0 12px; padding: 0; list-style: none; }
+  .steps li { counter-increment: step; position: relative; padding: 8px 0 8px 36px; font-size: 13px; color: #555; border-left: 2px solid var(--primary-light); margin-left: 12px; }
+  .steps li:last-child { border-left-color: transparent; }
+  .steps li::before { content: counter(step); position: absolute; left: -11px; top: 6px; width: 22px; height: 22px; background: var(--primary); color: white; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+  /* Tip boxes */
+  .tip { background: #E3F2FD; border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 12px; color: #1565C0; display: flex; gap: 8px; align-items: flex-start; }
+  .tip .tip-icon { font-size: 16px; flex-shrink: 0; }
+  .warn { background: var(--warning-light); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 12px; color: #E65100; display: flex; gap: 8px; align-items: flex-start; }
+  .warn .tip-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* Footer */
+  .guide-footer { text-align: center; padding: 24px 16px 40px; color: var(--text-sec); font-size: 12px; }
+  .guide-footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+  /* Back to top */
+  .top-btn { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; background: var(--primary); color: white; border: none; border-radius: 50%; font-size: 18px; cursor: pointer; box-shadow: 0 2px 12px rgba(0,0,0,0.2); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .top-btn.visible { display: flex; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Hero Header -->
+  <div class="guide-hero">
+    <a href="index.html" class="back-link">←</a>
+    <div class="logo">🤝</div>
+    <h1>ClubMates — User Guide</h1>
+    <p>Everything you need to manage your cricket club finances</p>
+  </div>
+
+  <!-- Table of Contents -->
+  <div class="toc" id="toc">
+    <h2>Contents</h2>
+    <a href="#getting-started"><span class="toc-icon">🚀</span> Getting Started <span class="toc-arrow">›</span></a>
+    <a href="#clubs"><span class="toc-icon">🏠</span> Creating & Joining Clubs <span class="toc-arrow">›</span></a>
+    <a href="#dashboard"><span class="toc-icon">📊</span> Dashboard <span class="toc-arrow">›</span></a>
+    <a href="#record"><span class="toc-icon">➕</span> Recording Transactions <span class="toc-arrow">›</span></a>
+    <a href="#history"><span class="toc-icon">📋</span> Transaction History <span class="toc-arrow">›</span></a>
+    <a href="#approvals"><span class="toc-icon">✅</span> Approvals & Workflow <span class="toc-arrow">›</span></a>
+    <a href="#members"><span class="toc-icon">👥</span> Managing Members <span class="toc-arrow">›</span></a>
+    <a href="#polls"><span class="toc-icon">📢</span> Match Polls <span class="toc-arrow">›</span></a>
+    <a href="#umpire"><span class="toc-icon">🏏</span> Umpire Duty <span class="toc-arrow">›</span></a>
+    <a href="#roles"><span class="toc-icon">🔑</span> Roles & Permissions <span class="toc-arrow">›</span></a>
+    <a href="#guest"><span class="toc-icon">👁️</span> Guest Access <span class="toc-arrow">›</span></a>
+    <a href="#settings"><span class="toc-icon">⚙️</span> Club Settings <span class="toc-arrow">›</span></a>
+    <a href="#export"><span class="toc-icon">📤</span> Export & Backup <span class="toc-arrow">›</span></a>
+    <a href="#whatsapp"><span class="toc-icon">💬</span> WhatsApp Sharing <span class="toc-arrow">›</span></a>
+    <a href="#tips"><span class="toc-icon">💡</span> Tips & FAQ <span class="toc-arrow">›</span></a>
+  </div>
+
+  <!-- 1. Getting Started -->
+  <div class="section" id="getting-started">
+    <h2><span class="s-icon">🚀</span> Getting Started</h2>
+    <p>ClubMates is a mobile-first Progressive Web App (PWA) for managing cricket club finances, match polls, and umpire assignments. Works on any device — phone, tablet, or desktop.</p>
+
+    <h3>Sign In</h3>
+    <ol class="steps">
+      <li>Open the app at <b>clubmates.app</b></li>
+      <li>Tap <b>Sign in with Google</b></li>
+      <li>Select your Google account</li>
+      <li>You'll see the <b>My Clubs</b> screen — ready to go!</li>
+    </ol>
+
+    <h3>Install as App (optional)</h3>
+    <p>For the best experience, install ClubMates on your phone:</p>
+    <ul>
+      <li><b>Android</b>: Tap the "Add to Home Screen" banner, or use Chrome menu → "Install app"</li>
+      <li><b>iPhone</b>: Open in Safari → Share → "Add to Home Screen"</li>
+    </ul>
+    <div class="tip"><span class="tip-icon">💡</span><span>The app works offline for viewing and auto-updates whenever you reconnect.</span></div>
+  </div>
+
+  <!-- 2. Creating & Joining Clubs -->
+  <div class="section" id="clubs">
+    <h2><span class="s-icon">🏠</span> Creating & Joining Clubs</h2>
+
+    <h3>Create a Club</h3>
+    <ol class="steps">
+      <li>On the <b>My Clubs</b> screen, tap <b>+ Create</b></li>
+      <li>Enter a club name (e.g., "Samurai Cricket Club")</li>
+      <li>Optionally upload a club logo and set a currency symbol</li>
+      <li>Tap <b>Create Club</b> — you're the <b>Owner</b>!</li>
+    </ol>
+
+    <h3>Join a Club</h3>
+    <ol class="steps">
+      <li>Tap <b>Join</b> on the My Clubs screen</li>
+      <li>Paste the <b>Club ID</b> or <b>invite link</b> shared with you</li>
+      <li>Tap <b>Join</b> — you'll be added as a <b>Member</b></li>
+    </ol>
+
+    <div class="tip"><span class="tip-icon">💡</span><span>You can also join by tapping a link like <i>clubmates.app?join=CLUBID</i> — it auto-opens the join flow.</span></div>
+
+    <h3>Switching Clubs</h3>
+    <p>Tap the <b>← arrow</b> in the top-left or use the menu → <b>Back to My Clubs</b> to switch between clubs.</p>
+  </div>
+
+  <!-- 3. Dashboard -->
+  <div class="section" id="dashboard">
+    <h2><span class="s-icon">📊</span> Dashboard</h2>
+    <p>The Dashboard is the first thing you see when you enter a club. It shows:</p>
+    <ul>
+      <li><b>Approved Balance</b> — total income minus expenses (approved transactions only)</li>
+      <li><b>Pending items</b> — count and amount of transactions awaiting approval (when approval workflow is on)</li>
+      <li><b>Summary cards</b> — quick totals for Contributions, Expenses, and Sponsorships</li>
+      <li><b>Member count</b> and club managers' names</li>
+      <li><b>Recent transactions</b> — latest activity at a glance</li>
+    </ul>
+    <div class="tip"><span class="tip-icon">💡</span><span>Tap the WhatsApp button on the balance card to share a formatted summary with your club group.</span></div>
+  </div>
+
+  <!-- 4. Recording Transactions -->
+  <div class="section" id="record">
+    <h2><span class="s-icon">➕</span> Recording Transactions</h2>
+    <p>Any signed-in member can record a transaction.</p>
+
+    <h3>Transaction Types</h3>
+    <ul>
+      <li><b>💸 Expense</b> — money spent (ground fees, equipment, travel, etc.)</li>
+      <li><b>💰 Contribution</b> — money collected from members (dues, match-day fees)</li>
+      <li><b>🤝 Sponsorship</b> — sponsor or external payments</li>
+    </ul>
+
+    <h3>How to Record</h3>
+    <ol class="steps">
+      <li>Go to the <b>Record</b> tab (bottom nav)</li>
+      <li>Select the transaction type</li>
+      <li>Choose the <b>member</b> (for contributions) or enter details</li>
+      <li>Enter <b>amount</b>, <b>description</b>, and <b>date</b></li>
+      <li>Pick a <b>category</b> from the dropdown</li>
+      <li>Tap <b>Submit</b></li>
+    </ol>
+
+    <div class="tip"><span class="tip-icon">💡</span><span>Treasurers can record transactions on behalf of any member. Regular members can only record their own.</span></div>
+  </div>
+
+  <!-- 5. Transaction History -->
+  <div class="section" id="history">
+    <h2><span class="s-icon">📋</span> Transaction History</h2>
+    <p>View all transactions from the <b>History</b> section (accessible via the ☰ menu → Transaction History or scroll down on Dashboard).</p>
+
+    <h3>Search & Filter</h3>
+    <ul>
+      <li><b>Search</b> by description, member name, or category</li>
+      <li><b>Filter chips</b>: All, Expenses, Contributions, Sponsorships, Pending</li>
+      <li><b>Sort</b> by date (newest/oldest) or amount</li>
+    </ul>
+
+    <h3>Multi-Select & Bulk Delete</h3>
+    <ol class="steps">
+      <li>Tap the <b>☑ Select</b> button in the History toolbar</li>
+      <li>Tap transactions to check/uncheck them</li>
+      <li>Use <b>Select All</b> or <b>Deselect</b> in the action bar</li>
+      <li>Tap <b>Delete Selected</b> to remove them <span class="role treasurer">Treasurer</span></li>
+    </ol>
+
+    <h3>Single Delete</h3>
+    <p>Tap the <b>✕</b> on any transaction to delete it. <span class="role treasurer">Treasurer</span></p>
+  </div>
+
+  <!-- 6. Approvals -->
+  <div class="section" id="approvals">
+    <h2><span class="s-icon">✅</span> Approvals & Workflow</h2>
+    <p>When <b>Approval Workflow</b> is enabled in Club Settings, transactions must be approved before counting toward the balance.</p>
+
+    <h3>How It Works</h3>
+    <ul>
+      <li>Members submit transactions → status is <b>Pending</b></li>
+      <li>Treasurer sees a pending card on the Dashboard</li>
+      <li>Treasurer can <b>Approve ✓</b> or <b>Reject ✗</b> each transaction</li>
+      <li>Only <b>approved</b> transactions count toward the balance</li>
+    </ul>
+
+    <h3>Treasurer Self-Submissions</h3>
+    <p>When a Treasurer records a transaction, it's auto-approved (no need to approve your own entries).</p>
+
+    <div class="tip"><span class="tip-icon">💡</span><span>You can turn Approval Workflow on/off in <b>Club Settings</b>. When off, all transactions are auto-approved.</span></div>
+  </div>
+
+  <!-- 7. Members -->
+  <div class="section" id="members">
+    <h2><span class="s-icon">👥</span> Managing Members</h2>
+
+    <h3>View Members</h3>
+    <p>The <b>Members</b> tab shows all club members with their role, contribution total, expense total, and sponsorship total.</p>
+
+    <h3>Add Members <span class="role treasurer">Treasurer</span></h3>
+    <ul>
+      <li><b>Add Manually</b> — creates a "placeholder" member with just a name. They can later claim their account after joining the app.</li>
+      <li><b>Invite by Email</b> — sends an email invitation with a join link.</li>
+      <li><b>Share Invite Link</b> — copies or shares a join URL via WhatsApp. Anyone with the link can join.</li>
+      <li><b>Club ID</b> — share the club ID for others to join manually.</li>
+    </ul>
+
+    <h3>Change Roles <span class="role treasurer">Treasurer</span></h3>
+    <p>Tap the role dropdown next to any member to change their role between Owner, Treasurer, and Member.</p>
+
+    <h3>Placeholder Claims</h3>
+    <p>When a new user joins the app and there's a placeholder member with a matching name, they can <b>claim</b> that account to inherit existing transaction history.</p>
+
+    <div class="warn"><span class="tip-icon">⚠️</span><span>Only the Owner can promote others to Owner or change the Owner's role.</span></div>
+  </div>
+
+  <!-- 8. Polls -->
+  <div class="section" id="polls">
+    <h2><span class="s-icon">📢</span> Match Polls</h2>
+    <p>Quickly check who's available for an upcoming match.</p>
+
+    <h3>Create a Poll <span class="role treasurer">Treasurer</span></h3>
+    <ol class="steps">
+      <li>Go to the <b>Polls</b> tab</li>
+      <li>Tap <b>+ Create Poll</b></li>
+      <li>Set the <b>match title</b>, <b>date</b>, <b>time</b>, and <b>venue</b></li>
+      <li>Tap <b>Create & Share</b> — a WhatsApp message with the poll link is auto-generated</li>
+    </ol>
+
+    <h3>Respond to a Poll <span class="role all">All</span></h3>
+    <ul>
+      <li>Tap <b>✅ Yes</b>, <b>❌ No</b>, or <b>🤔 Maybe</b> on any open poll</li>
+      <li>Share your vote on WhatsApp using the <b>WA My Vote</b> button</li>
+      <li>You can change your vote at any time while the poll is open</li>
+    </ul>
+
+    <h3>Deep-Link Voting</h3>
+    <p>Poll links include voting shortcuts: <i>?poll=ID&club=ID&vote=yes</i>. Members can vote directly by tapping a link — no need to open the app and find the poll.</p>
+
+    <h3>Reminders <span class="role treasurer">Treasurer</span></h3>
+    <ul>
+      <li>A <b>reminder banner</b> appears across all tabs when a match is within 2 days and fewer than 11 members confirmed</li>
+      <li>Tap <b>Nudge</b> to send a WhatsApp reminder to non-responders</li>
+      <li><b>Close Poll</b> to stop accepting responses</li>
+    </ul>
+  </div>
+
+  <!-- 9. Umpire Duty -->
+  <div class="section" id="umpire">
+    <h2><span class="s-icon">🏏</span> Umpire Duty</h2>
+    <p>Manage umpire assignments for matches.</p>
+
+    <h3>Create Assignment <span class="role treasurer">Treasurer</span></h3>
+    <ol class="steps">
+      <li>Go to <b>Polls</b> tab → <b>Umpiring</b> sub-tab</li>
+      <li>Tap <b>+ Assign Umpire</b></li>
+      <li>Enter match title, date, and venue</li>
+      <li>Choose a method:
+        <ul>
+          <li><b>🙋 Volunteer</b> — share on WhatsApp, members tap to claim</li>
+          <li><b>👤 Manual Pick</b> — select a member directly</li>
+          <li><b>🎲 Dice Roll</b> — randomly pick from members with the lowest umpire count</li>
+        </ul>
+      </li>
+      <li>Tap <b>Create & Share</b></li>
+    </ol>
+
+    <h3>Swap Requests</h3>
+    <p>If you're assigned and can't umpire, request a <b>swap</b>. Another member can accept the swap request.</p>
+
+    <h3>Umpire Stats</h3>
+    <p>Track how many times each member has umpired in the <b>Stats</b> filter view.</p>
+  </div>
+
+  <!-- 10. Roles & Permissions -->
+  <div class="section" id="roles">
+    <h2><span class="s-icon">🔑</span> Roles & Permissions</h2>
+
+    <h3><span class="role owner">Owner</span> Owner</h3>
+    <ul>
+      <li>Full control over everything</li>
+      <li>Can delete the club</li>
+      <li>Can change anyone's role (including promoting to Owner)</li>
+      <li>All Treasurer permissions included</li>
+    </ul>
+
+    <h3><span class="role treasurer">Treasurer</span> Treasurer</h3>
+    <ul>
+      <li>Approve / reject transactions</li>
+      <li>Create polls and umpire assignments</li>
+      <li>Add members manually or by email</li>
+      <li>Share invite links and poll links on WhatsApp</li>
+      <li>Manage club settings (name, logo, currency, guest access)</li>
+      <li>Export data (Excel, JSON)</li>
+      <li>Change member roles (Member / Treasurer — not Owner)</li>
+    </ul>
+
+    <h3><span class="role member">Member</span> Member</h3>
+    <ul>
+      <li>Record own transactions</li>
+      <li>Vote in polls</li>
+      <li>Volunteer for umpire duty</li>
+      <li>Share own vote on WhatsApp</li>
+      <li>View dashboard, history, and member list</li>
+    </ul>
+  </div>
+
+  <!-- 11. Guest Access -->
+  <div class="section" id="guest">
+    <h2><span class="s-icon">👁️</span> Guest Access</h2>
+    <p>Allow non-members to view your club data without signing in.</p>
+
+    <h3>Enable Guest Access <span class="role treasurer">Treasurer</span></h3>
+    <ol class="steps">
+      <li>Open ☰ menu → <b>Club Settings</b></li>
+      <li>Under <b>Guest Access</b>, choose:
+        <ul>
+          <li><b>Open</b> — anyone with the link can view</li>
+          <li><b>PIN Protected</b> — guests need a 4-digit PIN</li>
+          <li><b>Disabled</b> — no guest access</li>
+        </ul>
+      </li>
+      <li>Save settings</li>
+    </ol>
+
+    <h3>What Guests Can Do</h3>
+    <ul>
+      <li>✅ View balances and summary</li>
+      <li>✅ View polls and respond to polls</li>
+      <li>❌ Cannot record transactions</li>
+      <li>❌ Cannot manage members or settings</li>
+    </ul>
+    <p>A blue <b>"Guest — read only"</b> banner tells guests they have limited access.</p>
+  </div>
+
+  <!-- 12. Club Settings -->
+  <div class="section" id="settings">
+    <h2><span class="s-icon">⚙️</span> Club Settings</h2>
+    <p>Access via ☰ menu → <b>Club Settings</b>. <span class="role treasurer">Treasurer</span></p>
+
+    <h3>Available Settings</h3>
+    <ul>
+      <li><b>Club Name</b> — rename your club</li>
+      <li><b>Club Logo</b> — upload or change the logo image</li>
+      <li><b>Currency Symbol</b> — set the currency displayed (₹, $, £, etc.)</li>
+      <li><b>Approval Workflow</b> — toggle on/off. When on, member submissions need Treasurer approval.</li>
+      <li><b>Guest Access</b> — Disabled, Open, or PIN-protected (see Guest Access section)</li>
+      <li><b>Custom Categories</b> — add or remove transaction categories</li>
+    </ul>
+  </div>
+
+  <!-- 13. Export & Backup -->
+  <div class="section" id="export">
+    <h2><span class="s-icon">📤</span> Export & Backup</h2>
+    <p>Access from the ☰ menu.</p>
+
+    <h3>Export to Excel</h3>
+    <p>Downloads all transactions as an <b>.xlsx</b> spreadsheet — great for sharing with the committee or filing records.</p>
+
+    <h3>Export JSON Backup</h3>
+    <p>Downloads a complete backup of all club data (settings, members, transactions, polls, umpire assignments) as a <b>.json</b> file.</p>
+
+    <div class="tip"><span class="tip-icon">💡</span><span>Export regularly as an offline backup. Both formats include all historical data.</span></div>
+  </div>
+
+  <!-- 14. WhatsApp Sharing -->
+  <div class="section" id="whatsapp">
+    <h2><span class="s-icon">💬</span> WhatsApp Sharing</h2>
+    <p>ClubMates is deeply integrated with WhatsApp for sharing with your club group.</p>
+
+    <h3>What You Can Share</h3>
+    <ul>
+      <li><b>Balance Summary</b> — formatted summary of income/expenses (Dashboard → WhatsApp button)</li>
+      <li><b>Poll Links</b> — create a poll and share on WhatsApp. Members can vote by tapping the link.</li>
+      <li><b>Your Vote</b> — share your own poll response via "WA My Vote"</li>
+      <li><b>Invite Link</b> — share a join link so teammates can join the club</li>
+      <li><b>Umpire Assignments</b> — share volunteer opportunities on WhatsApp</li>
+      <li><b>Poll Nudge</b> — remind non-responders via WhatsApp</li>
+      <li><b>App Guide</b> — share this guide on WhatsApp (from the App Guide modal)</li>
+    </ul>
+  </div>
+
+  <!-- 15. Tips & FAQ -->
+  <div class="section" id="tips">
+    <h2><span class="s-icon">💡</span> Tips & FAQ</h2>
+
+    <h3>How do I invite my teammates?</h3>
+    <p>Open the ☰ menu → <b>Copy Invite Link</b> and send it via WhatsApp, or share the <b>Club ID</b>.</p>
+
+    <h3>Can I be in multiple clubs?</h3>
+    <p>Yes! You can create or join as many clubs as you need. Switch between them from the <b>My Clubs</b> screen.</p>
+
+    <h3>What happens when I delete a club?</h3>
+    <p>All data is permanently deleted — transactions, polls, members, everything. Only the <b>Owner</b> can delete a club, and you must type the club name to confirm.</p>
+
+    <h3>How does auto-update work?</h3>
+    <p>The app has a service worker that checks for updates every 5 minutes. When an update is available, you'll see a <b>"✨ App updated!"</b> toast and the app refreshes automatically. No reinstall needed.</p>
+
+    <h3>Can I use ClubMates without installing?</h3>
+    <p>Yes! It works fully in any modern browser. Installing is optional but gives you a full-screen, app-like experience.</p>
+
+    <h3>Is my data secure?</h3>
+    <p>ClubMates uses Google Sign-In and Firebase's security rules. Only club members can see their club's data. All communication is encrypted (HTTPS).</p>
+
+    <h3>Who can I contact for help?</h3>
+    <p>Reach out to your club's Owner or Treasurer. For app issues, contact the app administrator.</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="guide-footer">
+    <p>🤝 ClubMates — <a href="index.html">Back to App</a></p>
+    <p style="margin-top:6px;">Made with ❤️ for cricket clubs everywhere</p>
+  </div>
+
+</div>
+
+<!-- Back to top button -->
+<button class="top-btn" id="topBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  // Show/hide back-to-top button
+  window.addEventListener('scroll', function() {
+    var btn = document.getElementById('topBtn');
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+</script>
+</body>
+</html>

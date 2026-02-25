@@ -58,6 +58,35 @@
   .google-btn:active { transform: scale(0.96); }
   .google-btn svg { width: 18px; height: 18px; }
 
+  /* ── Feature Carousel ── */
+  .feature-carousel { width: 100%; max-width: 320px; margin: 0 auto 28px; position: relative; overflow: hidden; border-radius: 12px; }
+  .feature-track { display: flex; transition: transform 0.4s ease; width: 400%; }
+  .feature-slide { width: 25%; padding: 18px 20px; text-align: center; box-sizing: border-box; flex-shrink: 0; }
+  .feature-slide .fc-icon { font-size: 32px; margin-bottom: 8px; }
+  .feature-slide .fc-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .feature-slide .fc-desc { font-size: 12px; opacity: 0.85; line-height: 1.5; }
+  .carousel-dots { display: flex; justify-content: center; gap: 6px; margin-top: 8px; }
+  .carousel-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.35); border: none; cursor: pointer; padding: 0; transition: background 0.2s; }
+  .carousel-dot.active { background: white; }
+
+  /* ── Demo Button ── */
+  .demo-btn { margin-top: 12px; background: none; border: 1.5px solid rgba(255,255,255,0.5); color: white; border-radius: 24px; padding: 10px 28px; font-size: 13px; font-weight: 600; cursor: pointer; opacity: 0.9; transition: all 0.15s; }
+  .demo-btn:active { background: rgba(255,255,255,0.15); opacity: 1; }
+
+  /* ── Welcome Card ── */
+  .welcome-card { background: var(--card); border-radius: var(--radius); margin: 12px 16px; padding: 20px 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-align: center; }
+  .welcome-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .welcome-card p { font-size: 13px; color: #555; margin-bottom: 14px; line-height: 1.5; }
+  .welcome-card .wc-btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 8px; transition: transform 0.1s; }
+  .welcome-card .wc-btn:active { transform: scale(0.97); }
+  .welcome-card .wc-btn.primary { background: var(--primary); color: white; }
+  .welcome-card .wc-btn.secondary { background: var(--primary-light); color: var(--primary); }
+  .welcome-card .wc-link { font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; }
+
+  /* ── Demo Banner ── */
+  .demo-banner { background: #FFF3E0; border: 1px solid var(--pending); border-radius: 8px; padding: 8px 12px; margin: 8px 14px 0; font-size: 12px; color: #E65100; display: flex; align-items: center; justify-content: space-between; }
+  .demo-banner button { background: var(--primary); color: white; border: none; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
   /* ── Club List Screen ── */
   #screen-clubs { padding: 0 0 20px 0; }
   .clubs-header { background: var(--primary); color: white; padding: 18px 16px 14px; }
@@ -295,6 +324,41 @@
   .toast.error { background: rgba(211,47,47,0.92); }
   .toast.success { background: rgba(27,94,32,0.92); }
 
+  /* ── App Tour Wizard ── */
+  .tour-overlay { position: fixed; inset: 0; z-index: 10000; display: none; }
+  .tour-overlay.active { display: block; }
+  .tour-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); transition: clip-path 0.35s ease; }
+  .tour-tooltip { position: absolute; z-index: 10001; background: var(--card); border-radius: 14px; padding: 16px; max-width: 320px; width: calc(100vw - 40px); box-shadow: 0 8px 32px rgba(0,0,0,0.25); animation: tourPop 0.3s ease; }
+  @keyframes tourPop { from { opacity: 0; transform: scale(0.92) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .tour-tooltip::before { content: ''; position: absolute; width: 14px; height: 14px; background: var(--card); transform: rotate(45deg); }
+  .tour-tooltip.arrow-top::before { top: -7px; left: var(--arrow-left, 24px); }
+  .tour-tooltip.arrow-bottom::before { bottom: -7px; left: var(--arrow-left, 24px); }
+  .tour-tooltip .tour-step-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--primary); margin-bottom: 6px; }
+  .tour-tooltip .tour-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .tour-tooltip .tour-desc { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 14px; }
+  .tour-actions { display: flex; align-items: center; justify-content: space-between; }
+  .tour-dots { display: flex; gap: 5px; }
+  .tour-dot { width: 7px; height: 7px; border-radius: 50%; background: #DDD; transition: background 0.2s; }
+  .tour-dot.active { background: var(--primary); }
+  .tour-btns { display: flex; gap: 8px; }
+  .tour-btn { padding: 7px 16px; border-radius: 8px; border: none; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .tour-btn.skip { background: #F5F5F5; color: var(--text-sec); }
+  .tour-btn.skip:active { background: #E8E8E8; }
+  .tour-btn.next { background: var(--primary); color: white; }
+  .tour-btn.next:active { background: var(--primary-dark); }
+  .tour-highlight { position: relative; z-index: 10001; }
+  .tour-tooltip.centered { left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; }
+  .tour-tooltip.centered::before { display: none; }
+
+  /* ── Help Button in Header ── */
+  .help-btn { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+  .help-btn:active { background: rgba(255,255,255,0.35); }
+  .help-popover { position: absolute; top: 38px; right: 0; background: var(--card); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.18); padding: 6px 0; min-width: 180px; z-index: 310; display: none; }
+  .help-popover.show { display: block; }
+  .help-popover .hp-item { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 13px; color: var(--text); cursor: pointer; white-space: nowrap; }
+  .help-popover .hp-item:active { background: #F5F5F5; }
+  .help-popover .hp-icon { font-size: 15px; width: 20px; text-align: center; }
+
   /* ── Utilities ── */
   .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; }
   .hidden { display: none !important; }
@@ -402,15 +466,49 @@
 <div id="screen-signin" class="screen">
   <div class="logo"><img src="clubmates-192.png" alt="ClubMates" style="width:72px;height:72px;border-radius:18px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"></div>
   <h1>ClubMates</h1>
-  <p>Your club in one app — finances, match polls, umpire rotation & more. Free, forever.</p>
+
+  <!-- Feature Carousel -->
+  <div class="feature-carousel" id="featureCarousel">
+    <div class="feature-track" id="featureTrack">
+      <div class="feature-slide">
+        <div class="fc-icon">📊</div>
+        <div class="fc-title">Track Club Finances</div>
+        <div class="fc-desc">Record expenses, contributions &amp; sponsorships. See live balances at a glance.</div>
+      </div>
+      <div class="feature-slide">
+        <div class="fc-icon">📢</div>
+        <div class="fc-title">Match Polls</div>
+        <div class="fc-desc">Check who's available for the next match. Share polls on WhatsApp.</div>
+      </div>
+      <div class="feature-slide">
+        <div class="fc-icon">🏏</div>
+        <div class="fc-title">Umpire Duty</div>
+        <div class="fc-desc">Fair assignments with volunteer, manual pick, or random dice roll.</div>
+      </div>
+      <div class="feature-slide">
+        <div class="fc-icon">👥</div>
+        <div class="fc-title">Team Management</div>
+        <div class="fc-desc">Add members, assign roles, invite teammates via WhatsApp link.</div>
+      </div>
+    </div>
+    <div class="carousel-dots" id="carouselDots">
+      <button class="carousel-dot active" onclick="goToSlide(0)"></button>
+      <button class="carousel-dot" onclick="goToSlide(1)"></button>
+      <button class="carousel-dot" onclick="goToSlide(2)"></button>
+      <button class="carousel-dot" onclick="goToSlide(3)"></button>
+    </div>
+  </div>
+
   <button class="google-btn" onclick="signIn()">
     <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.998 23.998 0 000 24c0 3.77.9 7.35 2.56 10.53l7.97-5.94z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 5.94C6.51 42.62 14.62 48 24 48z"/></svg>
     Sign in with Google
   </button>
-  <button class="guest-btn" onclick="signInAsGuest()" style="margin-top:14px;background:none;border:1.5px solid rgba(255,255,255,0.5);color:white;border-radius:24px;padding:10px 28px;font-size:13px;font-weight:500;cursor:pointer;opacity:0.85;">
+  <p style="font-size:11px;opacity:0.6;margin-top:6px;margin-bottom:0;">Free &middot; No credit card needed</p>
+  <button class="demo-btn" onclick="enterDemoMode()">🏏 Try Demo</button>
+  <button class="guest-btn" onclick="signInAsGuest()" style="margin-top:10px;background:none;border:1.5px solid rgba(255,255,255,0.5);color:white;border-radius:24px;padding:10px 28px;font-size:13px;font-weight:500;cursor:pointer;opacity:0.85;">
     👁️ Continue as Guest
   </button>
-  <p style="font-size:11px;opacity:0.6;margin-top:10px;">Guests can view club finances and vote on polls</p>
+  <p style="font-size:11px;opacity:0.5;margin-top:6px;"><a href="guide.html" target="_blank" style="color:white;text-decoration:underline;">📖 Read the Full Guide</a></p>
 </div>
 
 <!-- ── Club List Screen ── -->
@@ -429,6 +527,7 @@
       <input type="text" id="joinInput" placeholder="https://... or Club ID" />
       <button onclick="handleJoinInput()">Join</button>
     </div>
+    <p style="font-size:12px;color:var(--text-secondary);margin:8px 0 0;">Don't have a Club ID? Ask your club's treasurer to share an invite link via WhatsApp.</p>
   </div>
   <div class="club-list" id="clubList"></div>
   <div class="clubs-footer">
@@ -493,11 +592,22 @@
     <button class="back-btn" onclick="leaveClub()">←</button>
     <img id="appClubLogo" class="club-logo hidden" src="" alt="" />
     <h1 id="appClubName"></h1>
+    <button class="help-btn" id="helpBtn" onclick="toggleHelpPopover(event)">?
+      <div class="help-popover" id="helpPopover">
+        <div class="hp-item" onclick="event.stopPropagation();closeHelpPopover();startTour();"><span class="hp-icon">🎓</span> Take a Tour</div>
+        <div class="hp-item" onclick="event.stopPropagation();closeHelpPopover();openAppGuide();"><span class="hp-icon">ℹ️</span> App Guide</div>
+        <div class="hp-item" onclick="event.stopPropagation();closeHelpPopover();window.open('guide.html','_blank');"><span class="hp-icon">📖</span> Full Guide</div>
+      </div>
+    </button>
     <div class="user-avatar" id="appUserAvatar" onclick="openMenu()"></div>
   </div>
   <div id="guestBanner" class="view-as-banner hidden" style="background:#E3F2FD;color:#1565C0;">
     <span>👁️ <span id="guestBannerName">Guest</span> — read only</span>
     <button onclick="upgradeFromGuest()" style="background:#1565C0;">Sign In</button>
+  </div>
+  <div id="demoBanner" class="demo-banner hidden">
+    <span>🏏 Demo Mode — exploring with sample data</span>
+    <button onclick="exitDemoMode()">Sign In</button>
   </div>
 
   <div id="pollReminderBanner" style="padding: 0 14px;"></div>
@@ -725,6 +835,9 @@
     <div class="menu-item" onclick="openAppGuide();closeMenu();">
       <span class="menu-icon">ℹ️</span> App Guide
     </div>
+    <div class="menu-item" onclick="startTour();closeMenu();">
+      <span class="menu-icon">🎓</span> Take a Tour
+    </div>
   </div>
 </div>
 
@@ -873,6 +986,11 @@
       <button onclick="shareAppGuideToWhatsApp()" style="background:#25D366;color:white;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" title="Share guide on WhatsApp"><svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button>
     </h2>
 
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button class="submit-btn" onclick="closeAppGuide();startTour();" style="background:var(--primary);color:white;flex:1;font-size:13px;padding:10px;">🎓 Take a Tour</button>
+      <button class="submit-btn" onclick="closeAppGuide();window.open('guide.html','_blank')" style="background:var(--sponsor);color:white;flex:1;font-size:13px;padding:10px;">📖 Full Guide</button>
+    </div>
+
     <div class="guide-section" onclick="toggleGuide(this)">
       <div class="guide-header"><span><span class="guide-icon">📊</span>Dashboard</span><span class="guide-arrow">▶</span></div>
       <div class="guide-body">
@@ -1006,6 +1124,23 @@
   </div>
 </div>
 
+<!-- ── App Tour Wizard Overlay ── -->
+<div id="tourOverlay" class="tour-overlay">
+  <div class="tour-backdrop" id="tourBackdrop" onclick="endTour()"></div>
+  <div class="tour-tooltip" id="tourTooltip">
+    <div class="tour-step-label" id="tourStepLabel"></div>
+    <div class="tour-title" id="tourTitle"></div>
+    <div class="tour-desc" id="tourDesc"></div>
+    <div class="tour-actions">
+      <div class="tour-dots" id="tourDots"></div>
+      <div class="tour-btns">
+        <button class="tour-btn skip" id="tourSkipBtn" onclick="endTour()">Skip</button>
+        <button class="tour-btn next" id="tourNextBtn" onclick="nextTourStep()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Delete Club Confirmation Modal ── -->
 <div id="deleteClubModal" class="modal-overlay" onclick="if(event.target===this)closeDeleteClubModal()">
   <div class="modal">
@@ -1090,6 +1225,7 @@
   var members = [];
   var myRole = null; // 'owner', 'treasurer', 'member'
   var unsubs = []; // Firestore snapshot unsubscribers
+  var demoMode = false; // true when exploring with sample data
   var currentHistoryFilter = 'all';
   var currentHistorySort = 'date-desc';
   var pendingJoinClubId = null;
@@ -1114,8 +1250,12 @@
   auth.onAuthStateChanged(function(user) {
     currentUser = user;
     if (user) {
+      // Force token refresh to avoid stale-token "insufficient permissions" errors
+      var tokenPromise = user.getIdToken(true).catch(function() { return null; });
       // For anonymous (guest) users, skip invites — go straight to guest club entry
-      var initPromise = user.isAnonymous ? Promise.resolve() : checkPendingInvites(user);
+      var initPromise = tokenPromise.then(function() {
+        return user.isAnonymous ? Promise.resolve() : checkPendingInvites(user);
+      });
       initPromise.then(function() {
         var params = new URLSearchParams(window.location.search);
         // Check for pending join from URL
@@ -1243,6 +1383,7 @@
   }
 
   function signOut() {
+    if (demoMode) { exitDemoMode(); return; }
     auth.signOut().then(function() {
       currentUser = null;
       currentClub = null;
@@ -1283,9 +1424,23 @@
     db.collection('users').doc(currentUser.uid).collection('clubs')
       .get().then(function(snap) {
         if (snap.empty) {
-          listEl.innerHTML = '<div class="empty-state"><div class="icon">🏟️</div><h3>No clubs yet</h3><p>Create a new club or join one with an invite link</p></div>';
+          var welcomed = localStorage.getItem('clubmates_welcomed');
+          if (!welcomed) {
+            listEl.innerHTML =
+              '<div class="welcome-card">' +
+              '  <div style="font-size:48px;margin-bottom:8px;">🏏</div>' +
+              '  <h3 style="margin:0 0 6px;font-size:18px;">Welcome to ClubMates!</h3>' +
+              '  <p style="color:var(--text-secondary);font-size:13px;margin:0 0 18px;">Manage your cricket club finances, polls &amp; umpire duty — all in one place.</p>' +
+              '  <button class="wc-btn" style="background:var(--primary);color:#fff;border:none;border-radius:10px;padding:12px 0;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px;" onclick="localStorage.setItem(\'clubmates_welcomed\',\'1\');showScreen(\'create\')">🏏 Create My First Club</button>' +
+              '  <button class="wc-btn" style="background:none;border:1.5px solid var(--primary);color:var(--primary);border-radius:10px;padding:11px 0;font-size:14px;font-weight:600;cursor:pointer;width:100%;margin-bottom:10px;" onclick="localStorage.setItem(\'clubmates_welcomed\',\'1\');toggleJoinSection()">🔗 I Have an Invite / Club ID</button>' +
+              '  <a href="guide.html" target="_blank" style="font-size:12px;color:var(--text-secondary);text-decoration:underline;">📖 Read the Full Guide</a>' +
+              '</div>';
+          } else {
+            listEl.innerHTML = '<div class="empty-state"><div class="icon">🏟️</div><h3>No clubs yet</h3><p>Create a new club or join one with an invite link</p></div>';
+          }
           return;
         }
+        localStorage.setItem('clubmates_welcomed', '1');
         var html = '';
         snap.docs.forEach(function(doc) {
           var c = doc.data();
@@ -1308,6 +1463,7 @@
   }
 
   function createClub() {
+    if (isDemoGuard()) return;
     var name = document.getElementById('createClubName').value.trim();
     if (!name) { showToast('Enter a club name', 'error'); return; }
     var currency = document.getElementById('createClubCurrency').value.trim() || '₹';
@@ -1553,6 +1709,7 @@
           }
         } else {
           showTab('dashboard');
+          maybeAutoTour();
         }
         populateRecordForm();
       }).catch(function(err) {
@@ -1563,6 +1720,7 @@
   }
 
   function leaveClub() {
+    if (demoMode) { exitDemoMode(); return; }
     unsubs.forEach(function(u) { u(); });
     unsubs = [];
     currentClub = null;
@@ -1710,6 +1868,7 @@
   }
 
   function leaveThisClub() {
+    if (isDemoGuard()) return;
     if (!currentClub) return;
     if (myRole === 'owner') {
       showToast('Owners cannot leave. Transfer ownership first or delete the club.', 'error');
@@ -1758,6 +1917,7 @@
   }
 
   function deleteClub() {
+    if (isDemoGuard()) return;
     if (!currentClub || myRole !== 'owner') return;
     var clubId = currentClub.id;
     var clubName = currentClub.name;
@@ -1856,6 +2016,7 @@
   }
 
   function submitTransaction() {
+    if (isDemoGuard()) return;
     var amount = parseFloat(document.getElementById('txAmount').value);
     var description = document.getElementById('txDescription').value.trim();
     var category = document.getElementById('txCategory').value;
@@ -1926,6 +2087,7 @@
   }
 
   function approveTransaction(txId) {
+    if (isDemoGuard()) return;
     if (!isTreasurer()) return;
     db.collection('clubs').doc(currentClub.id).collection('transactions').doc(txId).update({
       status: 'approved',
@@ -1950,6 +2112,7 @@
   }
 
   function deleteTransaction(txId) {
+    if (isDemoGuard()) return;
     if (!isTreasurer()) {
       showToast('Only treasurers can delete transactions', 'error');
       return;
@@ -1964,6 +2127,7 @@
   // ── Member Management ──
   // ═══════════════════════════════════════════════════════════
   function changeMemberRole(memberId, newRole) {
+    if (isDemoGuard()) return;
     if (!isTreasurer()) return;
     if (memberId === currentUser.uid) {
       showToast('You cannot change your own role', 'error');
@@ -1982,6 +2146,7 @@
   }
 
   function removeMember(memberId, memberName) {
+    if (isDemoGuard()) return;
     if (!isTreasurer()) return;
     if (memberId === currentUser.uid) {
       showToast('You cannot remove yourself', 'error');
@@ -2152,6 +2317,200 @@
   function closeAppGuide() { document.getElementById('appGuideModal').classList.remove('show'); }
   function toggleGuide(el) { el.classList.toggle('open'); }
 
+  // ── Help Popover ──
+  function toggleHelpPopover(e) {
+    e.stopPropagation();
+    var pop = document.getElementById('helpPopover');
+    pop.classList.toggle('show');
+    if (pop.classList.contains('show')) {
+      setTimeout(function() {
+        document.addEventListener('click', closeHelpPopover, { once: true });
+      }, 0);
+    }
+  }
+  function closeHelpPopover() {
+    document.getElementById('helpPopover').classList.remove('show');
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── App Tour Wizard ──
+  // ═══════════════════════════════════════════════════════════
+  var tourSteps = [
+    {
+      title: 'Welcome to ClubMates! 🤝',
+      desc: 'This quick tour walks you through the key features. You can replay it anytime from the ? button in the header.',
+      target: null  // centered, no highlight
+    },
+    {
+      title: 'Dashboard 📊',
+      desc: 'Your club\'s financial overview — approved balance, pending items, and quick summaries. Tap the WhatsApp button to share a summary with your club group.',
+      target: '#tab-dashboard .balance-card',
+      tab: 'dashboard'
+    },
+    {
+      title: 'Record Transactions ➕',
+      desc: 'Log expenses, contributions, and sponsorships. Pick the type, enter details, and submit. Treasurers can record on behalf of any member.',
+      target: '.bottom-nav .nav-item:nth-child(2)',
+      tab: 'record'
+    },
+    {
+      title: 'Match Polls 📢',
+      desc: 'Check who\'s available for upcoming matches. Treasurers can create polls and share them on WhatsApp. Members vote ✅ Yes, ❌ No, or 🤔 Maybe.',
+      target: '.bottom-nav .nav-item:nth-child(3)',
+      tab: 'polls'
+    },
+    {
+      title: 'Members 👥',
+      desc: 'See all club members and their stats. Treasurers can add members manually, invite by email, or share invite links. Manage roles here too.',
+      target: '.bottom-nav .nav-item:nth-child(4)',
+      tab: 'members'
+    },
+    {
+      title: 'Help & Menu 👤',
+      desc: 'Tap the ? button for quick help — take a tour, open the App Guide, or read the full manual. Tap your profile avatar to open the menu for settings, export, and more.',
+      target: '#helpBtn'
+    },
+    {
+      title: 'You\'re all set! 🎉',
+      desc: 'Start by recording your first transaction or creating a poll. Need help anytime? Tap the ? button in the header.',
+      target: null
+    }
+  ];
+  var tourCurrent = 0;
+
+  function startTour() {
+    // Ensure we're on the app screen
+    if (!document.getElementById('screen-app').classList.contains('active')) return;
+    tourCurrent = 0;
+    document.getElementById('tourOverlay').classList.add('active');
+    showTourStep();
+  }
+
+  function endTour() {
+    document.getElementById('tourOverlay').classList.remove('active');
+    // Remove highlight from any element
+    var prev = document.querySelector('.tour-highlight');
+    if (prev) prev.classList.remove('tour-highlight');
+    // Mark wizard as done (for first-time auto-trigger)
+    try { localStorage.setItem('clubmates_tour_done', '1'); } catch(e) {}
+  }
+
+  function nextTourStep() {
+    tourCurrent++;
+    if (tourCurrent >= tourSteps.length) { endTour(); return; }
+    showTourStep();
+  }
+
+  function showTourStep() {
+    var step = tourSteps[tourCurrent];
+    var overlay = document.getElementById('tourOverlay');
+    var tooltip = document.getElementById('tourTooltip');
+    var backdrop = document.getElementById('tourBackdrop');
+
+    // Update content
+    document.getElementById('tourStepLabel').textContent = 'Step ' + (tourCurrent + 1) + ' of ' + tourSteps.length;
+    document.getElementById('tourTitle').textContent = step.title;
+    document.getElementById('tourDesc').textContent = step.desc;
+
+    // Update dots
+    var dotsHtml = '';
+    for (var i = 0; i < tourSteps.length; i++) {
+      dotsHtml += '<div class="tour-dot' + (i === tourCurrent ? ' active' : '') + '"></div>';
+    }
+    document.getElementById('tourDots').innerHTML = dotsHtml;
+
+    // Update button text
+    var nextBtn = document.getElementById('tourNextBtn');
+    var skipBtn = document.getElementById('tourSkipBtn');
+    if (tourCurrent === tourSteps.length - 1) {
+      nextBtn.textContent = 'Done';
+      skipBtn.style.display = 'none';
+    } else if (tourCurrent === 0) {
+      nextBtn.textContent = 'Start Tour';
+      skipBtn.style.display = '';
+      skipBtn.textContent = 'Skip';
+    } else {
+      nextBtn.textContent = 'Next';
+      skipBtn.style.display = '';
+      skipBtn.textContent = 'Skip';
+    }
+
+    // Switch tab if needed
+    if (step.tab) {
+      showTab(step.tab);
+    }
+
+    // Remove previous highlight
+    var prevHL = document.querySelector('.tour-highlight');
+    if (prevHL) prevHL.classList.remove('tour-highlight');
+
+    // Position tooltip
+    if (!step.target) {
+      // Center on screen
+      backdrop.style.clipPath = '';
+      tooltip.style.left = '';
+      tooltip.style.top = '';
+      tooltip.style.transform = '';
+      tooltip.style.width = '';
+      tooltip.className = 'tour-tooltip centered';
+    } else {
+      var el = document.querySelector(step.target);
+      if (!el) { nextTourStep(); return; }
+      el.classList.add('tour-highlight');
+
+      // Wait a frame for layout
+      requestAnimationFrame(function() {
+        var rect = el.getBoundingClientRect();
+        var pad = 6;
+
+        // Cutout in backdrop
+        var cx = rect.left - pad;
+        var cy = rect.top - pad;
+        var cw = rect.width + pad * 2;
+        var ch = rect.height + pad * 2;
+        var cr = 10;
+        backdrop.style.clipPath = 'polygon(0% 0%, 0% 100%, ' + cx + 'px 100%, ' + cx + 'px ' + cy + 'px, ' + (cx + cw) + 'px ' + cy + 'px, ' + (cx + cw) + 'px ' + (cy + ch) + 'px, ' + cx + 'px ' + (cy + ch) + 'px, ' + cx + 'px 100%, 100% 100%, 100% 0%)';
+
+        // Position tooltip below or above target
+        var ttW = Math.min(320, window.innerWidth - 40);
+        tooltip.style.transform = 'none';
+        tooltip.style.width = ttW + 'px';
+
+        var spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow > 180) {
+          // Below
+          tooltip.style.top = (rect.bottom + 14) + 'px';
+          tooltip.className = 'tour-tooltip arrow-top';
+        } else {
+          // Above
+          tooltip.style.top = '';
+          tooltip.style.top = (rect.top - 14) + 'px';
+          tooltip.style.transform = 'translateY(-100%)';
+          tooltip.className = 'tour-tooltip arrow-bottom';
+        }
+
+        // Horizontal: try to align left of target, but stay on screen
+        var ttLeft = Math.max(20, Math.min(rect.left, window.innerWidth - ttW - 20));
+        tooltip.style.left = ttLeft + 'px';
+
+        // Adjust arrow position
+        var arrow = tooltip.querySelector('::before');
+        // We'll use inline style for arrow left
+        var arrowLeft = Math.max(16, Math.min(rect.left + rect.width / 2 - ttLeft - 7, ttW - 30));
+        tooltip.style.setProperty('--arrow-left', arrowLeft + 'px');
+      });
+    }
+  }
+
+  // Auto-start tour on first visit to a club
+  function maybeAutoTour() {
+    try {
+      if (!localStorage.getItem('clubmates_tour_done')) {
+        setTimeout(startTour, 1200);
+      }
+    } catch(e) {}
+  }
+
   function shareAppGuideToWhatsApp() {
     var clubName = currentClub ? (currentClub.name || 'Our Club') : 'ClubMates';
     var text = '📱 *' + clubName + ' — ClubMates App Guide*\n\n';
@@ -2185,6 +2544,7 @@
   }
 
   function saveClubSettings() {
+    if (isDemoGuard()) return;
     if (!isTreasurer()) return;
     var name = document.getElementById('settingsClubName').value.trim();
     if (!name) { showToast('Club name required', 'error'); return; }
@@ -2848,6 +3208,7 @@
   // ── Export ──
   // ═══════════════════════════════════════════════════════════
   function exportExcel() {
+    if (isDemoGuard()) return;
     if (!currentClub) return;
     var curr = currentClub.currency || '₹';
     var list = transactions;
@@ -2900,6 +3261,7 @@
   }
 
   function exportJSON() {
+    if (isDemoGuard()) return;
     if (!currentClub) return;
     var data = {
       club: currentClub.name,
@@ -3023,6 +3385,7 @@
   }
 
   function createUmpireAssignment() {
+    if (isDemoGuard()) return;
     if (!isTreasurer() || !currentClub) return;
     var title = document.getElementById('umpireMatchTitle').value.trim();
     var date = document.getElementById('umpireMatchDate').value;
@@ -3309,6 +3672,7 @@
   }
 
   function volunteerUmpire(assignmentId) {
+    if (isDemoGuard()) return;
     var assignment = umpireAssignments.find(function(a) { return a.id === assignmentId; });
     if (!assignment) return;
 
@@ -3588,6 +3952,7 @@
   }
 
   function createPoll() {
+    if (isDemoGuard()) return;
     if (!isTreasurer() || !currentClub) return;
     var question = document.getElementById('pollQuestion').value.trim();
     var matchDate = document.getElementById('pollMatchDate').value;
@@ -3625,6 +3990,7 @@
   }
 
   function respondToPoll(pollId, response) {
+    if (isDemoGuard()) return;
     if (!currentClub || !currentUser) return;
     var field = 'responses.' + currentUser.uid;
     var update = {};
@@ -3691,6 +4057,7 @@
   }
 
   function deletePoll(pollId) {
+    if (isDemoGuard()) return;
     if (!isTreasurer() || !currentClub) return;
     if (!confirm('Delete this poll permanently?')) return;
     db.collection('clubs').doc(currentClub.id).collection('polls').doc(pollId)
@@ -3978,6 +4345,7 @@
   }
 
   function addPlaceholderMember() {
+    if (isDemoGuard()) return;
     if (!isTreasurer() || !currentClub) return;
     var name = document.getElementById('phMemberName').value.trim();
     var email = (document.getElementById('phMemberEmail').value || '').trim().toLowerCase();
@@ -4242,6 +4610,180 @@
     el.className = 'toast ' + (type || '') + ' show';
     clearTimeout(el._timeout);
     el._timeout = setTimeout(function() { el.classList.remove('show'); }, 3000);
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Feature Carousel (Sign-in screen) ──
+  // ═══════════════════════════════════════════════════════════
+  var carouselIndex = 0;
+  var carouselTimer = null;
+
+  function goToSlide(i) {
+    var track = document.getElementById('featureTrack');
+    var dots = document.querySelectorAll('.carousel-dot');
+    if (!track || !dots.length) return;
+    var total = dots.length;
+    carouselIndex = ((i % total) + total) % total;
+    track.style.transform = 'translateX(-' + (carouselIndex * 25) + '%)';
+    dots.forEach(function(d, idx) { d.classList.toggle('active', idx === carouselIndex); });
+  }
+
+  function startCarousel() {
+    stopCarousel();
+    carouselTimer = setInterval(function() { goToSlide(carouselIndex + 1); }, 4000);
+  }
+
+  function stopCarousel() {
+    if (carouselTimer) { clearInterval(carouselTimer); carouselTimer = null; }
+  }
+
+  // Touch / swipe support for carousel
+  (function() {
+    var el = document.getElementById('featureCarousel');
+    if (!el) return;
+    var startX = 0;
+    el.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; stopCarousel(); }, { passive: true });
+    el.addEventListener('touchend', function(e) {
+      var diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) goToSlide(carouselIndex + (diff > 0 ? 1 : -1));
+      startCarousel();
+    }, { passive: true });
+  })();
+
+  // Auto-start carousel when sign-in screen is visible
+  startCarousel();
+
+  // ═══════════════════════════════════════════════════════════
+  // ── Demo Mode ──
+  // ═══════════════════════════════════════════════════════════
+  function enterDemoMode() {
+    demoMode = true;
+    stopCarousel();
+
+    // Mock user
+    currentUser = {
+      uid: 'demo-user-001',
+      displayName: 'Demo User',
+      email: 'demo@clubmates.app',
+      isAnonymous: false
+    };
+
+    // Mock club
+    var now = new Date();
+    currentClub = {
+      id: 'demo-club-001',
+      name: 'Demo Cricket Club',
+      currency: '₹',
+      requireApproval: true,
+      categories: ['Match Fee', 'Equipment', 'Ground Rent', 'Refreshments', 'Other'],
+      createdBy: 'demo-user-001',
+      logoBase64: ''
+    };
+
+    myRole = 'treasurer';
+
+    // Mock members
+    members = [
+      { id: 'demo-user-001', name: 'Demo User', email: 'demo@clubmates.app', role: 'owner', joinedAt: { toDate: function() { return new Date(now - 90*86400000); } } },
+      { id: 'demo-m2', name: 'Rahul Sharma', email: 'rahul@example.com', role: 'treasurer', joinedAt: { toDate: function() { return new Date(now - 80*86400000); } } },
+      { id: 'demo-m3', name: 'Priya Patel', email: 'priya@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 70*86400000); } } },
+      { id: 'demo-m4', name: 'Amit Kumar', email: 'amit@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 60*86400000); } } },
+      { id: 'demo-m5', name: 'Sneha Reddy', email: 'sneha@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 55*86400000); } } },
+      { id: 'demo-m6', name: 'Vikram Singh', email: 'vikram@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 45*86400000); } } },
+      { id: 'demo-m7', name: 'Ananya Gupta', email: 'ananya@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 30*86400000); } } },
+      { id: 'demo-m8', name: 'Karthik Iyer', email: 'karthik@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 20*86400000); } } }
+    ];
+
+    // Mock transactions
+    function mockDate(daysAgo) {
+      return { toDate: function() { return new Date(now - daysAgo * 86400000); } };
+    }
+    transactions = [
+      { id: 'tx1', type: 'contribution', amount: 500, member: 'demo-m3', memberName: 'Priya Patel', category: 'Match Fee', description: 'March match fee', createdAt: mockDate(3), createdBy: 'demo-m3', status: 'approved' },
+      { id: 'tx2', type: 'contribution', amount: 500, member: 'demo-m4', memberName: 'Amit Kumar', category: 'Match Fee', description: 'March match fee', createdAt: mockDate(5), createdBy: 'demo-m4', status: 'approved' },
+      { id: 'tx3', type: 'expense', amount: 2000, member: 'demo-user-001', memberName: 'Demo User', category: 'Ground Rent', description: 'March ground booking', createdAt: mockDate(7), createdBy: 'demo-user-001', status: 'approved' },
+      { id: 'tx4', type: 'contribution', amount: 500, member: 'demo-m5', memberName: 'Sneha Reddy', category: 'Match Fee', description: 'March match fee', createdAt: mockDate(8), createdBy: 'demo-m5', status: 'approved' },
+      { id: 'tx5', type: 'expense', amount: 800, member: 'demo-m2', memberName: 'Rahul Sharma', category: 'Equipment', description: 'New cricket balls (6 pack)', createdAt: mockDate(10), createdBy: 'demo-m2', status: 'approved' },
+      { id: 'tx6', type: 'contribution', amount: 500, member: 'demo-m6', memberName: 'Vikram Singh', category: 'Match Fee', description: 'Feb match fee', createdAt: mockDate(14), createdBy: 'demo-m6', status: 'approved' },
+      { id: 'tx7', type: 'sponsorship', amount: 5000, member: 'demo-m2', memberName: 'Rahul Sharma', category: 'Other', description: 'Jersey sponsor — Local Sports Store', createdAt: mockDate(20), createdBy: 'demo-m2', status: 'approved' },
+      { id: 'tx8', type: 'expense', amount: 350, member: 'demo-user-001', memberName: 'Demo User', category: 'Refreshments', description: 'Post-match snacks', createdAt: mockDate(12), createdBy: 'demo-user-001', status: 'approved' },
+      { id: 'tx9', type: 'contribution', amount: 500, member: 'demo-m7', memberName: 'Ananya Gupta', category: 'Match Fee', description: 'Feb match fee', createdAt: mockDate(18), createdBy: 'demo-m7', status: 'pending' },
+      { id: 'tx10', type: 'contribution', amount: 500, member: 'demo-m8', memberName: 'Karthik Iyer', category: 'Match Fee', description: 'Feb match fee', createdAt: mockDate(22), createdBy: 'demo-m8', status: 'approved' }
+    ];
+
+    // Mock polls
+    var tomorrow = new Date(now.getTime() + 86400000);
+    polls = [
+      {
+        id: 'poll1',
+        matchDate: { toDate: function() { return tomorrow; } },
+        matchTime: '10:00 AM',
+        venue: 'Central Park Ground',
+        createdAt: mockDate(1),
+        createdBy: 'demo-user-001',
+        responses: {
+          'demo-user-001': 'playing',
+          'demo-m2': 'playing',
+          'demo-m3': 'playing',
+          'demo-m4': 'not_playing',
+          'demo-m5': 'playing',
+          'demo-m6': 'maybe'
+        }
+      }
+    ];
+
+    // Mock umpire assignments
+    umpireAssignments = [
+      {
+        id: 'ump1',
+        matchDate: { toDate: function() { return tomorrow; } },
+        matchTime: '10:00 AM',
+        venue: 'Central Park Ground',
+        method: 'volunteer',
+        assignedTo: null,
+        volunteers: ['demo-m6'],
+        createdAt: mockDate(1),
+        createdBy: 'demo-user-001',
+        status: 'open'
+      }
+    ];
+
+    // Show the app screen
+    showScreen('app');
+    document.getElementById('demoBanner').classList.remove('hidden');
+    renderAppHeader();
+    showTab('dashboard');
+    renderDashboard();
+    renderHistory();
+    renderMembers();
+    renderPolls();
+    renderUmpiring();
+    populateRecordForm();
+
+    // Start the guided tour after a brief delay
+    setTimeout(function() { startTour(); }, 1200);
+  }
+
+  function exitDemoMode() {
+    demoMode = false;
+    currentUser = null;
+    currentClub = null;
+    transactions = [];
+    members = [];
+    polls = [];
+    umpireAssignments = [];
+    myRole = null;
+    document.getElementById('demoBanner').classList.add('hidden');
+    showScreen('signin');
+    startCarousel();
+  }
+
+  function isDemoGuard() {
+    if (demoMode) {
+      showToast('Sign in to use this feature — this is a demo', 'error');
+      return true;
+    }
+    return false;
   }
 
   // ── Service Worker Registration & Auto-Update ──
