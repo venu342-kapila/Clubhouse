@@ -4682,69 +4682,79 @@
 
     myRole = 'treasurer';
 
-    // Mock members
+    // Mock members (uid field is required by renderers)
     members = [
-      { id: 'demo-user-001', name: 'Demo User', email: 'demo@clubmates.app', role: 'owner', joinedAt: { toDate: function() { return new Date(now - 90*86400000); } } },
-      { id: 'demo-m2', name: 'Rahul Sharma', email: 'rahul@example.com', role: 'treasurer', joinedAt: { toDate: function() { return new Date(now - 80*86400000); } } },
-      { id: 'demo-m3', name: 'Priya Patel', email: 'priya@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 70*86400000); } } },
-      { id: 'demo-m4', name: 'Amit Kumar', email: 'amit@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 60*86400000); } } },
-      { id: 'demo-m5', name: 'Sneha Reddy', email: 'sneha@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 55*86400000); } } },
-      { id: 'demo-m6', name: 'Vikram Singh', email: 'vikram@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 45*86400000); } } },
-      { id: 'demo-m7', name: 'Ananya Gupta', email: 'ananya@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 30*86400000); } } },
-      { id: 'demo-m8', name: 'Karthik Iyer', email: 'karthik@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 20*86400000); } } }
+      { id: 'demo-user-001', uid: 'demo-user-001', name: 'Demo User', email: 'demo@clubmates.app', role: 'owner', joinedAt: { toDate: function() { return new Date(now - 90*86400000); } } },
+      { id: 'demo-m2', uid: 'demo-m2', name: 'Rahul Sharma', email: 'rahul@example.com', role: 'treasurer', joinedAt: { toDate: function() { return new Date(now - 80*86400000); } } },
+      { id: 'demo-m3', uid: 'demo-m3', name: 'Priya Patel', email: 'priya@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 70*86400000); } } },
+      { id: 'demo-m4', uid: 'demo-m4', name: 'Amit Kumar', email: 'amit@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 60*86400000); } } },
+      { id: 'demo-m5', uid: 'demo-m5', name: 'Sneha Reddy', email: 'sneha@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 55*86400000); } } },
+      { id: 'demo-m6', uid: 'demo-m6', name: 'Vikram Singh', email: 'vikram@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 45*86400000); } } },
+      { id: 'demo-m7', uid: 'demo-m7', name: 'Ananya Gupta', email: 'ananya@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 30*86400000); } } },
+      { id: 'demo-m8', uid: 'demo-m8', name: 'Karthik Iyer', email: 'karthik@example.com', role: 'member', joinedAt: { toDate: function() { return new Date(now - 20*86400000); } } }
     ];
 
-    // Mock transactions
+    // Mock transactions (must use recordedFor/recordedBy objects + date string)
     function mockDate(daysAgo) {
       return { toDate: function() { return new Date(now - daysAgo * 86400000); } };
     }
+    function mockDateStr(daysAgo) {
+      return new Date(now - daysAgo * 86400000).toLocaleDateString('en-CA');
+    }
+    function mkRec(uid, name, email) {
+      return { uid: uid, name: name, email: email || '' };
+    }
     transactions = [
-      { id: 'tx1', type: 'contribution', amount: 500, member: 'demo-m3', memberName: 'Priya Patel', category: 'Match Fee', description: 'March match fee', createdAt: mockDate(3), createdBy: 'demo-m3', status: 'approved' },
-      { id: 'tx2', type: 'contribution', amount: 500, member: 'demo-m4', memberName: 'Amit Kumar', category: 'Match Fee', description: 'March match fee', createdAt: mockDate(5), createdBy: 'demo-m4', status: 'approved' },
-      { id: 'tx3', type: 'expense', amount: 2000, member: 'demo-user-001', memberName: 'Demo User', category: 'Ground Rent', description: 'March ground booking', createdAt: mockDate(7), createdBy: 'demo-user-001', status: 'approved' },
-      { id: 'tx4', type: 'contribution', amount: 500, member: 'demo-m5', memberName: 'Sneha Reddy', category: 'Match Fee', description: 'March match fee', createdAt: mockDate(8), createdBy: 'demo-m5', status: 'approved' },
-      { id: 'tx5', type: 'expense', amount: 800, member: 'demo-m2', memberName: 'Rahul Sharma', category: 'Equipment', description: 'New cricket balls (6 pack)', createdAt: mockDate(10), createdBy: 'demo-m2', status: 'approved' },
-      { id: 'tx6', type: 'contribution', amount: 500, member: 'demo-m6', memberName: 'Vikram Singh', category: 'Match Fee', description: 'Feb match fee', createdAt: mockDate(14), createdBy: 'demo-m6', status: 'approved' },
-      { id: 'tx7', type: 'sponsorship', amount: 5000, member: 'demo-m2', memberName: 'Rahul Sharma', category: 'Other', description: 'Jersey sponsor — Local Sports Store', createdAt: mockDate(20), createdBy: 'demo-m2', status: 'approved' },
-      { id: 'tx8', type: 'expense', amount: 350, member: 'demo-user-001', memberName: 'Demo User', category: 'Refreshments', description: 'Post-match snacks', createdAt: mockDate(12), createdBy: 'demo-user-001', status: 'approved' },
-      { id: 'tx9', type: 'contribution', amount: 500, member: 'demo-m7', memberName: 'Ananya Gupta', category: 'Match Fee', description: 'Feb match fee', createdAt: mockDate(18), createdBy: 'demo-m7', status: 'pending' },
-      { id: 'tx10', type: 'contribution', amount: 500, member: 'demo-m8', memberName: 'Karthik Iyer', category: 'Match Fee', description: 'Feb match fee', createdAt: mockDate(22), createdBy: 'demo-m8', status: 'approved' }
+      { id: 'tx1', type: 'contribution', amount: 500, date: mockDateStr(3), category: 'Match Fee', description: 'March match fee', recordedFor: mkRec('demo-m3', 'Priya Patel', 'priya@example.com'), recordedBy: mkRec('demo-m3', 'Priya Patel', 'priya@example.com'), createdAt: mockDate(3), status: 'approved' },
+      { id: 'tx2', type: 'contribution', amount: 500, date: mockDateStr(5), category: 'Match Fee', description: 'March match fee', recordedFor: mkRec('demo-m4', 'Amit Kumar', 'amit@example.com'), recordedBy: mkRec('demo-m4', 'Amit Kumar', 'amit@example.com'), createdAt: mockDate(5), status: 'approved' },
+      { id: 'tx3', type: 'expense', amount: 2000, date: mockDateStr(7), category: 'Ground Rent', description: 'March ground booking', recordedFor: mkRec('demo-user-001', 'Demo User', 'demo@clubmates.app'), recordedBy: mkRec('demo-user-001', 'Demo User', 'demo@clubmates.app'), createdAt: mockDate(7), status: 'approved' },
+      { id: 'tx4', type: 'contribution', amount: 500, date: mockDateStr(8), category: 'Match Fee', description: 'March match fee', recordedFor: mkRec('demo-m5', 'Sneha Reddy', 'sneha@example.com'), recordedBy: mkRec('demo-m5', 'Sneha Reddy', 'sneha@example.com'), createdAt: mockDate(8), status: 'approved' },
+      { id: 'tx5', type: 'expense', amount: 800, date: mockDateStr(10), category: 'Equipment', description: 'New cricket balls (6 pack)', recordedFor: mkRec('demo-m2', 'Rahul Sharma', 'rahul@example.com'), recordedBy: mkRec('demo-m2', 'Rahul Sharma', 'rahul@example.com'), createdAt: mockDate(10), status: 'approved' },
+      { id: 'tx6', type: 'contribution', amount: 500, date: mockDateStr(14), category: 'Match Fee', description: 'Feb match fee', recordedFor: mkRec('demo-m6', 'Vikram Singh', 'vikram@example.com'), recordedBy: mkRec('demo-m6', 'Vikram Singh', 'vikram@example.com'), createdAt: mockDate(14), status: 'approved' },
+      { id: 'tx7', type: 'sponsorship', amount: 5000, date: mockDateStr(20), category: 'Other', description: 'Jersey sponsor — Local Sports Store', recordedFor: mkRec('demo-m2', 'Rahul Sharma', 'rahul@example.com'), recordedBy: mkRec('demo-m2', 'Rahul Sharma', 'rahul@example.com'), createdAt: mockDate(20), status: 'approved' },
+      { id: 'tx8', type: 'expense', amount: 350, date: mockDateStr(12), category: 'Refreshments', description: 'Post-match snacks', recordedFor: mkRec('demo-user-001', 'Demo User', 'demo@clubmates.app'), recordedBy: mkRec('demo-user-001', 'Demo User', 'demo@clubmates.app'), createdAt: mockDate(12), status: 'approved' },
+      { id: 'tx9', type: 'contribution', amount: 500, date: mockDateStr(18), category: 'Match Fee', description: 'Feb match fee', recordedFor: mkRec('demo-m7', 'Ananya Gupta', 'ananya@example.com'), recordedBy: mkRec('demo-m7', 'Ananya Gupta', 'ananya@example.com'), createdAt: mockDate(18), status: 'pending' },
+      { id: 'tx10', type: 'contribution', amount: 500, date: mockDateStr(22), category: 'Match Fee', description: 'Feb match fee', recordedFor: mkRec('demo-m8', 'Karthik Iyer', 'karthik@example.com'), recordedBy: mkRec('demo-m8', 'Karthik Iyer', 'karthik@example.com'), createdAt: mockDate(22), status: 'approved' }
     ];
 
-    // Mock polls
-    var tomorrow = new Date(now.getTime() + 86400000);
+    // Mock polls (matchDate must be string, responses must be {response, name, respondedAt} objects)
+    var tomorrowStr = new Date(now.getTime() + 86400000).toLocaleDateString('en-CA');
     polls = [
       {
         id: 'poll1',
-        matchDate: { toDate: function() { return tomorrow; } },
-        matchTime: '10:00 AM',
-        venue: 'Central Park Ground',
+        question: 'Who is available for Sunday match?',
+        matchDate: tomorrowStr,
+        opponent: 'Warriors CC',
+        location: 'Central Park Ground',
         createdAt: mockDate(1),
-        createdBy: 'demo-user-001',
+        createdBy: { uid: 'demo-user-001', name: 'Demo User' },
+        status: 'open',
         responses: {
-          'demo-user-001': 'playing',
-          'demo-m2': 'playing',
-          'demo-m3': 'playing',
-          'demo-m4': 'not_playing',
-          'demo-m5': 'playing',
-          'demo-m6': 'maybe'
+          'demo-user-001': { response: 'yes', name: 'Demo User', respondedAt: new Date().toISOString() },
+          'demo-m2': { response: 'yes', name: 'Rahul Sharma', respondedAt: new Date().toISOString() },
+          'demo-m3': { response: 'yes', name: 'Priya Patel', respondedAt: new Date().toISOString() },
+          'demo-m4': { response: 'no', name: 'Amit Kumar', respondedAt: new Date().toISOString() },
+          'demo-m5': { response: 'yes', name: 'Sneha Reddy', respondedAt: new Date().toISOString() },
+          'demo-m6': { response: 'maybe', name: 'Vikram Singh', respondedAt: new Date().toISOString() }
         }
       }
     ];
 
-    // Mock umpire assignments
+    // Mock umpire assignments (matchDate must be string, uses assignedBy not method)
     umpireAssignments = [
       {
         id: 'ump1',
-        matchDate: { toDate: function() { return tomorrow; } },
-        matchTime: '10:00 AM',
+        matchTitle: 'Sunday Match vs Warriors CC',
+        matchDate: tomorrowStr,
         venue: 'Central Park Ground',
-        method: 'volunteer',
         assignedTo: null,
-        volunteers: ['demo-m6'],
-        createdAt: mockDate(1),
-        createdBy: 'demo-user-001',
-        status: 'open'
+        assignedBy: 'volunteer',
+        assignedByUser: { uid: 'demo-user-001', name: 'Demo User' },
+        status: 'upcoming',
+        season: tomorrowStr.split('-')[0],
+        rewardPoints: 0,
+        swapRequestedWith: null,
+        createdAt: mockDate(1)
       }
     ];
 
